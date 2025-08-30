@@ -37,7 +37,12 @@
         .container {
             max-width: 1100px;
             margin: 0 auto;
-            padding: 24px
+            padding: 24px;
+            transition: filter .2s ease
+        }
+
+        body.modal-open .container {
+            filter: blur(6px) saturate(.9)
         }
 
         .panel {
@@ -76,17 +81,22 @@
             }
         }
 
+        /* Buttons */
         .btn {
             appearance: none;
             border: 0;
             cursor: pointer;
-            padding: 12px 16px;
+            padding: 0 16px;
             border-radius: 14px;
             background: linear-gradient(180deg, #2a2b33, #1f2027);
             color: #fff;
             font-weight: 700;
             box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 8px 18px rgba(0,0,0,.25);
-            transition: transform .04s ease, filter .2s ease
+            transition: transform .04s ease, filter .2s ease;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
             .btn:hover {
@@ -142,21 +152,15 @@
                 flex-wrap: wrap
             }
 
-        .balance {
-            display: flex;
-            align-items: baseline;
-            gap: 10px
+        .muted {
+            color: var(--muted)
         }
 
-            .balance .main {
-                font-size: 42px;
-                font-weight: 900
-            }
-
-            .balance .label {
-                font-size: 12px;
-                color: var(--muted)
-            }
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+            margin: 14px 0
+        }
 
         .room {
             border-top: 1px solid rgba(255,255,255,.06);
@@ -186,22 +190,6 @@
                 margin-top: 2px
             }
 
-        .muted {
-            color: var(--muted)
-        }
-
-        .divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
-            margin: 14px 0
-        }
-
-        .footer {
-            opacity: .6;
-            font-size: 12px;
-            text-align: center;
-            margin: 16px 0
-        }
         /* alerts */
         #alerts {
             margin-bottom: 12px
@@ -233,6 +221,226 @@
                 .alert .close:hover {
                     opacity: 1
                 }
+
+        /* Wallet at-a-glance + modal */
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px
+        }
+
+        .round-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg,#2d2f38,#1c1d23);
+            border: 1px solid rgba(255,255,255,.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 8px 18px rgba(0,0,0,.35);
+            cursor: pointer;
+            transition: transform .05s ease, filter .2s ease
+        }
+
+            .round-btn:hover {
+                filter: brightness(1.08)
+            }
+
+            .round-btn svg {
+                width: 28px;
+                height: 28px;
+                opacity: .95
+            }
+        /* adjust this to 32px if you like */
+        .bal-peek {
+            font-weight: 800;
+            letter-spacing: .3px
+        }
+
+        /* Overlay modal */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 50
+        }
+
+            .overlay.show {
+                display: flex
+            }
+
+        .modal {
+            width: min(720px,95vw);
+            background: linear-gradient(180deg, #1a1b20, #15161b);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 24px;
+            box-shadow: 0 30px 70px rgba(0,0,0,.55);
+            padding: 20px;
+            position: relative
+        }
+
+            .modal .close-x {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                cursor: pointer;
+                opacity: .8
+            }
+
+                .modal .close-x:hover {
+                    opacity: 1
+                }
+
+            .modal h3 {
+                margin: 0 0 8px
+            }
+
+            .modal .big-bals {
+                display: flex;
+                gap: 16px;
+                align-items: stretch;
+                flex-wrap: wrap
+            }
+
+            .modal .big-card {
+                flex: 1;
+                min-width: 240px;
+                background: #1d1e25;
+                border: 1px solid rgba(255,255,255,.06);
+                border-radius: 16px;
+                padding: 16px
+            }
+
+        .big-num {
+            font-size: 42px;
+            font-weight: 900
+        }
+
+        .modal .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px
+        }
+
+        .round-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: linear-gradient(180deg,#24252d,#1b1c22);
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text);
+            height: 44px;
+        }
+
+            .round-ghost svg {
+                width: 18px;
+                height: 18px
+            }
+
+        .submodal {
+            margin-top: 12px;
+            border-top: 1px dashed rgba(255,255,255,.08);
+            padding-top: 12px;
+            display: none
+        }
+
+            .submodal.show {
+                display: block
+            }
+
+        .field {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+            .field input {
+                background: #101218;
+                border: 1px solid rgba(255,255,255,.08);
+                color: var(--text);
+                padding: 10px 12px;
+                border-radius: 10px;
+                outline: none;
+                min-width: 160px
+            }
+
+            .field button {
+                padding: 10px 12px;
+                border-radius: 10px
+            }
+
+        /* history (inside wallet modal) */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .hx-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: #15161b;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 14px;
+            padding: 10px
+        }
+
+        .hx-amt {
+            font-weight: 900
+        }
+
+        .hx-meta {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        /* NEW: At-a-glance under cards */
+        .glance {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 14px;
+            background: #14151a;
+            border: 1px solid rgba(255,255,255,.06)
+        }
+
+        .glance-title {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px
+        }
+
+        .glance-room {
+            font-size: 12px;
+            margin: 6px 0 2px;
+            color: var(--muted)
+        }
+
+        .glance-list {
+            margin: 0;
+            padding-left: 16px
+        }
+
+            .glance-list li {
+                font-size: 13px;
+                line-height: 1.35;
+                margin: 4px 0
+            }
+
+        .glance-empty {
+            font-size: 13px;
+            color: var(--muted)
+        }
     </style>
 </head>
 <body>
@@ -247,45 +455,45 @@
                 <div class="card" onclick="selectUser('spibbs')">
                     <div class="row"><span class="chip">User</span><span class="muted">spibbs</span></div>
                     <div style="height:8px"></div>
-                    <div class="balance"><span class="main" id="bal-card-spibbs">0.00</span><span class="label">Favors</span></div>
+                    <div class="balance"><span class="big-num" id="bal-card-spibbs">0.00</span><span class="muted">Favors</span></div>
+
+                    <!-- NEW glance -->
+                    <div class="glance">
+                        <div class="glance-title">Today’s tasks</div>
+                        <div id="glance-spibbs"></div>
+                    </div>
                 </div>
+
                 <div class="card" onclick="selectUser('sneefli')">
                     <div class="row"><span class="chip">User</span><span class="muted">sneefli</span></div>
                     <div style="height:8px"></div>
-                    <div class="balance"><span class="main" id="bal-card-sneefli">0.00</span><span class="label">Favors</span></div>
+                    <div class="balance"><span class="big-num" id="bal-card-sneefli">0.00</span><span class="muted">Favors</span></div>
+
+                    <!-- NEW glance -->
+                    <div class="glance">
+                        <div class="glance-title">Today’s tasks</div>
+                        <div id="glance-sneefli"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Dashboard -->
         <div id="view-dashboard" style="display:none">
-            <div class="row" style="margin-bottom:12px">
+            <div class="topbar">
                 <button class="btn" onclick="backToProfiles()">← Switch profile</button>
-            </div>
 
-            <!-- Wallet -->
-            <div class="panel">
-                <div class="row wrap">
-                    <h2 class="title" style="font-size:24px;margin:0">Wallet</h2>
-                    <span class="chip" id="who-chip">User: —</span>
-                </div>
-                <div class="divider"></div>
-                <div class="row wrap">
-                    <div class="balance">
-                        <span class="main" id="my-balance">0.00</span>
-                        <span class="label">Current Balance</span>
-                    </div>
-                    <div class="balance" style="opacity:.8">
-                        <span class="main" id="their-balance" style="font-size:28px">0.00</span>
-                        <span class="label">Other User</span>
-                    </div>
-                </div>
-                <div style="height:10px"></div>
-                <div class="row" style="gap:10px;flex-wrap:wrap">
-                    <button class="btn" onclick="spendFavor(1)">Use 1 Favor</button>
-                    <button class="btn" onclick="spendFavor(2)">Use 2 Favors</button>
-                    <span class="muted" style="font-size:12px">(Balances persist on this device)</span>
-                </div>
+                <!-- Wallet compact control -->
+                <button class="round-btn" id="wallet-btn" title="Open wallet">
+                    <!-- $ icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9" opacity=".18"></circle>
+                        <path d="M8.5 10c0-1.2 1.4-2.2 3.1-2.2 1.7 0 3.1.9 3.1 2 0 1.2-1 1.7-3 2.2s-3 .9-3 2.1c0 1.1 1.4 2 3.1 2s3.1-.9 3.1-2" />
+                        <path d="M12 6.7v10.6" />
+                    </svg>
+                </button>
+                <span class="bal-peek">Balance: <span id="peek-balance">0.00</span></span>
+                <span class="chip" id="who-chip" style="margin-left:auto">User: —</span>
             </div>
 
             <!-- Household Watch -->
@@ -308,80 +516,96 @@
                 <p class="subtitle">Assigned once per week, split evenly and randomly between users. Incomplete at week end grants the other user <b>+0.50</b> Favor.</p>
                 <div id="weekly-tasks"></div>
             </div>
+        </div>
+    </div>
 
-            <div class="footer">Tip: Open each profile in its own tab so alerts appear for the other user too.</div>
+    <!-- Wallet Overlay Modal (includes Transaction History) -->
+    <div class="overlay" id="wallet-overlay" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="wallet-title">
+            <div class="close-x" id="wallet-close" title="Close">✕</div>
+            <h3 class="title" id="wallet-title" style="font-size:22px;margin:0 0 6px">Wallet</h3>
+            <p class="subtitle" style="margin-top:-4px">Quick actions and balances</p>
+
+            <div class="big-bals">
+                <div class="big-card">
+                    <div class="muted">Your balance</div>
+                    <div class="big-num" id="modal-my">0.00</div>
+                </div>
+                <div class="big-card">
+                    <div class="muted" id="modal-their-label">Other user’s balance</div>
+                    <div class="big-num" id="modal-their">0.00</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="round-ghost" id="btn-redeem">
+                    <!-- cash register icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="9" width="18" height="9" rx="2"></rect>
+                        <path d="M7 9V6h10v3"></path>
+                        <path d="M9 6V4h6v2"></path>
+                        <path d="M7.5 12h3M13.5 12h3"></path>
+                    </svg>
+                    Redeem
+                </button>
+
+                <button class="round-ghost" id="btn-grant">
+                    <!-- horizontal arrows icon -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 8h12"></path>
+                        <path d="M14 5l3 3-3 3"></path>
+                        <path d="M20 16H8"></path>
+                        <path d="M10 19l-3-3 3-3"></path>
+                    </svg>
+                    Trade
+                </button>
+            </div>
+
+            <!-- sub prompt -->
+            <div class="submodal" id="subprompt">
+                <div class="field">
+                    <input id="amount-input" type="number" step="0.01" min="0" placeholder="Amount e.g. 1.50" />
+                    <button class="btn" id="amount-ok">OK</button>
+                    <button class="btn" id="amount-cancel">Cancel</button>
+                </div>
+                <div class="muted" id="amount-hint" style="margin-top:6px"></div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="divider" style="margin-top:16px"></div>
+            <h3 class="title" style="font-size:20px;margin:0 0 8px">Transaction History</h3>
+            <div id="history-list" class="history-list"></div>
         </div>
     </div>
 
     <script>
-        (() => {
-            // ------------- Safe Channel (fallback if BroadcastChannel unavailable)
+(() => {
             function makeChannel(name) {
-                try {
-                    if ('BroadcastChannel' in window) {
-                        const ch = new BroadcastChannel(name);
-                        return {
-                            post: (msg) => ch.postMessage(msg),
-                            on: (fn) => { ch.addEventListener('message', (e) => fn(e.data)); }
-                        }
-                    }
-                } catch { }
-                // no-op fallback
-                const listeners = [];
-                return {
-                    post: (_) => { },
-                    on: (fn) => { listeners.push(fn); }
-                }
+                try { if ('BroadcastChannel' in window) { const ch = new BroadcastChannel(name); return { post: (m) => ch.postMessage(m), on: (fn) => ch.addEventListener('message', (e) => fn(e.data)) }; } } catch { }
+                return { post: () => { }, on: () => { } };
             }
             const BUS = makeChannel('household-favors');
 
-            // ------------- Globals & helpers
             const USERS = ['spibbs', 'sneefli'];
             let currentUser = sessionStorage.getItem('hf.currentUser') || null;
-            const fmt = (n) => (Math.round(n * 100) / 100).toFixed(2);
-            const todayKey = () => {
-                const d = new Date();
-                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-            };
-            function weekKey(dt = new Date()) {
-                const d = new Date(dt);
-                const day = (d.getDay() + 6) % 7; // Mon=0..Sun=6
-                d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - day);
-                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-            }
-            const loadJSON = (k, fallback) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? fallback; } catch { return fallback; } };
+            const fmt = (n) => (Math.round((n ?? 0) * 100) / 100).toFixed(2);
+            const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+            function weekKey(dt = new Date()) { const d = new Date(dt); const day = (d.getDay() + 6) % 7; d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - day); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+            const loadJSON = (k, f) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? f; } catch { return f; } };
             const saveJSON = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+            const otherUser = () => currentUser === 'spibbs' ? 'sneefli' : 'spibbs';
 
-            // ------------- Balances
             function loadBalances() { return loadJSON('hf.balances', { spibbs: 0, sneefli: 0 }); }
-            function saveBalances(obj) { saveJSON('hf.balances', obj); BUS.post({ type: 'balances' }); updateCards(); }
-            function updateCards() {
-                const b = loadBalances();
-                const a = document.getElementById('bal-card-spibbs'); if (a) a.textContent = fmt(b.spibbs || 0);
-                const c = document.getElementById('bal-card-sneefli'); if (c) c.textContent = fmt(b.sneefli || 0);
-            }
+            function saveBalances(o) { saveJSON('hf.balances', o); BUS.post({ type: 'balances' }); updateCards(); renderPeek(); renderModalBalances(); }
+            function loadTx() { return loadJSON('hf.tx', []); }
+            function saveTx(list) { saveJSON('hf.tx', list); BUS.post({ type: 'tx' }); renderHistory(); }
+            function logTx(entry) { const list = loadTx(); list.push({ id: Date.now() + Math.random(), time: new Date().toISOString(), ...entry }); saveTx(list); }
 
-            // ------------- Alerts
-            function getAlerts(user) { return loadJSON(`hf.alerts.${user}`, []); }
-            function saveAlerts(user, arr) { saveJSON(`hf.alerts.${user}`, arr); }
-            function pushAlert(to, msg) {
-                const arr = getAlerts(to); const id = Date.now() + Math.random(); arr.push({ id, msg }); saveAlerts(to, arr);
-                if (currentUser === to) renderAlerts();
-                BUS.post({ type: 'alert', to, message: msg });
-            }
-            function renderAlerts() {
-                const box = document.getElementById('alerts'); if (!box || !currentUser) return;
-                box.innerHTML = '';
-                (getAlerts(currentUser) || []).forEach(({ id, msg }) => {
-                    const wrap = document.createElement('div'); wrap.className = 'alert';
-                    const m = document.createElement('div'); m.className = 'msg'; m.textContent = msg;
-                    const x = document.createElement('div'); x.className = 'close'; x.textContent = '✕';
-                    x.onclick = () => { saveAlerts(currentUser, getAlerts(currentUser).filter(it => it.id !== id)); renderAlerts(); };
-                    wrap.appendChild(m); wrap.appendChild(x); box.appendChild(wrap);
-                });
-            }
+            function getAlerts(u) { return loadJSON(`hf.alerts.${u}`, []); }
+            function saveAlerts(u, arr) { saveJSON(`hf.alerts.${u}`, arr); }
+            function pushAlert(to, msg) { const arr = getAlerts(to); const id = Date.now() + Math.random(); arr.push({ id, msg }); saveAlerts(to, arr); if (currentUser === to) renderAlerts(); BUS.post({ type: 'alert', to, message: msg }); }
+            function renderAlerts() { const box = document.getElementById('alerts'); if (!box || !currentUser) return; box.innerHTML = ''; (getAlerts(currentUser) || []).forEach(({ id, msg }) => { const w = document.createElement('div'); w.className = 'alert'; const m = document.createElement('div'); m.className = 'msg'; m.textContent = msg; const x = document.createElement('div'); x.className = 'close'; x.textContent = '✕'; x.onclick = () => { saveAlerts(currentUser, getAlerts(currentUser).filter(it => it.id !== id)); renderAlerts(); }; w.appendChild(m); w.appendChild(x); box.appendChild(w); }); }
 
-            // ------------- Household Watch
             const HOUSEHOLD_WATCH = [
                 'All beauty/hair product returned to sink cabinets. No empty product or trash in cabinets.',
                 'Hair dryer and shaving materials returned to drawer and unplugged',
@@ -396,28 +620,26 @@
                 HOUSEHOLD_WATCH.forEach((label, idx) => {
                     const row = document.createElement('label'); row.className = 'task';
                     const cb = document.createElement('input'); cb.type = 'checkbox';
-                    const claims = getClaims();
-                    cb.checked = !!claims[currentUser]?.[idx]; cb.disabled = !!claims[currentUser]?.[idx];
+                    const claims = getClaims(); cb.checked = !!claims[currentUser]?.[idx]; cb.disabled = !!claims[currentUser]?.[idx];
                     cb.onchange = () => {
                         if (!cb.checked) return;
                         const c = getClaims(); c[currentUser] = c[currentUser] || {}; if (c[currentUser][idx]) return; c[currentUser][idx] = true; setClaims(c);
-                        const b = loadBalances(); b[currentUser] = (b[currentUser] || 0) + 0.25; saveBalances(b); renderWallet();
+                        const b = loadBalances(); b[currentUser] = (b[currentUser] || 0) + 0.25; saveBalances(b);
+                        logTx({ type: 'watch_claim', amount: 0.25, actor: currentUser, reason: `Household Watch: "${label}"` });
                         pushAlert(otherUser(), `${currentUser} claimed Household Watch: "${label}" (+0.25 Favor).`);
-                        cb.disabled = true;
+                        renderWallet(); cb.disabled = true;
                     };
                     row.appendChild(cb); row.append(label); root.appendChild(row);
                 });
             }
 
-            // ------------- Daily tasks (assign per-day, even split)
             const ROOMS = {
                 'Kitchen': ['Do the dishes', 'Clean the litter box', 'Take out the trash', 'Clean the stovetop'],
                 'Living Room': ['Clear all surfaces of trash, food, and clutter', 'Neatly place pillows on couch and put blankets away', 'Clean desk areas of trash and clutter'],
                 'Bedroom': ['Trash cleared from surfaces and clutter on nightstands cleared.'],
                 'Bathroom': ['Toilet paper tower refilled', 'Bathroom trash taken out']
             };
-            const dailyAssignKey = 'hf.dailyAssign';
-            const dailyDoneKey = 'hf.dailyDone';
+            const dailyAssignKey = 'hf.dailyAssign'; const dailyDoneKey = 'hf.dailyDone';
             function getDailyAssignments() { return loadJSON(dailyAssignKey, {}); }
             function saveDailyAssignments(x) { saveJSON(dailyAssignKey, x); BUS.post({ type: 'daily-assign' }); }
             function getDailyCompletions() { return loadJSON(dailyDoneKey, {}); }
@@ -451,130 +673,177 @@
                     root.appendChild(r);
                 }
             }
-            // Daily penalties at midnight local (+ ~10s)
+
+            // NEW: render today's tasks under each profile card
+            function renderSelectorGlance() {
+                ensureDailyAssignments();
+                const dk = todayKey();
+                const assigns = getDailyAssignments()[dk] || {};
+                function buildListFor(user) {
+                    const perRoom = {};
+                    for (const [room, tasks] of Object.entries(ROOMS)) {
+                        const list = tasks.filter(t => assigns[`${room}::${t}`] === user);
+                        if (list.length) perRoom[room] = list;
+                    }
+                    return perRoom;
+                }
+                function fill(containerId, perRoom) {
+                    const host = document.getElementById(containerId);
+                    if (!host) return;
+                    host.innerHTML = '';
+                    const rooms = Object.keys(perRoom);
+                    if (rooms.length === 0) {
+                        const empty = document.createElement('div'); empty.className = 'glance-empty'; empty.textContent = 'Nothing to do here :)';
+                        host.appendChild(empty); return;
+                    }
+                    rooms.forEach(room => {
+                        const title = document.createElement('div'); title.className = 'glance-room'; title.textContent = room;
+                        const ul = document.createElement('ul'); ul.className = 'glance-list';
+                        perRoom[room].forEach(t => { const li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
+                        host.appendChild(title); host.appendChild(ul);
+                    });
+                }
+                fill('glance-spibbs', buildListFor('spibbs'));
+                fill('glance-sneefli', buildListFor('sneefli'));
+            }
+
+            // Daily penalties at midnight (+~10s) with history entries
             function processYesterdayDailyPenalties() {
-                const last = localStorage.getItem('hf.daily.lastProcessed'); const today = todayKey();
-                if (last === today) return;
-                const y = new Date(); y.setHours(0, 0, 0, 0); y.setDate(y.getDate() - 1);
-                const yKey = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
-                const assigns = getDailyAssignments()[yKey];
-                if (!assigns) { localStorage.setItem('hf.daily.lastProcessed', today); return; }
-                const comps = getDailyCompletions()[yKey] || { spibbs: {}, sneefli: {} };
-                const balances = loadBalances();
+                const last = localStorage.getItem('hf.daily.lastProcessed'); const today = todayKey(); if (last === today) return;
+                const y = new Date(); y.setHours(0, 0, 0, 0); y.setDate(y.getDate() - 1); const yKey = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
+                const assigns = getDailyAssignments()[yKey]; if (!assigns) { localStorage.setItem('hf.daily.lastProcessed', today); return; }
+                const comps = getDailyCompletions()[yKey] || { spibbs: {}, sneefli: {} }; const balances = loadBalances();
                 for (const [taskKey, who] of Object.entries(assigns)) {
                     const completed = !!(comps[who] && comps[who][taskKey]);
-                    if (!completed) { const other = who === 'spibbs' ? 'sneefli' : 'spibbs'; balances[other] = (balances[other] || 0) + 0.5; }
+                    if (!completed) {
+                        const [room, task] = taskKey.split('::');
+                        const other = who === 'spibbs' ? 'sneefli' : 'spibbs';
+                        balances[other] = (balances[other] || 0) + 0.5;
+                        logTx({ type: 'daily_penalty', amount: 0.5, actor: other, reason: `Daily task missed by ${who}: ${task} (${room}) on ${yKey}` });
+                    }
                 }
-                saveBalances(balances);
-                localStorage.setItem('hf.daily.lastProcessed', today);
+                saveBalances(balances); localStorage.setItem('hf.daily.lastProcessed', today);
             }
             function msUntilMidnight() { const now = new Date(); const d = new Date(now); d.setHours(24, 0, 10, 0); return Math.max(2000, d - now); }
-            function scheduleDailyCheck() { setTimeout(() => { processYesterdayDailyPenalties(); scheduleDailyCheck(); }, msUntilMidnight()); }
+            function scheduleDailyCheck() { setTimeout(() => { processYesterdayDailyPenalties(); renderSelectorGlance(); scheduleDailyCheck(); }, msUntilMidnight()); }
 
-            // ------------- Weekly tasks (assign once per week, even split)
             const WEEKLY = {
                 'Kitchen': ['Wipe down surfaces and mop/sweep floors'],
                 'Living Room': ['Vacuum', 'Wipe down surfaces'],
                 'Bedroom': ['Vacuum', 'Wipe down surfaces'],
                 'Bathroom': ['Sweep/mop floors', 'Clean sink and mirror', 'Clean toilet']
             };
-            const weekAssignKey = 'hf.week.assignments';
-            const weekDoneKey = 'hf.week.completions';
+            const weekAssignKey = 'hf.week.assignments'; const weekDoneKey = 'hf.week.completions';
             function getWeekAssignments() { return loadJSON(weekAssignKey, {}); }
             function setWeekAssignments(x) { saveJSON(weekAssignKey, x); BUS.post({ type: 'week-assign' }); }
             function getWeekCompletions() { return loadJSON(weekDoneKey, {}); }
             function setWeekCompletions(x) { saveJSON(weekDoneKey, x); BUS.post({ type: 'week-done' }); }
-
-            // Rebuild if keys mismatch (migration-safe)
-            function ensureWeeklyAssignments() {
-                const wk = weekKey();
-                const all = getWeekAssignments();
-                const expected = [];
-                for (const [room, tasks] of Object.entries(WEEKLY)) {
-                    for (const name of tasks) { expected.push(`${room}::${name}`); }
-                }
-                let need = !all[wk];
-                if (!need) {
-                    const current = all[wk];
-                    const matches = expected.filter(k => Object.prototype.hasOwnProperty.call(current, k)).length;
-                    if (matches < expected.length) need = true;
-                }
-                if (!need) return;
-
-                const flat = expected.slice().sort(() => Math.random() - 0.5);
-                const counts = { spibbs: 0, sneefli: 0 };
-                const assign = {};
-                for (const id of flat) {
-                    const chosen = counts.spibbs <= counts.sneefli ? 'spibbs' : 'sneefli';
-                    assign[id] = chosen; counts[chosen]++;
-                }
-                all[wk] = assign; setWeekAssignments(all);
-            }
-            function renderWeekly() {
-                ensureWeeklyAssignments();
-                const wk = weekKey(); const assigns = getWeekAssignments()[wk] || {}; const comps = (getWeekCompletions()[wk]?.[currentUser]) || {};
-                const root = document.getElementById('weekly-tasks'); root.innerHTML = '';
-                for (const [room, tasks] of Object.entries(WEEKLY)) {
-                    const r = document.createElement('div'); r.className = 'room'; r.innerHTML = `<h3>${room}</h3>`;
-                    const assigned = tasks.filter(name => assigns[`${room}::${name}`] === currentUser);
-                    if (assigned.length === 0) {
-                        const p = document.createElement('div'); p.className = 'muted'; p.textContent = 'Nothing to do here :)'; r.appendChild(p);
-                    } else {
-                        for (const name of assigned) {
-                            const id = `${room}::${name}`;
-                            const row = document.createElement('label'); row.className = 'task';
-                            const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!comps[id];
-                            cb.onchange = () => { const all = getWeekCompletions(); all[wk] = all[wk] || { spibbs: {}, sneefli: {} }; all[wk][currentUser][id] = cb.checked; setWeekCompletions(all); };
-                            row.appendChild(cb); row.append(name); r.appendChild(row);
-                        }
-                    }
-                    root.appendChild(r);
-                }
-            }
-            // End-of-week penalties when a new week begins
-            function processLastWeekPenalties() {
-                const currentWk = weekKey();
-                const lastProcessed = localStorage.getItem('hf.week.lastProcessed');
-                if (lastProcessed === currentWk) return;
-                const start = new Date(currentWk + "T00:00:00"); const prevStart = new Date(start.getTime() - 7 * 24 * 60 * 60 * 1000);
-                const prevKey = `${prevStart.getFullYear()}-${String(prevStart.getMonth() + 1).padStart(2, '0')}-${String(prevStart.getDate()).padStart(2, '0')}`;
-                const assigns = getWeekAssignments()[prevKey];
-                if (!assigns) { localStorage.setItem('hf.week.lastProcessed', currentWk); return; }
-                const compsAll = getWeekCompletions()[prevKey] || { spibbs: {}, sneefli: {} };
-                const balances = loadBalances();
-                for (const [id, who] of Object.entries(assigns)) {
-                    const done = !!(compsAll[who] && compsAll[who][id]);
-                    if (!done) { const other = who === 'spibbs' ? 'sneefli' : 'spibbs'; balances[other] = (balances[other] || 0) + 0.5; }
-                }
-                saveBalances(balances);
-                localStorage.setItem('hf.week.lastProcessed', currentWk);
-            }
-            function msUntilNextWeek() {
-                const now = new Date(); const d = new Date(now);
-                const day = (d.getDay() + 6) % 7; d.setHours(24, 0, 10, 0); d.setDate(d.getDate() - day + 7);
-                return Math.max(2000, d - now);
-            }
+            function ensureWeeklyAssignments() { const wk = weekKey(); const all = getWeekAssignments(); const expected = []; for (const [room, tasks] of Object.entries(WEEKLY)) { for (const name of tasks) expected.push(`${room}::${name}`); } let need = !all[wk]; if (!need) { const current = all[wk]; const matches = expected.filter(k => Object.prototype.hasOwnProperty.call(current, k)).length; if (matches < expected.length) need = true; } if (!need) return; const flat = expected.slice().sort(() => Math.random() - 0.5); const counts = { spibbs: 0, sneefli: 0 }; const assign = {}; for (const id of flat) { const chosen = counts.spibbs <= counts.sneefli ? 'spibbs' : 'sneefli'; assign[id] = chosen; counts[chosen]++; } all[wk] = assign; setWeekAssignments(all); }
+            function renderWeekly() { ensureWeeklyAssignments(); const wk = weekKey(); const assigns = getWeekAssignments()[wk] || {}; const comps = (getWeekCompletions()[wk]?.[currentUser]) || {}; const root = document.getElementById('weekly-tasks'); root.innerHTML = ''; for (const [room, tasks] of Object.entries(WEEKLY)) { const r = document.createElement('div'); r.className = 'room'; r.innerHTML = `<h3>${room}</h3>`; const assigned = tasks.filter(name => assigns[`${room}::${name}`] === currentUser); if (assigned.length === 0) { const p = document.createElement('div'); p.className = 'muted'; p.textContent = 'Nothing to do here :)'; r.appendChild(p); } else { for (const name of assigned) { const id = `${room}::${name}`; const row = document.createElement('label'); row.className = 'task'; const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!comps[id]; cb.onchange = () => { const all = getWeekCompletions(); all[wk] = all[wk] || { spibbs: {}, sneefli: {} }; all[wk][currentUser][id] = cb.checked; setWeekCompletions(all); }; row.appendChild(cb); row.append(name); r.appendChild(row); } } root.appendChild(r); } }
+            function processLastWeekPenalties() { const currentWk = weekKey(); const lastProcessed = localStorage.getItem('hf.week.lastProcessed'); if (lastProcessed === currentWk) return; const start = new Date(currentWk + "T00:00:00"); const prevStart = new Date(start.getTime() - 7 * 24 * 60 * 60 * 1000); const prevKey = `${prevStart.getFullYear()}-${String(prevStart.getMonth() + 1).padStart(2, '0')}-${String(prevStart.getDate()).padStart(2, '0')}`; const assigns = getWeekAssignments()[prevKey]; if (!assigns) { localStorage.setItem('hf.week.lastProcessed', currentWk); return; } const compsAll = getWeekCompletions()[prevKey] || { spibbs: {}, sneefli: {} }; const balances = loadBalances(); for (const [id, who] of Object.entries(assigns)) { const done = !!(compsAll[who] && compsAll[who][id]); if (!done) { const [room, task] = id.split('::'); const other = who === 'spibbs' ? 'sneefli' : 'spibbs'; balances[other] = (balances[other] || 0) + 0.5; logTx({ type: 'weekly_penalty', amount: 0.5, actor: other, reason: `Weekly task missed by ${who}: ${task} (${room}) for week starting ${prevKey}` }); } } saveBalances(balances); localStorage.setItem('hf.week.lastProcessed', currentWk); }
+            function msUntilNextWeek() { const now = new Date(); const d = new Date(now); const day = (d.getDay() + 6) % 7; d.setHours(24, 0, 10, 0); d.setDate(d.getDate() - day + 7); return Math.max(2000, d - now); }
             function scheduleWeeklyCheck() { setTimeout(() => { processLastWeekPenalties(); ensureWeeklyAssignments(); scheduleWeeklyCheck(); }, msUntilNextWeek()); }
 
-            // ------------- Dashboard wiring & exports
-            function otherUser() { return currentUser === 'spibbs' ? 'sneefli' : 'spibbs'; }
+            function renderPeek() { const b = loadBalances(); const peek = document.getElementById('peek-balance'); if (peek && currentUser) peek.textContent = fmt(b[currentUser] || 0); }
             function renderWallet() {
                 const b = loadBalances();
-                const me = document.getElementById('my-balance');
-                const th = document.getElementById('their-balance');
+                const me = document.getElementById('my-balance'); const th = document.getElementById('their-balance');
                 if (me) me.textContent = fmt(b[currentUser] || 0);
                 if (th) th.textContent = fmt(b[otherUser()] || 0);
-            }
-            function renderAll() {
-                const chip = document.getElementById('who-chip');
-                if (chip) chip.textContent = `User: ${currentUser}`;
-                renderWallet(); renderAlerts(); renderWatch(); renderDaily(); renderWeekly();
+                renderPeek(); renderModalBalances();
             }
 
-            // Exported so onclick in HTML can find them even if bundlers change scope
+            /* Wallet Modal */
+            const overlay = document.getElementById('wallet-overlay');
+            const btnWallet = document.getElementById('wallet-btn');
+            const btnClose = document.getElementById('wallet-close');
+            const sub = document.getElementById('subprompt');
+            const input = document.getElementById('amount-input');
+            const btnOK = document.getElementById('amount-ok');
+            const btnCancel = document.getElementById('amount-cancel');
+            const btnRedeem = document.getElementById('btn-redeem');
+            const btnGrant = document.getElementById('btn-grant');
+            let currentAction = null;
+
+            function openWallet() { overlay.classList.add('show'); document.body.classList.add('modal-open'); renderModalBalances(); hideSub(); renderHistory(); }
+            function closeWallet() { overlay.classList.remove('show'); document.body.classList.remove('modal-open'); hideSub(); currentAction = null; input.value = ''; }
+            function hideSub() { sub.classList.remove('show'); document.getElementById('amount-hint').textContent = ''; }
+            function showSub(hint) { sub.classList.add('show'); document.getElementById('amount-hint').textContent = hint || ''; input.value = ''; input.focus(); }
+
+            function renderModalBalances() {
+                if (!currentUser) return;
+                const b = loadBalances();
+                const me = document.getElementById('modal-my');
+                const th = document.getElementById('modal-their');
+                const lab = document.getElementById('modal-their-label');
+                if (me) me.textContent = fmt(b[currentUser] || 0);
+                if (th) th.textContent = fmt(b[otherUser()] || 0);
+                if (lab) { const other = otherUser(); lab.textContent = `${other}’s balance`; }
+            }
+
+            btnWallet.addEventListener('click', openWallet);
+            btnClose.addEventListener('click', closeWallet);
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) closeWallet(); });
+
+            btnRedeem.addEventListener('click', () => { currentAction = 'redeem'; showSub('Enter how much Favor you want to redeem.'); });
+            btnGrant.addEventListener('click', () => { currentAction = 'grant'; showSub(`Enter how much Favor to add to ${otherUser()}. (Does not reduce your balance)`); });
+            btnCancel.addEventListener('click', hideSub);
+            btnOK.addEventListener('click', () => {
+                const amt = Math.max(0, parseFloat(input.value || '0'));
+                if (!amt) { hideSub(); return; }
+                const b = loadBalances();
+                if (currentAction === 'redeem') {
+                    if ((b[currentUser] || 0) < amt) { alert('Not enough Favor.'); return; }
+                    b[currentUser] -= amt; saveBalances(b);
+                    logTx({ type: 'redeem', amount: amt, actor: currentUser, reason: `Redeemed ${fmt(amt)} Favor` });
+                    renderWallet(); hideSub();
+                } else if (currentAction === 'grant') {
+                    const target = otherUser();
+                    b[target] = (b[target] || 0) + amt; saveBalances(b);
+                    logTx({ type: 'grant', amount: amt, actor: currentUser, target, reason: `Granted ${fmt(amt)} Favor to ${target}` });
+                    renderWallet(); hideSub();
+                }
+            });
+
+            function renderHistory() {
+                const root = document.getElementById('history-list');
+                if (!root) { return; }
+                const list = loadTx().slice().sort((a, b) => b.time.localeCompare(a.time));
+                root.innerHTML = '';
+                if (list.length === 0) { const p = document.createElement('div'); p.className = 'muted'; p.textContent = 'No transaction history.'; root.appendChild(p); return; }
+                list.forEach(tx => {
+                    const wrap = document.createElement('div'); wrap.className = 'hx-item';
+                    const amt = document.createElement('div'); amt.className = 'hx-amt';
+                    const sign = (tx.type === 'redeem') ? '-' : '+';
+                    amt.textContent = `${sign}${fmt(tx.amount)}`;
+                    const main = document.createElement('div'); main.style.flex = '1';
+                    const who = tx.actor ? tx.actor : '';
+                    const meta = document.createElement('div'); meta.className = 'hx-meta'; meta.textContent = new Date(tx.time).toLocaleString();
+                    const desc = document.createElement('div');
+                    if (tx.type === 'watch_claim') { desc.textContent = `${who} gained Favor — ${tx.reason}`; }
+                    else if (tx.type === 'daily_penalty' || tx.type === 'weekly_penalty') { desc.textContent = `${who} gained Favor — ${tx.reason}`; }
+                    else if (tx.type === 'grant') { desc.textContent = `${who} granted ${fmt(tx.amount)} to ${tx.target}`; }
+                    else if (tx.type === 'redeem') { desc.textContent = `${who} redeemed ${fmt(tx.amount)}`; }
+                    else { desc.textContent = tx.reason || 'Transaction'; }
+                    main.appendChild(desc); main.appendChild(meta);
+                    wrap.appendChild(amt); wrap.appendChild(main);
+                    root.appendChild(wrap);
+                });
+            }
+
+            function updateCards() {
+                const b = loadBalances();
+                const a = document.getElementById('bal-card-spibbs'); if (a) a.textContent = fmt(b.spibbs || 0);
+                const c = document.getElementById('bal-card-sneefli'); if (c) c.textContent = fmt(b.sneefli || 0);
+            }
+
+            function renderAll() {
+                document.getElementById('who-chip').textContent = `User: ${currentUser}`;
+                renderAlerts(); renderWatch(); renderDaily(); renderWeekly(); renderPeek(); renderModalBalances();
+            }
+
             window.selectUser = function (u) {
-                currentUser = u;
-                sessionStorage.setItem('hf.currentUser', u);
+                currentUser = u; sessionStorage.setItem('hf.currentUser', u);
                 document.getElementById('view-selector').style.display = 'none';
                 document.getElementById('view-dashboard').style.display = 'block';
                 renderAll();
@@ -585,32 +854,27 @@
                 document.getElementById('view-dashboard').style.display = 'none';
                 updateCards();
             };
-            window.spendFavor = function (amount) {
-                const b = loadBalances();
-                if ((b[currentUser] || 0) < amount) { alert('Not enough Favor.'); return; }
-                b[currentUser] -= amount; saveBalances(b); renderWallet();
-            };
 
-            // ------------- Cross-tab updates
             BUS.on((data) => {
                 if (!data) return;
-                if (data.type === 'balances') { if (currentUser) renderWallet(); updateCards(); }
-                if (data.type === 'daily-assign' || data.type === 'daily-done') { if (currentUser) renderDaily(); }
+                if (data.type === 'balances') { if (currentUser) { renderPeek(); renderModalBalances(); } updateCards(); }
+                if (data.type === 'daily-assign' || data.type === 'daily-done') { if (currentUser) renderDaily(); renderSelectorGlance(); }
                 if (data.type === 'week-assign' || data.type === 'week-done') { if (currentUser) renderWeekly(); }
                 if (data.type === 'alert' && currentUser === data.to) { pushAlert(data.to, data.message); }
+                if (data.type === 'tx') { if (currentUser) renderHistory(); }
             });
 
-            // ------------- Init
             updateCards();
             ensureWeeklyAssignments(); processLastWeekPenalties(); scheduleWeeklyCheck();
             ensureDailyAssignments(); processYesterdayDailyPenalties(); scheduleDailyCheck();
+            renderSelectorGlance(); // initial fill for at-a-glance
 
             if (currentUser) {
                 document.getElementById('view-selector').style.display = 'none';
                 document.getElementById('view-dashboard').style.display = 'block';
                 renderAll();
             }
-        })();
+})();
     </script>
 </body>
 </html>
