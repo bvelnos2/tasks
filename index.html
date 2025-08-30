@@ -253,7 +253,7 @@
                 height: 28px;
                 opacity: .95
             }
-        /* adjust this to 32px if you like */
+
         .bal-peek {
             font-weight: 800;
             letter-spacing: .3px
@@ -282,7 +282,12 @@
             border-radius: 24px;
             box-shadow: 0 30px 70px rgba(0,0,0,.55);
             padding: 20px;
-            position: relative
+            position: relative;
+            /* NEW: prevent pushing content off-screen */
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
             .modal .close-x {
@@ -405,6 +410,22 @@
             color: var(--muted)
         }
 
+        /* NEW: history scroll container with hidden scrollbar */
+        .wallet-history {
+            margin-top: 8px;
+            max-height: 42vh; /* adjust if you want more/less history visible */
+            overflow: auto;
+            -ms-overflow-style: none; /* IE/Edge */
+            scrollbar-width: none; /* Firefox */
+            flex: 1 1 auto; /* use leftover space without growing modal */
+        }
+
+            .wallet-history::-webkit-scrollbar {
+                width: 0;
+                height: 0
+            }
+        /* Chrome/Safari */
+
         /* NEW: At-a-glance under cards */
         .glance {
             margin-top: 14px;
@@ -457,7 +478,7 @@
                     <div style="height:8px"></div>
                     <div class="balance"><span class="big-num" id="bal-card-spibbs">0.00</span><span class="muted">Favors</span></div>
 
-                    <!-- NEW glance -->
+                    <!-- glance -->
                     <div class="glance">
                         <div class="glance-title">Today’s tasks</div>
                         <div id="glance-spibbs"></div>
@@ -469,7 +490,7 @@
                     <div style="height:8px"></div>
                     <div class="balance"><span class="big-num" id="bal-card-sneefli">0.00</span><span class="muted">Favors</span></div>
 
-                    <!-- NEW glance -->
+                    <!-- glance -->
                     <div class="glance">
                         <div class="glance-title">Today’s tasks</div>
                         <div id="glance-sneefli"></div>
@@ -574,7 +595,9 @@
             <!-- Transaction History -->
             <div class="divider" style="margin-top:16px"></div>
             <h3 class="title" style="font-size:20px;margin:0 0 8px">Transaction History</h3>
-            <div id="history-list" class="history-list"></div>
+            <div class="wallet-history">
+                <div id="history-list" class="history-list"></div>
+            </div>
         </div>
     </div>
 
@@ -674,7 +697,7 @@
                 }
             }
 
-            // NEW: render today's tasks under each profile card
+            // render today's tasks under each profile card
             function renderSelectorGlance() {
                 ensureDailyAssignments();
                 const dk = todayKey();
