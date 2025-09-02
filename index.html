@@ -789,7 +789,7 @@
 
         .tasks-head, .task-row {
             display: grid;
-            grid-template-columns: minmax(420px,2fr) minmax(140px,.9fr) minmax(140px,.9fr) minmax(170px,.9fr) 42px;
+            grid-template-columns: minmax(300px,1fr) 140px 140px 130px 42px;
             gap: 12px;
             align-items: center;
         }
@@ -814,6 +814,19 @@
 
         #settings-overlay .round-ghost {
             height: 36px
+        }
+
+        #settings-overlay .task-row input,
+        #settings-overlay .task-row select {
+            min-width: 0
+        }
+
+        #settings-overlay .task-row select {
+            max-width: 130px
+        }
+
+        #settings-overlay .editor-card {
+            overflow: hidden
         }
 
         @media (max-width:980px) {
@@ -1288,7 +1301,7 @@
     </div>
 
     <script>
-        /* BEGIN: full logic (kept identical to your working build) */
+        /* BEGIN: full logic */
         (() => {
             /* ===== Core helpers & state ===== */
             const USERS = ['spibbs', 'sneefli'];
@@ -1512,10 +1525,89 @@
             function buildWatchEditor(data) { const host = document.getElementById('watch-editor'); host.innerHTML = ''; (data || []).forEach(r => host.appendChild(watchRow(r))) }
             function watchRow(d) { const r = document.createElement('div'); r.className = 'watch-row'; r.innerHTML = `<input type="checkbox" ${d.enabled === false ? '' : 'checked'} style="width:auto;transform:translateY(2px)"><input type="text" value="${(d.text || '').replace(/"/g, '&quot;')}" placeholder="Rule"><input type="number" step="0.01" min="0" value="${Number(d.value ?? .25).toFixed(2)}" style="max-width:160px"><button class="round-ghost" style="height:32px" onclick="this.parentElement.remove()">✕</button>`; return r }
             document.getElementById('add-room').onclick = () => { const t = getTasks(); const name = prompt('Room name'); if (!name || t[name]) return; t[name] = []; setTasks(t); buildTaskEditor() };
-            document.getElementById('save-tasks').onclick = () => { const t = {}; document.querySelectorAll('.task-row').forEach(r => { const card = r.closest('.editor-card'); const room = card.dataset.room; (t[room] = t[room] || []).push({ text: r.querySelector('input[type=text]').value.trim(), pos: +r.children[1].value || 0, neg: +r.children[2].value || 0, freq: r.children[3].value }) }); setTasks(t); ensureDaily(); ensureWeekly(); renderDaily(); renderWeekly(); pushAlert(currentUser, 'Tasks saved & assignments regenerated.') };
+
+            /* ---- Helper to collect current IDs by frequency (room::task) ---- */
+            function idsByFreq(tasks, freq) {
+                const set = new Set();
+                for (const [room, arr] of Object.entries(tasks)) {
+                    arr.forEach(t => { if (t.freq === freq) set.add(`${room}::${t.text}`) })
+                }
+                return set;
+            }
+
+            /* ---- Save & Apply (partial regeneration only) ---- */
+            document.getElementById('save-tasks').onclick = () => {
+                const prev = getTasks();                   // before saving
+                // Collect UI -> object
+                const next = {};
+                document.querySelectorAll('.task-row').forEach(row => {
+                    const card = row.closest('.editor-card');
+                    const room = card.dataset.room;
+                    const text = row.querySelector('input[type="text"]').value.trim();
+                    const pos = +row.children[1].value || 0;
+                    const neg = +row.children[2].value || 0;
+                    const freq = row.children[3].value;
+                    (next[room] = next[room] || []).push({ text, pos, neg, freq });
+                });
+                setTasks(next); // persist new tasks
+
+                // === DAILY (today) ===
+                ensureDaily();
+                const dk = todayKey();
+                const dailyPrev = idsByFreq(prev, 'daily');
+                const dailyNext = idsByFreq(next, 'daily');
+
+                const delDaily = [...dailyPrev].filter(id => !dailyNext.has(id));
+                const addDaily = [...dailyNext].filter(id => !dailyPrev.has(id));
+
+                const dAll = dAssign();
+                const dMap = dAll[dk] || {};
+                // remove deleted/changed-from-daily
+                delDaily.forEach(id => { delete dMap[id]; });
+
+                // count existing per-user
+                const cnt = { spibbs: 0, sneefli: 0 };
+                Object.keys(dMap).forEach(id => { const u = dMap[id]; if (u) cnt[u]++; });
+
+                // add new daily tasks, balanced
+                addDaily.sort(() => Math.random() - .5).forEach(id => {
+                    const u = cnt.spibbs <= cnt.sneefli ? 'spibbs' : 'sneefli';
+                    dMap[id] = u; cnt[u]++;
+                });
+
+                dAll[dk] = dMap; dSave(dAll);
+
+                // === WEEKLY (this week) ===
+                ensureWeekly();
+                const wk = weekKey();
+                const weeklyPrev = idsByFreq(prev, 'weekly');
+                const weeklyNext = idsByFreq(next, 'weekly');
+
+                const delWeekly = [...weeklyPrev].filter(id => !weeklyNext.has(id));
+                const addWeekly = [...weeklyNext].filter(id => !weeklyPrev.has(id));
+
+                const wAll = wAssign();
+                const wMap = wAll[wk] || {};
+                delWeekly.forEach(id => { delete wMap[id]; });
+
+                const wCnt = { spibbs: 0, sneefli: 0 };
+                Object.values(wMap).forEach(u => { if (u) wCnt[u]++; });
+
+                addWeekly.sort(() => Math.random() - .5).forEach(id => {
+                    const u = wCnt.spibbs <= wCnt.sneefli ? 'spibbs' : 'sneefli';
+                    wMap[id] = u; wCnt[u]++;
+                });
+
+                wAll[wk] = wMap; wSave(wAll);
+
+                // Re-render
+                renderDaily(); renderWeekly(); renderGlance();
+                pushAlert(currentUser, 'Tasks saved. Only affected assignments were updated.');
+            };
+
             document.getElementById('export-btn').onclick = () => { const data = JSON.stringify(getTasks(), null, 2); const blob = new Blob([data], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'tasks.json'; a.click() };
             document.getElementById('import-btn').onclick = () => { const f = document.getElementById('import-file').files?.[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { setTasks(JSON.parse(r.result)); buildTaskEditor(); pushAlert(currentUser, 'Imported tasks.') } catch { pushAlert(currentUser, 'Invalid JSON') } }; r.readAsText(f) };
-            function buildTaskEditor() { const host = document.getElementById('task-editor'); host.innerHTML = ''; const t = getTasks(); Object.entries(t).forEach(([room, arr]) => { const card = document.createElement('div'); card.className = 'panel editor-card'; card.dataset.room = room; card.innerHTML = `<div class="hdr"><div style="font-weight:800">${room}</div><button class="round-ghost" style="height:32px" onclick="this.closest('.editor-card').remove()">✕ Room</button></div>`; const table = document.createElement('div'); table.className = 'tasks-table'; table.innerHTML = `<div class="tasks-head"><div>Task</div><div class="up">Positive (+)</div><div class="down">Negative (–)</div><div>Frequency</div><div></div></div>`; arr.forEach(x => table.appendChild(taskRow(x))); card.appendChild(table); const add = document.createElement('button'); add.className = 'round-ghost'; add.style.height = '34px'; add.textContent = '+ Task'; add.onclick = () => table.appendChild(taskRow({ text: '', pos: .25, neg: .5, freq: 'daily' })); card.appendChild(add); host.appendChild(card) }); }
+            function buildTaskEditor() { const host = document.getElementById('task-editor'); host.innerHTML = ''; const t = getTasks(); Object.entries(t).forEach(([room, arr]) => { const card = document.createElement('div'); card.className = 'panel editor-card'; card.dataset.room = room; card.innerHTML = `<div class="hdr" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-weight:800">${room}</div><button class="round-ghost" style="height:32px" onclick="this.closest('.editor-card').remove()">✕ Room</button></div>`; const table = document.createElement('div'); table.className = 'tasks-table'; table.innerHTML = `<div class="tasks-head"><div>Task</div><div class="up">Positive (+)</div><div class="down">Negative (–)</div><div>Frequency</div><div></div></div>`; arr.forEach(x => table.appendChild(taskRow(x))); card.appendChild(table); const add = document.createElement('button'); add.className = 'round-ghost'; add.style.height = '34px'; add.textContent = '+ Task'; add.onclick = () => table.appendChild(taskRow({ text: '', pos: .25, neg: .5, freq: 'daily' })); card.appendChild(add); host.appendChild(card) }); }
             function taskRow(d) { const r = document.createElement('div'); r.className = 'task-row'; r.innerHTML = `<input type="text" value="${(d.text || '').replace(/"/g, '&quot;')}" placeholder="Task description"><input type="number" step="0.01" min="0" value="${Number(d.pos ?? .25).toFixed(2)}" title="Positive weight (+)"><input type="number" step="0.01" min="0" value="${Number(d.neg ?? .5).toFixed(2)}" title="Negative weight (–)"><select><option ${d.freq === 'daily' ? 'selected' : ''} value="daily">daily</option><option ${d.freq === 'weekly' ? 'selected' : ''} value="weekly">weekly</option></select><button class="round-ghost" style="height:32px" onclick="this.parentElement.remove()">✕</button>`; return r }
 
             /* ===== Cutoff / penalties / weekly accrual ===== */
@@ -1610,7 +1702,7 @@
         })();
     </script>
 
-    <!-- Settings tab switching (tiny helper; no behavior changes) -->
+    <!-- Settings tab switching -->
     <script>
         (function () {
             const nav = document.getElementById('settings-nav');
@@ -1627,25 +1719,24 @@
         })();
     </script>
 
-    <!-- ====== ADJUSTMENT: Tasks tab shows ONE room per row with hidden scroll ====== -->
+    <!-- Single-column scroll for Tasks editor -->
     <style id="settings-tasks-one-per-row">
-        /* Force single-column room cards + smooth hidden scroll */
         #settings-overlay #task-editor {
             display: grid;
-            grid-template-columns: 1fr; /* one room per row */
+            grid-template-columns: 1fr;
             gap: 16px;
-            max-height: 60vh; /* confines the area */
-            overflow: auto; /* scrollable, but... */
-            padding-right: 8px; /* room for invisible scrollbar */
-            -ms-overflow-style: none; /* IE/Edge hide */
-            scrollbar-width: none; /* Firefox hide */
+            max-height: 60vh;
+            overflow: auto;
+            padding-right: 8px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
             #settings-overlay #task-editor::-webkit-scrollbar {
                 width: 0;
-                height: 0; /* WebKit hide */
+                height: 0;
             }
-        /* Ensure cards don’t try to widen beyond the container */
+
         #settings-overlay .editor-card,
         #settings-overlay .tasks-table {
             min-width: 0;
