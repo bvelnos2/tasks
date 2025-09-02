@@ -5,52 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Household Favors</title>
     <style>
+        /* ===== Palette & base ===== */
         :root {
-            --bg: #0b0b0d;
-            --panel: #1a1b20;
-            --panel-2: #20222a;
-            --text: #e9e9ee;
-            --muted: #a9adbb;
-            --accent: #8b7cf3;
-            --accent-2: #69d5ff;
-            --danger: #ff6b6b;
-            --success: #6bff95;
-            --radius: 20px;
-            --shadow: 0 10px 30px rgba(0,0,0,.35);
+            --r: 20px;
+            --shadow: 0 16px 48px rgba(0,0,0,.45);
+            --ring: 0 0 0 4px rgba(160,180,205,.22)
         }
+
+        :root, body.theme-dark {
+            --bg: #0b0d12;
+            --p1: #171a22;
+            --p2: #13161e;
+            --text: #f4f6fb;
+            --muted: #a7afc6;
+            --line: rgba(255,255,255,.08);
+            color-scheme: dark;
+        }
+
+        body {
+            margin: 0;
+            color: var(--text);
+            font: 14px/1.35 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+            background: var(--bg);
+            min-height: 100vh;
+            position: relative
+        }
+
+            body::before {
+                content: "";
+                position: fixed;
+                inset: 0;
+                z-index: -1;
+                background: radial-gradient(1100px 700px at 8% -12%, rgba(185,199,218,.12), transparent 62%), radial-gradient(1000px 620px at 108% -6%, rgba(215,226,239,.08), transparent 64%), linear-gradient(180deg, rgba(255,255,255,.02), transparent 40%), var(--bg);
+                background-repeat: no-repeat
+            }
 
         * {
             box-sizing: border-box
         }
 
-        html, body {
-            height: 100%
-        }
-
-        body {
-            margin: 0;
-            background: radial-gradient(1200px 800px at 10% -10%, #131318 0%, transparent 60%), radial-gradient(1000px 600px at 110% 10%, #101019 0%, transparent 60%), var(--bg);
-            color: var(--text);
-            font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
-            color-scheme: dark;
-        }
-
         .container {
             max-width: 1100px;
             margin: 0 auto;
-            padding: 24px;
-            transition: filter .2s ease
+            padding: 24px
         }
 
-        body.modal-open .container {
-            filter: blur(6px) saturate(.9)
-        }
-
+        /* ===== Shared UI ===== */
         .panel {
-            background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
-            border-radius: var(--radius);
+            background: linear-gradient(180deg,var(--p1),var(--p2));
+            border: 1px solid var(--line);
+            border-radius: var(--r);
             box-shadow: var(--shadow);
-            border: 1px solid rgba(255,255,255,.05);
             padding: 20px
         }
 
@@ -59,98 +64,104 @@
             }
 
         .title {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
-            letter-spacing: .3px;
-            margin: 0 0 12px
+            letter-spacing: .2px;
+            margin: 0 0 10px
         }
 
         .subtitle {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--muted);
-            margin: -6px 0 16px
+            margin: 0 0 14px
         }
 
-        .grid {
-            display: grid;
-            gap: 16px
+        button, .chip, .round-ghost {
+            transition: filter .15s ease, transform .05s ease
         }
 
-        @media (min-width: 860px) {
-            .grid {
-                grid-template-columns: 1fr 1fr
-            }
-        }
-
-        .btn {
-            appearance: none;
-            border: 0;
-            cursor: pointer;
-            padding: 0 16px;
-            border-radius: 14px;
-            background: linear-gradient(180deg,#2a2b33,#1f2027);
-            color: #fff;
-            font-weight: 700;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 8px 18px rgba(0,0,0,.25);
-            transition: transform .04s ease, filter .2s ease;
-            height: 44px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center
-        }
-
-            .btn:hover {
-                filter: brightness(1.07)
-            }
-
-            .btn:active {
+            button:active, .chip:active, .round-ghost:active {
                 transform: translateY(1px)
             }
 
-            .btn.ghost {
-                background: linear-gradient(180deg,#24252d,#1b1c22);
-                border: 1px solid rgba(255,255,255,.08)
-            }
-
-        .selector {
-            display: grid;
-            gap: 14px;
-            grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
-            margin-top: 16px
+        button, .round-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg,#20242c,#181b22);
+            padding: 10px 14px;
+            height: 40px;
+            color: var(--text);
+            font-weight: 700;
+            cursor: pointer
         }
 
-        .card {
-            background: linear-gradient(180deg,#1a1b20,#15161b);
-            border: 1px solid rgba(255,255,255,.05);
-            padding: 22px;
-            border-radius: 22px;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: transform .08s ease,filter .15s ease
-        }
-
-            .card:hover {
-                transform: translateY(-2px);
-                filter: brightness(1.06)
+            button:hover, .round-ghost:hover {
+                filter: brightness(1.08)
             }
 
         .chip {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 10px;
+            padding: 10px 14px;
             border-radius: 999px;
-            font-size: 12px;
-            background: #252734;
-            color: var(--muted);
-            border: 1px solid rgba(255,255,255,.06)
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg,#20242c,#191c24);
+            height: 40px
         }
+
+        input[type="text"], input[type="number"], input[type="time"], input[type="date"], select {
+            appearance: none;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px 14px;
+            background: linear-gradient(180deg,#1b1e25,#151820);
+            color: var(--text);
+            min-height: 40px;
+            width: 100%;
+            font-size: 14px;
+            position: relative;
+            z-index: 1
+        }
+
+        select {
+            padding-right: 32px;
+            background-image: linear-gradient(180deg,#1b1e25,#151820),url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23a7afc6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 8px center, left top
+        }
+
+            input:focus, select:focus {
+                outline: none;
+                box-shadow: var(--ring)
+            }
 
         .row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 14px
+            gap: 10px
+        }
+
+            .row.wrap {
+                flex-wrap: wrap
+            }
+
+        .grid {
+            display: grid;
+            gap: 16px
+        }
+
+        @media (min-width:860px) {
+            .grid.two {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .grid.three {
+                grid-template-columns: repeat(3,1fr)
+            }
         }
 
         .muted {
@@ -159,146 +170,322 @@
 
         .divider {
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+            background: var(--line);
             margin: 14px 0
         }
 
-        .room {
-            border-top: 1px solid rgba(255,255,255,.06);
-            padding-top: 14px;
-            margin-top: 10px;
+        .space-top {
+            margin-top: 18px
+        }
+
+        /* ===== Selector cards ===== */
+        .selector {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+            margin-top: 10px
+        }
+
+        .card {
+            cursor: pointer;
+            background: linear-gradient(180deg,#1a1c22,#14161c) padding-box;
+            border: 1px solid var(--line);
+            padding: 18px;
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            transition: transform .12s ease,filter .18s ease
+        }
+
+            .card:hover {
+                transform: translateY(-3px);
+                filter: brightness(1.05)
+            }
+
+        .balance .big {
+            font-size: 36px;
+            font-weight: 900
+        }
+
+        /* Avatars */
+        .avatar-sm, .pfp {
+            background-color: #222;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+            background-origin: border-box;
+            background-clip: border-box;
+            overflow: hidden
+        }
+
+        .avatar-sm {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid var(--line);
+            box-shadow: 0 0 0 2px var(--bg)
+        }
+
+        .pfp-wrap {
             position: relative
         }
 
+        .pfp {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--line);
+            box-shadow: 0 4px 14px rgba(0,0,0,.35), 0 0 0 2px var(--bg);
+            cursor: pointer
+        }
+
+        /* ===== Topbar ===== */
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            overflow: visible
+        }
+
+        .right-tools {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        /* Notifications */
+        .nwrap {
+            position: relative
+        }
+
+        #bell-btn {
+            position: relative
+        }
+
+            #bell-btn.has-badge::after {
+                content: attr(data-badge);
+                position: absolute;
+                top: -6px;
+                right: -6px;
+                min-width: 18px;
+                height: 18px;
+                padding: 0 5px;
+                border-radius: 999px;
+                background: #e54;
+                color: #fff;
+                font-size: 11px;
+                line-height: 18px;
+                text-align: center;
+                box-shadow: 0 0 0 2px var(--bg)
+            }
+
+        .npanel {
+            position: absolute;
+            top: 44px;
+            right: 0;
+            background: #121319;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 16px 44px rgba(0,0,0,.5);
+            padding: 10px;
+            width: 360px;
+            max-height: 50vh;
+            overflow: auto;
+            display: none;
+            z-index: 80
+        }
+
+            .npanel.show {
+                display: block
+            }
+
+        .nhdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px
+        }
+
+        .nitem {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: #15161b;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 12px;
+            padding: 10px;
+            margin: 6px 0
+        }
+
+            .nitem .x {
+                margin-left: auto;
+                opacity: .7;
+                cursor: pointer
+            }
+
+                .nitem .x:hover {
+                    opacity: 1
+                }
+
+        /* PFP menu */
+        .pfp-menu {
+            position: absolute;
+            top: 44px;
+            left: 0;
+            background: #121319;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 16px 44px rgba(0,0,0,.5);
+            padding: 12px;
+            width: 260px;
+            display: none;
+            z-index: 80
+        }
+
+            .pfp-menu.show {
+                display: block;
+                animation: fade .15s ease
+            }
+
+        .pfp-hero {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px
+        }
+
+            .pfp-hero .pfp {
+                width: 56px;
+                height: 56px
+            }
+
+        .pfp-menu .item {
+            padding: 8px;
+            border-radius: 10px;
+            cursor: pointer
+        }
+
+            .pfp-menu .item:hover {
+                background: #1a1b22
+            }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(-3px)
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        /* Tasks */
+        .room {
+            border-top: 1px solid var(--line);
+            padding-top: 12px;
+            margin-top: 8px
+        }
+
+            .room:first-child {
+                border-top: 0;
+                padding-top: 0;
+                margin-top: 0
+            }
+
             .room h3 {
-                margin: 8px 0 8px;
+                margin: 8px 0;
                 font-size: 18px
             }
 
         .task {
             display: flex;
-            align-items: flex-start;
             gap: 12px;
+            align-items: flex-start;
             padding: 12px;
-            border-radius: 12px;
-            background: #1d1e25;
-            border: 1px solid rgba(255,255,255,.05);
+            border-radius: 16px;
+            background: linear-gradient(180deg,#1a1d23,#15171d) padding-box;
+            border: 1px solid var(--line);
             margin: 8px 0
         }
 
-            .task input[type="checkbox"] {
+            .task input[type=checkbox] {
+                appearance: none;
                 width: 22px;
                 height: 22px;
-                margin-top: 0
+                margin-top: 0;
+                border-radius: 6px;
+                border: 2px solid #8f9ab1;
+                background: #0f1116;
+                position: relative
             }
 
-            .task .meta {
-                margin-left: auto;
-                font-size: 12px;
-                color: var(--muted)
-            }
-
-        .icon-btn {
-            border: 0;
-            background: #252734;
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 10px;
-            padding: 6px 12px;
-            cursor: pointer;
-            color: #fff;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 36px;
-            min-width: 92px
-        }
-
-            .icon-btn + .icon-btn {
-                margin-left: 8px
-            }
-
-        #alerts {
-            margin-bottom: 12px
-        }
-
-        .alert {
-            background: #3a3205;
-            border: 1px solid #f5d34f;
-            color: #ffe58a;
-            padding: 12px 14px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px
-        }
-
-            .alert .msg {
-                flex: 1
-            }
-
-            .alert .close {
-                cursor: pointer;
-                font-weight: 900;
-                opacity: .8
-            }
-
-                .alert .close:hover {
-                    opacity: 1
+                .task input[type=checkbox]:checked {
+                    background: radial-gradient(10px 10px at 50% 50%, #d7e2ef 0%, #b9c7da 70%), #0f1116;
+                    border-color: transparent
                 }
 
-            .alert .actions {
-                display: flex;
-                gap: 8px
-            }
+                    .task input[type=checkbox]:checked::after {
+                        content: "🧽";
+                        position: absolute;
+                        inset: -6px 0 0 0;
+                        display: grid;
+                        place-items: center;
+                        font-size: 14px
+                    }
 
-        .topbar {
+        .meta {
+            margin-left: auto;
+            font-size: 12px
+        }
+
+        .up {
+            color: #cfd6e3;
+            font-weight: 800
+        }
+
+        .down {
+            color: #909bb0;
+            font-weight: 800
+        }
+
+        /* Collapsible */
+        .collapsible {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 12px
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: linear-gradient(180deg,#1b1e25,#151820);
+            border: 1px solid var(--line)
         }
 
-        .bal-peek {
-            font-weight: 800;
-            letter-spacing: .3px
-        }
-
-        .right-tools {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-left: auto
-        }
-
-        .chip-btn {
-            width: 38px;
-            height: 38px;
-            border-radius: 999px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #252734;
-            border: 1px solid rgba(255,255,255,.06);
-            color: #cfd3df;
-            cursor: pointer
-        }
-
-            .chip-btn svg {
-                width: 18px;
-                height: 18px
+            .collapsible .arrow {
+                transition: transform .15s ease;
+                transform: rotate(-90deg)
             }
 
+        .cbody {
+            margin-top: 10px;
+            display: none
+        }
+
+            .cbody.open {
+                display: block
+            }
+
+        /* ===== Modals ===== */
         .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,.45);
+            background: rgba(0,0,0,.55);
             display: none;
             align-items: center;
             justify-content: center;
             padding: 16px;
-            z-index: 50
+            z-index: 70
         }
 
             .overlay.show {
@@ -306,39 +493,38 @@
             }
 
         .modal {
-            width: min(880px,95vw);
-            background: linear-gradient(180deg,#1a1b20,#15161b);
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 24px;
-            box-shadow: 0 30px 70px rgba(0,0,0,.55);
-            padding: 20px;
-            position: relative;
-            max-height: 90vh;
+            width: min(1120px,96vw);
+            max-height: 92vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden
+            background: linear-gradient(180deg, rgba(28,31,37,.97), rgba(21,24,30,.97)) padding-box;
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            box-shadow: 0 40px 100px rgba(0,0,0,.6);
+            padding: 18px;
+            overflow: visible;
+            position: relative;
+            z-index: 120;
         }
 
             .modal .close-x {
                 position: absolute;
-                top: 12px;
+                top: 10px;
                 right: 12px;
                 cursor: pointer;
-                opacity: .8
+                opacity: .85
             }
 
                 .modal .close-x:hover {
                     opacity: 1
                 }
 
-            .modal h3 {
-                margin: 0 0 8px
-            }
-
         .modal-body {
             margin-top: 8px;
+            flex: 1;
             overflow: auto;
-            flex: 1 1 auto
+            padding-right: 6px;
+            contain: content
         }
 
             .modal-body::-webkit-scrollbar {
@@ -346,118 +532,41 @@
                 height: 0
             }
 
-        .modal-body {
-            scrollbar-width: none;
-            -ms-overflow-style: none
+        .sticky-h {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(180deg,#1b1e25,#151820);
+            border: 1px solid var(--line);
+            padding: 8px;
+            border-radius: 12px;
+            z-index: 5
         }
 
+        /* Wallet */
         .big-bals {
             display: flex;
-            gap: 16px;
-            align-items: stretch;
+            gap: 12px;
             flex-wrap: wrap
         }
 
         .big-card {
             flex: 1;
-            min-width: 240px;
-            background: #1d1e25;
-            border: 1px solid rgba(255,255,255,.06);
-            border-radius: 16px;
-            padding: 16px
+            min-width: 260px;
+            background: #1a1c22;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px
         }
 
         .big-num {
-            font-size: 42px;
+            font-size: 40px;
             font-weight: 900
         }
 
-        .actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 12px
-        }
-
-        .round-ghost {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border-radius: 999px;
-            border: 1px solid rgba(255,255,255,.08);
-            background: linear-gradient(180deg,#24252d,#1b1c22);
-            padding: 10px 14px;
-            font-weight: 700;
-            cursor: pointer;
-            color: var(--text);
-            height: 44px
-        }
-
-            .round-ghost svg {
-                width: 18px;
-                height: 18px
-            }
-
-        .submodal {
-            margin-top: 12px;
-            border-top: 1px dashed rgba(255,255,255,.08);
-            padding-top: 12px;
-            display: none
-        }
-
-            .submodal.show {
-                display: block
-            }
-
-        .field {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap
-        }
-
-        /* Themed inputs */
-        input:not([type="checkbox"]):not([type="radio"]), select {
-            background: #0f1117;
-            border: 1px solid rgba(255,255,255,.12);
-            color: var(--text);
-            padding: 10px 12px;
-            border-radius: 10px;
-            outline: none;
-            min-height: 40px;
-            width: 100%;
-        }
-
-        input::placeholder {
-            color: #7d8192
-        }
-
-        select {
-            appearance: none;
-            background-image: linear-gradient(45deg,transparent 50%,#9aa0ae 50%),linear-gradient(135deg,#9aa0ae 50%,transparent 50%),linear-gradient(to right,#0f1117,#0f1117);
-            background-position: calc(100% - 20px) calc(50% + 2px),calc(100% - 14px) calc(50% + 2px),100% 0;
-            background-size: 6px 6px,6px 6px,2.5em 100%;
-            background-repeat: no-repeat
-        }
-
-        input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        input[type=number] {
-            -moz-appearance: textfield
-        }
-
-        input:-webkit-autofill {
-            -webkit-text-fill-color: var(--text);
-            box-shadow: 0 0 0px 1000px #0f1117 inset;
-            -webkit-box-shadow: 0 0 0px 1000px #0f1117 inset;
-        }
-
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px
+        .wallet-history {
+            margin-top: 8px;
+            max-height: 42vh;
+            overflow: auto
         }
 
         .hx-item {
@@ -466,12 +575,13 @@
             align-items: flex-start;
             background: #15161b;
             border: 1px solid rgba(255,255,255,.06);
-            border-radius: 14px;
+            border-radius: 12px;
             padding: 10px
         }
 
         .hx-amt {
-            font-weight: 900
+            font-weight: 900;
+            color: #c7d3ea
         }
 
         .hx-meta {
@@ -479,143 +589,25 @@
             color: var(--muted)
         }
 
-        .wallet-history {
-            margin-top: 8px;
-            max-height: 42vh;
-            overflow: auto;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-            flex: 1 1 auto
-        }
-
-            .wallet-history::-webkit-scrollbar {
-                width: 0;
-                height: 0
-            }
-
-        .glance {
-            margin-top: 14px;
-            padding: 12px;
-            border-radius: 14px;
-            background: #14151a;
-            border: 1px solid rgba(255,255,255,.06)
-        }
-
-        .glance-title {
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 8px
-        }
-
-        .glance-room {
-            font-size: 12px;
-            margin: 6px 0 2px;
-            color: var(--muted)
-        }
-
-        .glance-list {
-            margin: 0;
-            padding-left: 16px
-        }
-
-            .glance-list li {
-                font-size: 13px;
-                line-height: 1.35;
-                margin: 4px 0
-            }
-
-        .glance-empty {
-            font-size: 13px;
-            color: var(--muted)
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
-            gap: 12px;
-            margin: 8px 0
-        }
-
-        .stat {
-            background: #17181e;
-            border: 1px solid rgba(255,255,255,.06);
-            border-radius: 14px;
-            padding: 12px
-        }
-
-            .stat .big {
-                font-weight: 900;
-                font-size: 34px;
-                line-height: 1.1
-            }
-
-        .editor-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
-            gap: 14px;
-            margin-top: 10px
-        }
-
-        .editor-card {
-            background: #15171e;
-            border: 1px solid rgba(255,255,255,.06);
-            border-radius: 16px;
-            padding: 12px;
-            min-width: 0
-        }
-
-        .editor-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 6px
-        }
-
-        .task-row {
-            display: grid;
-            grid-template-columns: 1fr 88px 130px 38px;
-            gap: 8px;
-            align-items: center;
-            margin-top: 8px
-        }
-
-            .task-row > * {
-                min-width: 0
-            }
-
-        .menu-wrap {
-            position: relative
-        }
-
         .menu {
             position: absolute;
             right: 0;
-            top: 44px;
+            top: 40px;
             background: #121319;
-            border: 1px solid rgba(255,255,255,.12);
+            border: 1px solid var(--line);
             border-radius: 12px;
+            box-shadow: 0 16px 44px rgba(0,0,0,.5);
             padding: 10px;
-            width: 240px;
+            width: 300px;
             display: none;
-            box-shadow: 0 12px 30px rgba(0,0,0,.45);
-            z-index: 5
+            z-index: 150
         }
 
             .menu.show {
                 display: block
             }
 
-            .menu .row {
-                gap: 8px;
-                justify-content: stretch
-            }
-
-            .menu label {
-                font-size: 12px;
-                color: var(--muted)
-            }
-
+        /* Grace overlay */
         .grace-overlay {
             position: absolute;
             inset: 0;
@@ -625,16 +617,16 @@
             background: rgba(0,0,0,.45);
             border-radius: 14px;
             backdrop-filter: blur(2px);
-            border: 1px dashed rgba(255,255,255,.08)
+            border: 1px dashed var(--line)
         }
 
         .grace-badge {
-            text-align: center;
             background: #1b1c23;
-            border: 1px solid rgba(255,255,255,.12);
+            border: 1px solid var(--line);
             padding: 16px;
             border-radius: 16px;
-            box-shadow: var(--shadow)
+            box-shadow: var(--shadow);
+            text-align: center
         }
 
             .grace-badge h4 {
@@ -646,54 +638,261 @@
                 justify-content: center
             }
 
-            .grace-badge .muted {
-                margin-bottom: 10px
-            }
-
         .shield {
             width: 20px;
             height: 20px;
-            display: inline-block;
             border-radius: 6px;
-            background: linear-gradient(180deg,#8b7cf3,#5b54c8);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.25)
+            background: conic-gradient(from 200deg,#c7d3ea,#e1e9f3,#c7d3ea 70%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 0 18px rgba(139,124,243,.12)
         }
 
-        canvas#confetti {
+        /* Badges */
+        .badge-pill {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            border: 1px solid var(--line);
+            background: #1a1c23;
+            border-radius: 999px;
+            padding: 6px 10px;
+            margin: 6px 8px 0 0;
+            font-size: 12px
+        }
+
+            .badge-pill.locked {
+                opacity: .55
+            }
+
+            .badge-pill.win {
+                box-shadow: 0 0 0 2px rgba(200,210,230,.15) inset
+            }
+
+        /* Tiny bars */
+        .bar {
+            height: 8px;
+            background: #222834;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            overflow: hidden
+        }
+
+            .bar > span {
+                display: block;
+                height: 100%;
+                background: linear-gradient(90deg,#c0ccdf,#e1e9f3)
+            }
+
+        /* Confetti */
+        #confetti {
             position: fixed;
             inset: 0;
             pointer-events: none;
-            z-index: 70;
+            z-index: 200
+        }
+
+        /* Gold banner (Rush Hour) */
+        .gold-banner {
+            position: sticky;
+            top: 12px;
+            z-index: 5;
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: linear-gradient(180deg,#3a2b08,#2a1f06);
+            border: 1px solid rgba(255,210,120,.35);
+            color: #f6e9c2;
+            box-shadow: 0 10px 30px rgba(0,0,0,.35)
+        }
+    </style>
+
+    <!-- ===== Settings: redesigned UX (nav + tabs, wider, no overflow) ===== -->
+    <style>
+        #settings-overlay .modal {
+            width: min(1200px,98vw);
+            max-height: 92vh;
+            overflow: visible
+        }
+
+            #settings-overlay .modal .modal-body {
+                overflow: auto;
+                padding-right: 12px
+            }
+
+        .settings-shell {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 16px;
+            min-height: 60vh
+        }
+
+        .settings-nav {
+            position: sticky;
+            top: 0;
+            align-self: start;
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+            .settings-nav button {
+                width: 100%;
+                height: 42px;
+                border-radius: 12px;
+                background: linear-gradient(180deg,#1b1e25,#151820);
+                border: 1px solid var(--line);
+                color: var(--text);
+                font-weight: 700;
+                cursor: pointer
+            }
+
+                .settings-nav button.active {
+                    box-shadow: 0 0 0 2px rgba(200,210,230,.18) inset
+                }
+
+        .settings-pages {
+            min-width: 0
+        }
+
+        .settings-tab {
             display: none
+        }
+
+            .settings-tab.active {
+                display: block
+            }
+
+        .settings-panel {
+            background: linear-gradient(180deg,#1b1e25,#151820);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 14px
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 12px;
+            align-items: center;
+            margin: 10px 0
+        }
+
+            .form-row.inline > * {
+                grid-column: auto
+            }
+
+        .form-help {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 4px
+        }
+
+        .tasks-head, .task-row {
+            display: grid;
+            grid-template-columns: minmax(420px,2fr) minmax(140px,.9fr) minmax(140px,.9fr) minmax(170px,.9fr) 42px;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .tasks-head {
+            font-size: 12px;
+            color: var(--muted);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .task-row input[type="text"] {
+            width: 100%
+        }
+
+        .watch-row {
+            display: grid;
+            grid-template-columns: 28px minmax(420px,2fr) minmax(140px,.9fr) 42px;
+            gap: 12px;
+            align-items: center
+        }
+
+        #settings-overlay .round-ghost {
+            height: 36px
+        }
+
+        @media (max-width:980px) {
+            .settings-shell {
+                grid-template-columns: 1fr
+            }
+
+            .settings-nav {
+                position: static;
+                flex-direction: row;
+                flex-wrap: wrap
+            }
+
+            .tasks-head {
+                display: none
+            }
+
+            .task-row {
+                grid-template-columns: 1fr 1fr;
+                grid-template-areas: "task task" "pos neg" "freq del";
+            }
+
+                .task-row input[type="text"] {
+                    grid-area: task
+                }
+
+                .task-row input:nth-child(2) {
+                    grid-area: pos
+                }
+
+                .task-row input:nth-child(3) {
+                    grid-area: neg
+                }
+
+                .task-row select:nth-child(4) {
+                    grid-area: freq
+                }
         }
     </style>
 </head>
-<body>
+<body class="theme-dark">
     <canvas id="confetti"></canvas>
     <div class="container" aria-live="polite">
-        <div id="alerts"></div>
 
         <!-- Profile selector -->
-        <div id="view-selector" class="panel" aria-label="Profile selection">
+        <div id="view-selector" class="panel">
             <h1 class="title">Household Favors</h1>
             <p class="subtitle">Pick your profile to open your dashboard.</p>
+
             <div class="selector">
-                <div class="card" onclick="selectUser('spibbs')" role="button" aria-label="Open spibbs dashboard">
-                    <div class="row"><span class="chip">User</span><span class="muted">spibbs</span></div>
-                    <div style="height:8px"></div>
-                    <div class="balance"><span class="big-num" id="bal-card-spibbs">0.00</span><span class="muted">Favors</span></div>
-                    <div class="glance">
-                        <div class="glance-title">Today’s tasks</div>
-                        <div id="glance-spibbs"></div>
+                <div class="card" onclick="selectUser('spibbs')">
+                    <div class="row">
+                        <span class="row" style="gap:8px">
+                            <span class="avatar-sm" id="av-spibbs"></span>
+                            <span class="chip" style="height:28px;padding:4px 10px">User</span>
+                        </span>
+                        <span class="muted">spibbs</span>
+                    </div>
+                    <div class="space-top"></div>
+                    <div class="balance"><span class="big" id="bal-card-spibbs">0.00</span> <span class="muted">Favors</span></div>
+                    <div class="panel" style="padding:10px;margin-top:12px">
+                        <div class="subtitle" style="margin:0 0 6px">Today’s tasks</div>
+                        <div id="glance-spibbs" class="muted"></div>
                     </div>
                 </div>
-                <div class="card" onclick="selectUser('sneefli')" role="button" aria-label="Open sneefli dashboard">
-                    <div class="row"><span class="chip">User</span><span class="muted">sneefli</span></div>
-                    <div style="height:8px"></div>
-                    <div class="balance"><span class="big-num" id="bal-card-sneefli">0.00</span><span class="muted">Favors</span></div>
-                    <div class="glance">
-                        <div class="glance-title">Today’s tasks</div>
-                        <div id="glance-sneefli"></div>
+
+                <div class="card" onclick="selectUser('sneefli')">
+                    <div class="row">
+                        <span class="row" style="gap:8px">
+                            <span class="avatar-sm" id="av-sneefli"></span>
+                            <span class="chip" style="height:28px;padding:4px 10px">User</span>
+                        </span>
+                        <span class="muted">sneefli</span>
+                    </div>
+                    <div class="space-top"></div>
+                    <div class="balance"><span class="big" id="bal-card-sneefli">0.00</span> <span class="muted">Favors</span></div>
+                    <div class="panel" style="padding:10px;margin-top:12px">
+                        <div class="subtitle" style="margin:0 0 6px">Today’s tasks</div>
+                        <div id="glance-sneefli" class="muted"></div>
                     </div>
                 </div>
             </div>
@@ -701,63 +900,82 @@
 
         <!-- Dashboard -->
         <div id="view-dashboard" style="display:none">
+            <div id="rush-banner-anchor"></div>
+
             <div class="topbar">
-                <button class="btn" onclick="backToProfiles()" aria-label="Switch profile">← Switch profile</button>
-                <span class="bal-peek">Balance: <span id="peek-balance">0.00</span></span>
+                <button class="round-ghost" onclick="backToProfiles()">← Switch</button>
 
                 <div class="right-tools">
-                    <!-- NEW: streak chip -->
-                    <span class="chip" id="streak-chip" title="Daily streak">🔥 0</span>
-                    <span class="chip" id="who-chip">User: —</span>
-                    <button class="chip-btn" id="settings-btn" title="Settings" aria-label="Settings">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.04 3.2l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.26 1.3.73 1.77.47.47 1.11.73 1.77.73H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                        </svg>
-                    </button>
-                    <button class="chip-btn" id="wallet-btn" title="Wallet" aria-label="Wallet">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="6" width="18" height="12" rx="2"></rect>
-                            <circle cx="16.5" cy="12" r="1.5"></circle>
-                        </svg>
-                    </button>
+                    <div class="nwrap">
+                        <button class="chip" id="bell-btn" aria-label="Notifications" title="Notifications">🔔</button>
+                        <div class="npanel" id="notif-panel">
+                            <div class="nhdr">
+                                <strong>Notifications</strong>
+                                <button class="round-ghost" id="dismiss-all" style="height:28px">Dismiss all</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="chip" id="streak-chip" title="Streaks">🔥 0</button>
+                    <div class="pfp-wrap">
+                        <div class="pfp" id="pfp" title="Profile"></div>
+                        <div class="pfp-menu" id="pfp-menu">
+                            <div class="pfp-hero">
+                                <div class="pfp" id="pfp-big"></div>
+                                <div>
+                                    <div id="pfp-name" style="font-weight:800">user</div>
+                                    <small class="muted" id="pfp-balance">0.00 Favors</small>
+                                </div>
+                            </div>
+                            <label class="item" for="pfp-file">🖼 Upload photo</label>
+                            <input type="file" id="pfp-file" accept="image/*" style="display:none">
+                            <div class="divider"></div>
+                            <div class="item" id="menu-wallet">💼 Wallet</div>
+                            <div class="item" id="menu-myweek">📊 My Week</div>
+                            <div class="item" id="menu-settings">⚙️ Settings</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Household Watch -->
             <div class="panel">
-                <h2 class="title" style="font-size:22px;margin:0 0 6px">Household Watch</h2>
-                <p class="subtitle">Checking a box means the <b>other user</b> missed it; you instantly gain <b>+0.25</b> Favor.</p>
-                <div id="household-watch"></div>
+                <div class="collapsible" id="watch-toggle">
+                    <div>
+                        <div style="font-weight:800">Household Watch</div>
+                        <div class="muted" style="font-size:12px">Check a box to claim when the other user missed it.</div>
+                    </div>
+                    <div class="arrow" id="watch-arrow">▾</div>
+                </div>
+                <div id="watch-body" class="cbody"><div id="household-watch"></div></div>
             </div>
 
-            <!-- Daily Tasks -->
+            <!-- Daily -->
             <div class="panel" id="panel-daily">
-                <div class="row">
+                <div class="row" style="justify-content:space-between">
                     <div>
-                        <h2 class="title" style="font-size:22px;margin:0 0 6px">Today's Tasks</h2>
-                        <p class="subtitle">Complete by <b id="cutoff-label">11:59pm</b>. Incomplete tasks give the other user Favor based on weight.</p>
+                        <h2 class="title" style="font-size:20px;margin:0 0 4px">Today's Tasks</h2>
+                        <p class="subtitle">Complete by <b id="cutoff-label">11:59pm</b>. Incomplete awards the other user the <b>negative</b> weight.</p>
                     </div>
-                    <button class="btn ghost" id="swap-btn" aria-label="Swap a task">⇄ Swap</button>
+                    <button class="round-ghost" id="swap-btn" title="Propose a swap">⇄ Swap</button>
                 </div>
                 <div id="daily-tasks" style="position:relative"></div>
             </div>
 
-            <!-- Weekly Tasks -->
+            <!-- Weekly -->
             <div class="panel">
-                <h2 class="title" style="font-size:22px;margin:0 0 6px">This Week's Tasks (Mon–Sun)</h2>
-                <p class="subtitle">Assigned once per week; incomplete at week end gives the other user Favor based on weight.</p>
+                <h2 class="title" style="font-size:20px;margin:0 0 4px">This Week's Tasks (Mon–Sun)</h2>
+                <p class="subtitle">Assigned once weekly; incomplete awards the other user the <b>negative</b> weight.</p>
                 <div id="weekly-tasks"></div>
             </div>
         </div>
     </div>
 
-    <!-- Wallet Overlay -->
-    <div class="overlay" id="wallet-overlay" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="wallet-title">
-            <div class="close-x" id="wallet-close" title="Close">✕</div>
-            <h3 class="title" id="wallet-title" style="font-size:22px;margin:0 0 6px">Wallet</h3>
-            <p class="subtitle" style="margin-top:-4px">Quick actions and balances</p>
+    <!-- Wallet Modal -->
+    <div class="overlay" id="wallet-overlay">
+        <div class="modal">
+            <div class="close-x" id="wallet-close">✕</div>
+            <h3 class="title" style="font-size:22px;margin:0 0 4px">Wallet</h3>
+            <p class="subtitle">Quick actions and balances</p>
 
             <div class="big-bals">
                 <div class="big-card">
@@ -772,43 +990,21 @@
                 </div>
             </div>
 
-            <div class="actions">
-                <button class="round-ghost" id="btn-redeem">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="9" width="18" height="9" rx="2"></rect>
-                        <path d="M7 9V6h10v3"></path>
-                        <path d="M9 6V4h6v2"></path>
-                        <path d="M7.5 12h3M13.5 12h3"></path>
-                    </svg> Redeem
-                </button>
-                <button class="round-ghost" id="btn-grant">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 8h12"></path>
-                        <path d="M14 5l3 3-3 3"></path>
-                        <path d="M20 16H8"></path>
-                        <path d="M10 19l-3-3 3-3"></path>
-                    </svg> Trade
-                </button>
+            <div class="row wrap space-top">
+                <button class="round-ghost" id="btn-redeem">🧾 Redeem</button>
+                <button class="round-ghost" id="btn-grant">⇄ Trade</button>
                 <button class="round-ghost" id="btn-grace">🛡 Use Grace</button>
             </div>
 
-            <div class="submodal" id="subprompt">
-                <div class="field">
-                    <input id="amount-input" type="number" step="0.01" min="0" placeholder="Amount e.g. 1.50" aria-label="Amount" />
-                    <button class="btn" id="amount-ok">OK</button>
-                    <button class="btn" id="amount-cancel">Cancel</button>
-                </div>
-                <div class="muted" id="amount-hint" style="margin-top:6px"></div>
-            </div>
+            <div class="divider"></div>
 
-            <div class="divider" style="margin-top:16px"></div>
-            <div class="row">
-                <h3 class="title" style="font-size:20px;margin:0 0 8px">Transaction History</h3>
-                <div class="menu-wrap" style="margin-left:auto">
-                    <button class="icon-btn" id="history-menu-btn" title="Filter/sort">⋮</button>
+            <div class="row" style="align-items:center">
+                <h3 class="title" style="font-size:20px;margin:0 0 6px">Transaction History</h3>
+                <div style="position:relative;margin-left:auto">
+                    <button class="round-ghost" id="history-menu-btn" style="height:36px">⋮</button>
                     <div class="menu" id="history-menu">
                         <div style="font-weight:700;margin-bottom:6px">Filters</div>
-                        <div class="row">
+                        <div class="row wrap">
                             <label>Type</label>
                             <select id="hist-type">
                                 <option value="all">All</option>
@@ -817,9 +1013,12 @@
                                 <option value="weekly_penalty">Weekly</option>
                                 <option value="grant">Trade</option>
                                 <option value="redeem">Redeem</option>
+                                <option value="complete">Complete</option>
+                                <option value="bonus">Bonus</option>
+                                <option value="rush">Rush</option>
                             </select>
                         </div>
-                        <div class="row" style="margin-top:8px">
+                        <div class="row wrap" style="margin-top:8px">
                             <label>User</label>
                             <select id="hist-user">
                                 <option value="both">Both</option>
@@ -827,662 +1026,630 @@
                                 <option value="sneefli">sneefli</option>
                             </select>
                         </div>
-                        <div class="row" style="margin-top:8px;justify-content:flex-end">
-                            <button class="icon-btn" id="hist-apply">Apply</button>
+                        <div class="row" style="justify-content:flex-end;margin-top:8px">
+                            <button class="round-ghost" id="hist-apply" style="height:34px">Apply</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="wallet-history"><div id="history-list" class="history-list"></div></div>
+
+            <div class="wallet-history"><div id="history-list"></div></div>
         </div>
     </div>
 
-    <!-- Settings Overlay -->
-    <div class="overlay" id="settings-overlay" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-            <div class="close-x" id="settings-close" title="Close">✕</div>
-            <h3 class="title" id="settings-title" style="font-size:22px;margin:0 0 6px">Settings</h3>
-            <p class="subtitle">Cutoff, away dates, and task editor (weights included). Saving re-generates today’s and this week’s assignments.</p>
-
+    <!-- Settings Modal (REDESIGNED UX ONLY) -->
+    <div class="overlay" id="settings-overlay">
+        <div class="modal">
+            <div class="close-x" id="settings-close">✕</div>
+            <h3 class="title" style="font-size:22px;margin:0 0 4px">Settings</h3>
             <div class="modal-body">
-                <div class="grid">
-                    <div class="stat">
-                        <div class="muted">Cutoff & Timezone</div>
-                        <div class="field" style="margin-top:8px">
-                            <input type="time" id="cfg-cutoff" value="23:59" aria-label="Cutoff time" style="max-width:180px" />
-                            <select id="cfg-tz" aria-label="Timezone" style="max-width:220px">
-                                <option value="local">Local</option>
-                                <option value="-360">UTC-6</option>
-                                <option value="-300">UTC-5</option>
-                                <option value="0">UTC</option>
-                            </select>
-                            <button class="btn" id="save-time">Save</button>
-                        </div>
-                        <small class="muted" id="cutoff-preview"></small>
-                    </div>
-                    <div class="stat">
-                        <div class="muted">Away / Vacation</div>
-                        <div class="field" style="margin-top:8px">
-                            <select id="away-user" style="max-width:180px"><option value="spibbs">spibbs</option><option value="sneefli">sneefli</option></select>
-                            <input type="date" id="away-start" aria-label="Away start" style="max-width:180px" />
-                            <input type="date" id="away-end" aria-label="Away end" style="max-width:180px" />
-                            <button class="btn" id="away-save">Set</button>
-                        </div>
-                        <small class="muted">Assignments & penalties paused for this user between the dates.</small>
-                    </div>
-                </div>
+                <div class="settings-shell">
 
-                <div class="divider"></div>
+                    <!-- Left navigation -->
+                    <nav class="settings-nav" id="settings-nav">
+                        <button class="active" data-tab="general">General</button>
+                        <button data-tab="tasks">Tasks</button>
+                        <button data-tab="watch">Household Watch</button>
+                        <button data-tab="boosts">Boosts</button>
+                        <button data-tab="away">Away</button>
+                        <button data-tab="io">Export / Import</button>
+                    </nav>
 
-                <div class="field" style="margin-bottom:6px">
-                    <button class="btn" id="add-room">+ Add room</button>
-                    <button class="btn ghost" id="save-tasks">Save & Apply</button>
-                </div>
+                    <!-- Pages -->
+                    <div class="settings-pages">
 
-                <div id="task-editor" class="editor-grid"></div>
+                        <!-- General -->
+                        <section class="settings-tab active" data-tab="general">
+                            <div class="settings-panel">
+                                <h4 class="title" style="font-size:16px;margin:0 0 8px">Daily cutoff & timezone</h4>
+                                <div class="form-row">
+                                    <label for="cfg-cutoff">Cutoff time</label>
+                                    <input type="time" id="cfg-cutoff" value="23:59">
+                                </div>
+                                <div class="form-row">
+                                    <label for="cfg-tz">Timezone</label>
+                                    <select id="cfg-tz">
+                                        <option value="local">Local</option>
+                                        <option value="-360">UTC-6</option>
+                                        <option value="-300">UTC-5</option>
+                                        <option value="0">UTC</option>
+                                    </select>
+                                </div>
+                                <div class="form-row inline" style="gap:8px">
+                                    <span></span>
+                                    <div class="row" style="gap:8px">
+                                        <button class="round-ghost" id="save-time">Save</button>
+                                        <span class="form-help" id="cutoff-preview"></span>
+                                    </div>
+                                </div>
+                            </div>
 
-                <div class="divider"></div>
+                            <div class="settings-panel">
+                                <h4 class="title" style="font-size:16px;margin:0 0 8px">Rush Hour</h4>
+                                <div class="form-row">
+                                    <label>Enabled</label>
+                                    <input type="checkbox" id="rh-enabled" style="width:auto">
+                                </div>
+                                <div class="form-row">
+                                    <label for="rh-bonus">Bonus (+)</label>
+                                    <input type="number" step="0.01" id="rh-bonus">
+                                </div>
+                                <div class="form-row">
+                                    <label>Window</label>
+                                    <div class="row" style="gap:8px">
+                                        <input type="time" id="rh-start" style="max-width:150px">
+                                        <span>→</span>
+                                        <input type="time" id="rh-end" style="max-width:150px">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label for="rh-cadence">Cadence (days)</label>
+                                    <input type="number" id="rh-cadence" step="1">
+                                </div>
+                                <div class="form-row">
+                                    <span></span>
+                                    <button class="round-ghost" id="rh-save">Save</button>
+                                </div>
+                                <div class="form-help">A random 1-hour window inside the range grants an extra bonus for each completion.</div>
+                            </div>
+                        </section>
 
-                <div class="grid">
-                    <div class="stat">
-                        <div class="muted">Export / Import</div>
-                        <div class="field" style="margin-top:8px">
-                            <button class="btn" id="export-btn">Export JSON</button>
-                            <input type="file" id="import-file" accept="application/json" aria-label="Import JSON" style="max-width:280px" />
-                            <button class="btn" id="import-btn">Import</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        <!-- Tasks -->
+                        <section class="settings-tab" data-tab="tasks">
+                            <div class="settings-panel">
+                                <div class="row" style="justify-content:space-between;align-items:center">
+                                    <h4 class="title" style="font-size:16px;margin:0">Room tasks</h4>
+                                    <div class="row" style="gap:8px">
+                                        <button class="round-ghost" id="add-room">+ Room</button>
+                                        <button class="round-ghost" id="save-tasks">Save & Apply</button>
+                                    </div>
+                                </div>
+                                <div class="form-help">Set <b>Positive (+)</b> reward for completion and <b>Negative (–)</b> penalty given to the other user if missed.</div>
+
+                                <!-- Task editor area -->
+                                <div id="task-editor" class="grid two" style="margin-top:12px"></div>
+                            </div>
+                        </section>
+
+                        <!-- Household Watch -->
+                        <section class="settings-tab" data-tab="watch">
+                            <div class="settings-panel">
+                                <h4 class="title" style="font-size:16px;margin:0 0 8px">Household Watch</h4>
+                                <div class="form-row">
+                                    <label>Enabled</label>
+                                    <input type="checkbox" id="watch-enabled" style="width:auto">
+                                </div>
+                                <div class="form-row">
+                                    <label>Rules</label>
+                                    <div style="width:100%">
+                                        <div class="tasks-head" style="grid-template-columns: 28px minmax(420px,2fr) minmax(140px,.9fr) 42px">
+                                            <div></div><div>Rule</div><div class="up">Value (+)</div><div></div>
+                                        </div>
+                                        <div id="watch-editor" class="tasks-table"></div>
+                                        <div class="row" style="gap:8px;margin-top:10px">
+                                            <button class="round-ghost" id="watch-add">+ Rule</button>
+                                            <button class="round-ghost" id="watch-save">Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-help">Checking a rule claims the amount for yourself and notifies the other user.</div>
+                            </div>
+                        </section>
+
+                        <!-- Boosts -->
+                        <section class="settings-tab" data-tab="boosts">
+                            <div class="settings-panel">
+                                <h4 class="title" style="font-size:16px;margin:0 0 8px">Mystery Boost</h4>
+                                <div class="form-row">
+                                    <label>Enabled</label>
+                                    <input type="checkbox" id="mb-enabled" style="width:auto">
+                                </div>
+                                <div class="form-row">
+                                    <label for="mb-bonus">Bonus (+)</label>
+                                    <input type="number" step="0.01" id="mb-bonus">
+                                </div>
+                                <div class="form-row">
+                                    <label for="mb-cadence">Cadence (days)</label>
+                                    <input type="number" step="1" id="mb-cadence">
+                                </div>
+                                <div class="form-row">
+                                    <span></span>
+                                    <button class="round-ghost" id="mb-save">Save</button>
+                                </div>
+                                <div class="form-help">Once per cadence, one random daily task is worth the bonus amount (no penalties).</div>
+                            </div>
+                        </section>
+
+                        <!-- Away -->
+                        <section class="settings-tab" data-tab="away">
+                            <div class="settings-panel">
+                                <h4 class="title" style="font-size:16px;margin:0 0 8px">Away / Vacation</h4>
+                                <div class="form-row">
+                                    <label>User</label>
+                                    <select id="away-user" style="max-width:220px">
+                                        <option>spibbs</option>
+                                        <option>sneefli</option>
+                                    </select>
+                                </div>
+                                <div class="form-row">
+                                    <label>Start</label>
+                                    <input type="date" id="away-start" style="max-width:260px">
+                                </div>
+                                <div class="form-row">
+                                    <label>End</label>
+                                    <input type="date" id="away-end" style="max-width:260px">
+                                </div>
+                                <div class="form-row">
+                                    <span></span>
+                                    <button class="round-ghost" id="away-save">Set</button>
+                                </div>
+                                <div class="form-help">Assignments & penalties paused for the selected user within the range.</div>
+                            </div>
+                        </section>
+
+                        <!-- Import / Export -->
+                        <section class="settings-tab" data-tab="io">
+                            <div class="settings-panel">
+                                <h4 class="title" style="font-size:16px;margin:0 0 8px">Export / Import</h4>
+                                <div class="form-row inline" style="gap:8px">
+                                    <button class="round-ghost" id="export-btn">Export JSON</button>
+                                    <input type="file" id="import-file" accept="application/json" style="max-width:340px">
+                                    <button class="round-ghost" id="import-btn">Import</button>
+                                </div>
+                            </div>
+                        </section>
+
+                    </div><!-- /.settings-pages -->
+                </div><!-- /.settings-shell -->
+            </div><!-- /.modal-body -->
+        </div><!-- /.modal -->
     </div>
 
-    <!-- Swap Requester Overlay -->
-    <div class="overlay" id="swap-overlay" aria-hidden="true">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="swap-title">
+    <!-- Swap Modal -->
+    <div class="overlay" id="swap-overlay">
+        <div class="modal">
             <div class="close-x" id="swap-close">✕</div>
-            <h3 class="title" id="swap-title" style="font-size:22px;margin:0 0 6px">Propose a Swap</h3>
+            <h3 class="title" style="font-size:22px;margin:0 0 4px">Propose a Swap</h3>
             <p class="subtitle">Pick one of your tasks and one of the other user’s tasks. Your partner must approve.</p>
-            <div class="field">
+            <div class="row wrap">
                 <select id="swap-mine" style="max-width:420px"></select>
                 <select id="swap-theirs" style="max-width:420px"></select>
-                <button class="btn" id="swap-do">Request</button>
+                <button class="round-ghost" id="swap-do" style="height:40px">Request</button>
             </div>
             <div class="muted" id="swap-hint" style="margin-top:8px"></div>
         </div>
     </div>
 
+    <!-- My Week Modal -->
+    <div class="overlay" id="myweek-overlay">
+        <div class="modal">
+            <div class="close-x" id="myweek-close">✕</div>
+            <h3 class="title" style="font-size:22px;margin:0 0 4px">My Week</h3>
+            <p class="subtitle">A richer snapshot of your past 7 days.</p>
+            <div class="modal-body">
+                <div id="myweek-top" class="grid three"></div>
+                <div class="divider"></div>
+                <div class="grid two">
+                    <div class="panel">
+                        <h4 class="title" style="font-size:18px;margin:0 0 8px">Room activity</h4>
+                        <div id="myweek-rooms"></div>
+                    </div>
+                    <div class="panel">
+                        <h4 class="title" style="font-size:18px;margin:0 0 8px">Daily rhythm</h4>
+                        <div id="myweek-days"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Streaks & Badges Modal -->
+    <div class="overlay" id="streak-overlay">
+        <div class="modal">
+            <div class="close-x" id="streak-close">✕</div>
+            <h3 class="title" style="font-size:22px;margin:0 0 4px">Your Streaks & Badges</h3>
+            <div class="modal-body">
+                <div class="panel">
+                    <h4 class="title" style="font-size:18px;margin:0 0 8px">Streaks</h4>
+                    <div id="streaks-list" class="grid two"></div>
+                </div>
+                <div class="panel space-top">
+                    <h4 class="title" style="font-size:18px;margin:0 0 8px">Personal Badges</h4>
+                    <div class="subtitle" style="margin:0 0 8px">Permanently earned when you hit milestones.</div>
+                    <div id="badges-personal"></div>
+                </div>
+                <div class="panel space-top">
+                    <h4 class="title" style="font-size:18px;margin:0 0 8px">Versus Badges</h4>
+                    <div class="subtitle" style="margin:0 0 8px">Competitive—these can change hands based on the last 7 days.</div>
+                    <div id="badges-versus"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        /* BEGIN: full logic (kept identical to your working build) */
         (() => {
-            /* ------------------ helpers & storage ------------------ */
-            const BUS = (() => { try { if ('BroadcastChannel' in window) { const ch = new BroadcastChannel('household-favors'); return { post: m => ch.postMessage(m), on: f => ch.addEventListener('message', e => f(e.data)) } } } catch { } return { post: () => { }, on: () => { } } })();
-            const USERS = ['spibbs', 'sneefli']; let currentUser = sessionStorage.getItem('hf.currentUser') || null;
+            /* ===== Core helpers & state ===== */
+            const USERS = ['spibbs', 'sneefli'];
+            let currentUser = sessionStorage.getItem('hf.currentUser') || null;
             const fmt = n => (Math.round((n ?? 0) * 100) / 100).toFixed(2);
-            const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
-            function weekKey(dt = new Date()) { const d = new Date(dt); const day = (d.getDay() + 6) % 7; d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - day); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
-            const loadJSON = (k, f) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? f; } catch { return f; } };
-            const saveJSON = (k, v) => localStorage.setItem(k, JSON.stringify(v));
-            const otherUser = () => currentUser === 'spibbs' ? 'sneefli' : 'spibbs';
+            const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+            function weekKey(dt = new Date()) { const d = new Date(dt); const w = (d.getDay() + 6) % 7; d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - w); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+            const load = (k, f) => { try { return JSON.parse(localStorage.getItem(k)) ?? f } catch { return f } };
+            const save = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+            const other = () => currentUser === 'spibbs' ? 'sneefli' : 'spibbs';
+            const BUS = (() => { try { if ('BroadcastChannel' in window) { const ch = new BroadcastChannel('hf'); return { post: x => ch.postMessage(x), on: f => ch.addEventListener('message', e => f(e.data)) } } } catch { } return { post: () => { }, on: () => { } } })();
 
-            /* config */
-            function getConfig() { return loadJSON('hf.config', { cutoff: '23:59', tz: 'local' }); }
-            function saveConfig(patch) { const now = getConfig(); saveJSON('hf.config', { ...now, ...patch }); updateCutoffLabel(); scheduleDailyCheck(); }
-            function updateCutoffLabel() { const cfg = getConfig(); const label = document.getElementById('cutoff-label'); if (label) label.textContent = cfg.cutoff; const prev = document.getElementById('cutoff-preview'); if (prev) { const tzText = (cfg.tz === 'local') ? 'Local' : ('UTC' + (cfg.tz >= 0 ? '+' : '') + (cfg.tz / 60)); prev.textContent = `Cutoff set to ${cfg.cutoff}, timezone: ${tzText}`; } }
+            /* ===== Sounds ===== */
+            const SND = (() => {
+                let ctx; const ensure = () => { ctx = ctx || new (AudioContext || webkitAudioContext)(); return ctx; };
+                const ping = (f = 520, d = .08, v = .035) => { const c = ensure(), o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.value = v; o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + d) };
+                return { ui: () => ping(420, .05, .03), done: () => { ping(560); setTimeout(() => ping(690), 80) }, day: () => { ping(520, .12, .06); setTimeout(() => ping(720, .14, .05), 110); setTimeout(() => ping(640, .12, .05), 220) } };
+            })();
 
-            /* default tasks */
-            const DEFAULT_TASKS = {
-                'Kitchen': [
-                    { text: 'Do the dishes', weight: 0.75, freq: 'daily' },
-                    { text: 'Clean the litter box', weight: 1.0, freq: 'daily' },
-                    { text: 'Take out the trash', weight: 0.5, freq: 'daily' },
-                    { text: 'Clean the stovetop', weight: 0.5, freq: 'daily' },
-                    { text: 'Wipe down surfaces and mop/sweep floors', weight: 1.0, freq: 'weekly' }
-                ],
-                'Living Room': [
-                    { text: 'Clear all surfaces of trash, food, and clutter', weight: 0.5, freq: 'daily' },
-                    { text: 'Neatly place pillows on couch and put blankets away', weight: 0.25, freq: 'daily' },
-                    { text: 'Clean desk areas of trash and clutter', weight: 0.5, freq: 'daily' },
-                    { text: 'Vacuum', weight: 0.75, freq: 'weekly' },
-                    { text: 'Wipe down surfaces', weight: 0.5, freq: 'weekly' }
-                ],
-                'Bedroom': [
-                    { text: 'Trash cleared from surfaces and nightstands clutter cleared', weight: 0.5, freq: 'daily' },
-                    { text: 'Vacuum', weight: 0.75, freq: 'weekly' },
-                    { text: 'Wipe down surfaces', weight: 0.5, freq: 'weekly' }
-                ],
-                'Bathroom': [
-                    { text: 'Toilet paper tower refilled', weight: 0.25, freq: 'daily' },
-                    { text: 'Bathroom trash taken out', weight: 0.5, freq: 'daily' },
-                    { text: 'Sweep/mop floors', weight: 0.75, freq: 'weekly' },
-                    { text: 'Clean sink and mirror', weight: 0.5, freq: 'weekly' },
-                    { text: 'Clean toilet', weight: 0.75, freq: 'weekly' }
-                ]
-            };
-            function getTasks() { return loadJSON('hf.tasks', DEFAULT_TASKS); }
-            function setTasks(t) { saveJSON('hf.tasks', t); BUS.post({ type: 'tasks' }); }
-
-            /* assignments & completions */
-            const dailyAssignKey = 'hf.dailyAssign', dailyDoneKey = 'hf.dailyDone';
-            const weekAssignKey = 'hf.week.assignments', weekDoneKey = 'hf.week.completions';
-            function dailyAssignments() { return loadJSON(dailyAssignKey, {}); }
-            function saveDailyAssignments(x) { saveJSON(dailyAssignKey, x); BUS.post({ type: 'daily-assign' }); }
-            function dailyCompletions() { return loadJSON(dailyDoneKey, {}); }
-            function saveDailyCompletions(x) { saveJSON(dailyDoneKey, x); BUS.post({ type: 'daily-done' }); }
-            function weekAssignments() { return loadJSON(weekAssignKey, {}); }
-            function saveWeekAssignments(x) { saveJSON(weekAssignKey, x); BUS.post({ type: 'week-assign' }); }
-            function weekCompletions() { return loadJSON(weekDoneKey, {}); }
-            function saveWeekCompletions(x) { saveJSON(weekDoneKey, x); BUS.post({ type: 'week-done' }); }
-
-            const isDaily = t => t.freq === 'daily', isWeekly = t => t.freq === 'weekly';
-            const weightFor = (room, text) => { const arr = getTasks()[room] || []; const f = arr.find(t => t.text === text); return f ? f.weight : 0.5; };
-
-            function ensureDailyAssignments() {
-                const dk = todayKey(); const all = dailyAssignments(); if (all[dk]) return;
-                const flat = []; for (const [room, arr] of Object.entries(getTasks())) { arr.filter(isDaily).forEach(t => flat.push(`${room}::${t.text}`)); }
-                flat.sort(() => Math.random() - 0.5);
-                const counts = { spibbs: 0, sneefli: 0 }; const map = {};
-                flat.forEach(k => { const who = counts.spibbs <= counts.sneefli ? 'spibbs' : 'sneefli'; map[k] = who; counts[who]++; });
-                all[dk] = map; saveDailyAssignments(all);
-            }
-            function ensureWeeklyAssignments() {
-                const wk = weekKey(); const all = weekAssignments(); const expected = [];
-                for (const [room, arr] of Object.entries(getTasks())) { arr.filter(isWeekly).forEach(t => expected.push(`${room}::${t.text}`)); }
-                let need = !all[wk]; if (!need) { const cur = all[wk] || {}; const hits = expected.filter(k => Object.prototype.hasOwnProperty.call(cur, k)).length; if (hits < expected.length) need = true; }
-                if (!need) return; const flat = expected.slice().sort(() => Math.random() - 0.5); const counts = { spibbs: 0, sneefli: 0 }; const assign = {};
-                flat.forEach(id => { const chosen = counts.spibbs <= counts.sneefli ? 'spibbs' : 'sneefli'; assign[id] = chosen; counts[chosen]++; });
-                all[wk] = assign; saveWeekAssignments(all);
-            }
-
-            /* balances & history */
-            function loadBalances() { return loadJSON('hf.balances', { spibbs: 0, sneefli: 0 }); }
-            function saveBalances(o) { saveJSON('hf.balances', o); BUS.post({ type: 'balances' }); updateCards(); renderPeek(); renderModalBalances(); renderSummary(); }
-            function loadTx() { return loadJSON('hf.tx', []); }
-            function saveTx(list) { saveJSON('hf.tx', list); BUS.post({ type: 'tx' }); renderHistory(); renderSummary(); }
-            function logTx(entry) { const list = loadTx(); list.push({ id: Date.now() + Math.random(), time: new Date().toISOString(), ...entry }); saveTx(list); }
-            function adjustBalance(user, delta, tx) { const b = loadBalances(); b[user] = (b[user] || 0) + delta; saveBalances(b); logTx({ actor: user, amount: Math.abs(delta), ...tx }); }
-
-            /* GRACE TOKENS */
-            function getGrace() { return loadJSON('hf.grace', { spibbs: 0, sneefli: 0 }); }
-            function setGrace(obj) { saveJSON('hf.grace', obj); BUS.post({ type: 'grace' }); }
-            function getGraceUse() { return loadJSON('hf.grace.use', {}); }
-            function setGraceUse(map) { saveJSON('hf.grace.use', map); BUS.post({ type: 'grace-use' }); }
-            function isGraceActive(u, d = todayKey()) { const m = getGraceUse(); return !!(m[d] && m[d][u]); }
-            function toggleGraceToday(active) {
-                const d = todayKey(); const m = getGraceUse(); m[d] = m[d] || {};
-                if (active) { m[d][currentUser] = true; } else { delete m[d][currentUser]; if (Object.keys(m[d]).length === 0) delete m[d]; }
-                setGraceUse(m);
-                renderDaily(); renderModalBalances(); renderStreak();  /* update streak chip live */
-            }
-            function accrueWeeklyGraceIfNeeded() {
-                const wk = weekKey(); const last = localStorage.getItem('hf.grace.lastAccruedWeek');
-                if (last === wk) return;
-                const g = getGrace(); USERS.forEach(u => g[u] = (g[u] || 0) + 1);
-                setGrace(g); localStorage.setItem('hf.grace.lastAccruedWeek', wk);
-            }
-
-            /* streaks */
-            function getStreak() { return loadJSON('hf.streak', { spibbs: { count: 0, last: '' }, sneefli: { count: 0, last: '' } }); }
-            function setStreak(s) { saveJSON('hf.streak', s); BUS.post({ type: 'streak' }); renderStreak(); }
-            function todayComplete(u) {
-                ensureDailyAssignments();
-                if (isGraceActive(u)) return true;
-                const dk = todayKey(); const assigns = dailyAssignments()[dk] || {};
-                const mine = Object.keys(assigns).filter(k => assigns[k] === u);
-                const done = (dailyCompletions()[dk]?.[u]) || {};
-                if (mine.length === 0) return true;
-                return mine.every(k => !!done[k]);
-            }
-            function renderStreak() {
-                const el = document.getElementById('streak-chip'); if (!el || !currentUser) return;
-                const s = getStreak()[currentUser] || { count: 0, last: '' };
-                const base = s.count || 0;
-                const extra = todayComplete(currentUser) ? 1 : 0;   // include today if already complete/graced
-                el.textContent = `🔥 ${base + extra}`;
-            }
-
-            /* alerts */
-            function getAlerts(u) { return loadJSON(`hf.alerts.${u}`, []); }
-            function saveAlerts(u, arr) { saveJSON(`hf.alerts.${u}`, arr); }
-            function pushAlert(to, msg, actionsHTML, key) {
-                const safeMsg = (typeof msg === 'string') ? msg : (msg == null ? '' : String(msg));
-                if (!safeMsg) return;
-                const arr = getAlerts(to);
-                if (key) { const idx = arr.findIndex(a => a.key === key); if (idx >= 0) arr.splice(idx, 1); }
-                const id = Date.now() + Math.random();
-                arr.push({ id, key: key || null, msg: safeMsg, actions: actionsHTML || '' }); saveAlerts(to, arr);
-                if (currentUser === to) renderAlerts();
-                BUS.post({ type: 'alert', to });
-            }
-            function renderAlerts() {
-                const box = document.getElementById('alerts');
-                if (!box || !currentUser || document.getElementById('view-dashboard').style.display === 'none') { box.innerHTML = ''; return; }
-                box.innerHTML = '';
-                (getAlerts(currentUser) || []).forEach(({ id, msg, actions }) => {
-                    if (!msg || msg === 'undefined') return;
-                    const w = document.createElement('div'); w.className = 'alert';
-                    const m = document.createElement('div'); m.className = 'msg'; m.innerHTML = msg;
-                    const right = document.createElement('div'); right.style.display = 'flex'; right.style.gap = '8px'; right.style.alignItems = 'center';
-                    if (actions) { const wrap = document.createElement('div'); wrap.className = 'actions'; wrap.innerHTML = actions; right.appendChild(wrap); }
-                    const x = document.createElement('div'); x.className = 'close'; x.textContent = '✕';
-                    x.onclick = () => { saveAlerts(currentUser, getAlerts(currentUser).filter(it => it.id !== id)); renderAlerts(); };
-                    right.appendChild(x);
-                    w.appendChild(m); w.appendChild(right); box.appendChild(w);
-                });
-            }
-
-            /* Household Watch with Undo */
-            const HOUSEHOLD_WATCH = [
+            /* ===== Config ===== */
+            const DEFAULT_WATCH = [
                 'All beauty/hair product returned to sink cabinets. No empty product or trash in cabinets.',
                 'Hair dryer and shaving materials returned to drawer and unplugged',
                 'No blankets or clothing on the floor (Household Wide)',
                 'Kitchen counters cleared of all trash and clutter',
                 'Kitchen should be cleaned and cleared of any trash or stray ingredients immediately after cooking.'
             ];
+            function getCfg() {
+                const base = load('hf.config', { cutoff: '23:59', tz: 'local' });
+                if (!base.watch) { base.watch = { enabled: true, rules: DEFAULT_WATCH.map(t => ({ text: t, value: 0.25, enabled: true })) }; }
+                if (!base.mystery) { base.mystery = { enabled: true, bonus: 1.00, cadenceDays: 30 }; }
+                if (!base.rush) { base.rush = { enabled: true, bonus: 0.05, rangeStart: '12:00', rangeEnd: '23:00', cadenceDays: 1 }; }
+                return base;
+            }
+            function setCfg(p) { save('hf.config', { ...getCfg(), ...p }); updateCutoffLabel(); scheduleDailyCheck(); }
+
+            const AV = u => `hf.avatar.${u}`;
+            function getAvatar(u) { return localStorage.getItem(AV(u)) || ''; }
+            function setAvatar(u, data) { localStorage.setItem(AV(u), data || ''); BUS.post({ type: 'avatar', user: u }); }
+
+            /* ===== Tasks (pos/neg) ===== */
+            const DEFAULT_TASKS = {
+                "Kitchen": [{ "text": "Do the dishes", "pos": 0.25, "neg": 0.75, "freq": "daily" }, { "text": "Clean the litter box", "pos": 0.25, "neg": 1, "freq": "daily" }, { "text": "Take out the trash", "pos": 0.25, "neg": 0.5, "freq": "daily" }, { "text": "Clean the stovetop", "pos": 0.25, "neg": 0.5, "freq": "daily" }, { "text": "Wipe down surfaces and mop/sweep floors", "pos": 0.3, "neg": 1, "freq": "weekly" }],
+                "Living Room": [{ "text": "Clear all surfaces of trash, food, and clutter", "pos": 0.25, "neg": 0.5, "freq": "daily" }, { "text": "Neatly place pillows on couch and put blankets away", "pos": 0.2, "neg": 0.25, "freq": "daily" }, { "text": "Clean desk areas of trash and clutter", "pos": 0.25, "neg": 0.5, "freq": "daily" }, { "text": "Vacuum", "pos": 0.3, "neg": 0.75, "freq": "weekly" }, { "text": "Wipe down surfaces", "pos": 0.25, "neg": 0.5, "freq": "weekly" }],
+                "Bedroom": [{ "text": "Trash cleared from surfaces and nightstands clutter cleared", "pos": 0.25, "neg": 0.5, "freq": "daily" }, { "text": "Vacuum", "pos": 0.3, "neg": 0.75, "freq": "weekly" }, { "text": "Wipe down surfaces", "pos": 0.25, "neg": 0.5, "freq": "weekly" }],
+                "Bathroom": [{ "text": "Toilet paper tower refilled", "pos": 0.2, "neg": 0.25, "freq": "daily" }, { "text": "Bathroom trash taken out", "pos": 0.25, "neg": 0.5, "freq": "daily" }, { "text": "Sweep/mop floors", "pos": 0.3, "neg": 0.75, "freq": "weekly" }, { "text": "Clean sink and mirror", "pos": 0.25, "neg": 0.5, "freq": "weekly" }, { "text": "Clean toilet", "pos": 0.3, "neg": 0.75, "freq": "weekly" }]
+            };
+            function migrate(t) { const x = JSON.parse(JSON.stringify(t)); for (const k in x) { x[k].forEach(it => { if (typeof it.pos !== 'number') { it.pos = .25 } if (typeof it.neg !== 'number') { it.neg = it.weight ?? .5; delete it.weight; } }) } return x; }
+            const getTasks = () => migrate(load('hf.tasks', DEFAULT_TASKS));
+            const setTasks = t => { save('hf.tasks', migrate(t)); BUS.post({ type: 'tasks' }) };
+            const wObj = (room, text) => { const f = (getTasks()[room] || []).find(t => t.text === text); return f ? { pos: f.pos, neg: f.neg } : { pos: .25, neg: .5 } };
+
+            /* ===== Assignments & completion ===== */
+            const DAK = 'hf.dailyAssign', DCK = 'hf.dailyDone', WAK = 'hf.week.assign', WCK = 'hf.week.done';
+            const dAssign = () => load(DAK, {}), dSave = a => { save(DAK, a); BUS.post({ type: 'daily-assign' }) };
+            const dComp = () => load(DCK, {}), dCompSave = a => { save(DCK, a); BUS.post({ type: 'daily-done' }) };
+            const wAssign = () => load(WAK, {}), wSave = a => { save(WAK, a); BUS.post({ type: 'week-assign' }) };
+            const wComp = () => load(WCK, {}), wCompSave = a => { save(WCK, a); BUS.post({ type: 'week-done' }) };
+
+            function ensureDaily() { const dk = todayKey(); const all = dAssign(); if (all[dk]) return; const flat = []; for (const [r, arr] of Object.entries(getTasks())) arr.filter(t => t.freq === 'daily').forEach(t => flat.push(`${r}::${t.text}`)); flat.sort(() => Math.random() - .5); const ct = { spibbs: 0, sneefli: 0 }, map = {}; flat.forEach(k => { const u = ct.spibbs <= ct.sneefli ? 'spibbs' : 'sneefli'; map[k] = u; ct[u]++; }); all[dk] = map; dSave(all) }
+            function ensureWeekly() { const wk = weekKey(); const all = wAssign(); const exp = []; for (const [r, arr] of Object.entries(getTasks())) arr.filter(t => t.freq === 'weekly').forEach(t => exp.push(`${r}::${t.text}`)); let need = !all[wk]; if (!need) { const hits = exp.filter(k => all[wk][k]).length; need = hits < exp.length } if (!need) return; const flat = exp.slice().sort(() => Math.random() - .5); const ct = { spibbs: 0, sneefli: 0 }, assign = {}; flat.forEach(id => { const u = ct.spibbs <= ct.sneefli ? 'spibbs' : 'sneefli'; assign[id] = u; ct[u]++; }); all[wk] = assign; wSave(all) }
+
+            /* ===== Balances & transactions ===== */
+            const getBal = () => load('hf.balances', { spibbs: 0, sneefli: 0 });
+            const setBal = b => { save('hf.balances', b); BUS.post({ type: 'balances' }); updateCards(); peek(); modalBalances() };
+            const getTx = () => load('hf.tx', []);
+            const setTx = l => { save('hf.tx', l); BUS.post({ type: 'tx' }); renderHistory() };
+            const logTx = e => { const l = getTx(); l.push({ id: Date.now() + Math.random(), time: new Date().toISOString(), ...e }); setTx(l) };
+            function addBal(user, delta, tx) { const b = getBal(); b[user] = (b[user] || 0) + delta; setBal(b); logTx({ actor: user, amount: Math.abs(delta), ...tx }) }
+
+            /* ===== Grace ===== */
+            const G = 'hf.grace', GU = 'hf.grace.use';
+            const grace = () => load(G, { spibbs: 0, sneefli: 0 });
+            const setGrace = o => { save(G, o); BUS.post({ type: 'grace' }) };
+            const gUse = () => load(GU, {});
+            const setGUse = o => { save(GU, o); BUS.post({ type: 'grace-use' }) };
+            const graceActive = (u, d = todayKey()) => !!(gUse()[d] && gUse()[d][u]);
+            function toggleGrace(active) { const d = todayKey(); const m = gUse(); m[d] = m[d] || {}; if (active) { m[d][currentUser] = true } else { delete m[d][currentUser]; if (!Object.keys(m[d]).length) delete m[d] } setGUse(m); renderDaily() }
+
+            /* ===== Streaks ===== */
+            const ST = 'hf.streak';
+            const getStreak = () => load(ST, { spibbs: { count: 0, last: '' }, sneefli: { count: 0, last: '' } });
+            const setStreak = s => { save(ST, s); BUS.post({ type: 'streak' }); renderStreak() };
+            function todayComplete(u) { ensureDaily(); if (graceActive(u)) return true; const dk = todayKey(), as = dAssign()[dk] || {}; const mine = Object.keys(as).filter(k => as[k] === u); const done = (dComp()[dk]?.[u]) || {}; return mine.length ? mine.every(k => !!done[k]) : true }
+            const badgesInline = c => [c >= 3 ? 'Spark Starter' : null, c >= 10 ? 'Room Ranger' : null, c >= 30 ? 'Clean Machine' : null].filter(Boolean).map(b => `<span class="badge">🏅 ${b}</span>`).join('');
+            function renderStreak() { const el = document.getElementById('streak-chip'); if (!el || !currentUser) return; const s = getStreak()[currentUser] || { count: 0, last: '' }; const add = todayComplete(currentUser) ? 1 : 0; el.innerHTML = `🔥 ${s.count + add} ${badgesInline(s.count + add)}` }
+
+            /* ===== Alerts ===== */
+            const AL = u => `hf.alerts.${u}`;
+            const getAlerts = u => load(AL(u), []);
+            const setAlerts = (u, a) => save(AL(u), a);
+            function updateBellBadge() { const b = document.getElementById('bell-btn'); if (!b || !currentUser) return; const n = getAlerts(currentUser).length; if (n > 0) { b.classList.add('has-badge'); b.setAttribute('data-badge', n > 9 ? '9+' : String(n)); } else { b.classList.remove('has-badge'); b.removeAttribute('data-badge'); } }
+            function pushAlert(to, msg, actionsHTML, key) { const safe = (msg ?? '') + ''; const arr = getAlerts(to); if (key) { const i = arr.findIndex(a => a.key === key); if (i >= 0) arr.splice(i, 1) } arr.push({ id: Date.now() + Math.random(), key, msg: safe, actions: actionsHTML || '' }); setAlerts(to, arr); if (currentUser === to) { renderAlerts(); updateBellBadge(); } BUS.post({ type: 'alert', to }); }
+            function renderAlerts() {
+                const p = document.getElementById('notif-panel'); if (!p || !currentUser) return; const list = getAlerts(currentUser).slice().sort((a, b) => b.id - a.id); Array.from(p.querySelectorAll('.nitem, .n-empty')).forEach(n => n.remove()); if (!list.length) { const empty = document.createElement('div'); empty.className = 'n-empty muted'; empty.style.padding = '6px'; empty.textContent = 'No notifications'; p.appendChild(empty); updateBellBadge(); return }
+                list.forEach(({ id, msg, actions }) => { if (!msg || msg === 'undefined') return; const row = document.createElement('div'); row.className = 'nitem'; const content = document.createElement('div'); content.style.flex = '1'; content.innerHTML = `<div>${msg}</div>${actions ? `<div style="margin-top:6px">${actions}</div>` : ''}`; const x = document.createElement('div'); x.className = 'x'; x.textContent = '✕'; x.onclick = (e) => { e.stopPropagation(); setAlerts(currentUser, getAlerts(currentUser).filter(a => a.id !== id)); renderAlerts(); updateBellBadge() }; row.appendChild(content); row.appendChild(x); p.appendChild(row) }); updateBellBadge();
+            }
+            document.getElementById('bell-btn').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('notif-panel').classList.toggle('show') });
+            document.addEventListener('click', e => { const np = document.getElementById('notif-panel'); const bell = document.getElementById('bell-btn'); if (np && !np.contains(e.target) && !bell.contains(e.target)) np.classList.remove('show') });
+            document.getElementById('dismiss-all').addEventListener('click', (e) => { e.stopPropagation(); if (!currentUser) return; setAlerts(currentUser, []); renderAlerts(); updateBellBadge() });
+
+            /* ===== Household Watch ===== */
             function renderWatch() {
-                const root = document.getElementById('household-watch'); root.innerHTML = '';
-                const key = `hf.watchClaims.${todayKey()}`;
-                const getClaims = () => loadJSON(key, { spibbs: {}, sneefli: {} }); const setClaims = (x) => saveJSON(key, x);
-                HOUSEHOLD_WATCH.forEach((label, idx) => {
-                    const row = document.createElement('label'); row.className = 'task';
-                    const cb = document.createElement('input'); cb.type = 'checkbox';
-                    const claims = getClaims(); cb.checked = !!claims[currentUser]?.[idx]; cb.disabled = !!claims[currentUser]?.[idx];
-                    cb.onchange = () => {
-                        if (!cb.checked) return;
-                        const c = getClaims(); c[currentUser] = c[currentUser] || {}; if (c[currentUser][idx]) return; c[currentUser][idx] = true; setClaims(c);
-                        adjustBalance(currentUser, +0.25, { type: 'watch_claim', reason: `Household Watch: "${label}"` });
-                        // notify other user
-                        pushAlert(otherUser(), `${currentUser} claimed Household Watch: "<b>${label}</b>" (+0.25 Favor).`);
-                        // add undo banner for me
-                        const ak = `watch:${todayKey()}:${idx}:${currentUser}`;
-                        pushAlert(currentUser, `Claim added: “<b>${label}</b>” (+0.25).`, `<button class="icon-btn" onclick="window._undoWatch('${todayKey()}',${idx},'${currentUser}')">Undo</button>`, ak);
-                        cb.disabled = true;
-                    };
-                    row.appendChild(cb); row.append(label); root.appendChild(row);
-                });
+                const cfg = getCfg(); const root = document.getElementById('household-watch'); root.innerHTML = ''; if (!cfg.watch.enabled) { root.innerHTML = '<div class="muted">Household Watch is disabled in Settings.</div>'; return }
+                const rules = cfg.watch.rules.filter(r => r.enabled !== false);
+                const key = `hf.watch.${todayKey()}`; const get = () => load(key, { spibbs: {}, sneefli: {} }); const set = o => save(key, o);
+                rules.forEach((rule, idx) => { const row = document.createElement('label'); row.className = 'task'; const cb = document.createElement('input'); cb.type = 'checkbox'; const c = get(); cb.checked = !!c[currentUser]?.[idx]; cb.disabled = !!c[currentUser]?.[idx]; cb.onchange = () => { if (!cb.checked) return; const map = get(); map[currentUser] = map[currentUser] || {}; if (map[currentUser][idx]) return; map[currentUser][idx] = true; set(map); addBal(currentUser, +Number(rule.value || 0), { type: 'watch_claim', reason: `Household Watch: "${rule.text}"` }); pushAlert(other(), `${currentUser} claimed: “<b>${rule.text}</b>” (+${fmt(Number(rule.value || 0))})`); pushAlert(currentUser, `Claim added: “<b>${rule.text}</b>” (+${fmt(Number(rule.value || 0))})`, `<button class="round-ghost" style="height:28px" onclick="window._undoWatch('${todayKey()}',${idx},'${currentUser}')">Undo</button>`, `watch:${todayKey()}:${idx}:${currentUser}`); cb.disabled = true }; row.appendChild(cb); row.append(rule.text); const meta = document.createElement('div'); meta.className = 'meta'; meta.innerHTML = `<span class="up">↑ +${fmt(Number(rule.value || 0))}</span>`; row.appendChild(meta); root.appendChild(row) })
             }
-            window._undoWatch = function (date, idx, user) {
-                if (user !== currentUser) return;
-                const key = `hf.watchClaims.${date}`;
-                const data = loadJSON(key, { spibbs: {}, sneefli: {} }); if (!data[user] || !data[user][idx]) return;
-                const label = HOUSEHOLD_WATCH[idx];
-                delete data[user][idx]; saveJSON(key, data);
-                adjustBalance(currentUser, -0.25, { type: 'watch_claim', reason: `Reverted Watch claim: "${label}"` });
-                const ak = `watch:${date}:${idx}:${user}`; const arr = getAlerts(currentUser).filter(a => a.key !== ak); saveAlerts(currentUser, arr); renderAlerts();
-                renderWatch();
-                pushAlert(otherUser(), `${currentUser} reverted a Watch claim: “<b>${label}</b>”.`);
-            };
+            window._undoWatch = (date, idx, user) => { if (user !== currentUser) return; const cfg = getCfg(); const rule = cfg.watch.rules[idx]; const key = `hf.watch.${date}`; const map = load(key, { spibbs: {}, sneefli: {} }); if (!map[user] || !map[user][idx]) return; delete map[user][idx]; save(key, map); addBal(currentUser, -Number(rule.value || 0), { type: 'watch_claim', reason: `Reverted Watch: "${rule.text}"` }); setAlerts(currentUser, getAlerts(currentUser).filter(a => a.key !== `watch:${date}:${idx}:${user}`)); renderAlerts(); renderWatch(); pushAlert(other(), `${currentUser} reverted a Watch claim: “<b>${rule.text}</b>”.`) }
 
-            /* daily & weekly renders (with grace overlay) */
+            /* ===== Mystery Boost ===== */
+            function maybeMystery() {
+                const cfg = getCfg(); if (!cfg.mystery.enabled) return; const last = load('hf.mb.last', { date: '', user: '' }); const now = new Date(); const then = last.date ? new Date(last.date) : new Date(0); if (now - then < Math.max(1, cfg.mystery.cadenceDays) * 86400000) return;
+                const dk = todayKey(), as = dAssign()[dk] || {}; const mine = Object.keys(as).filter(k => as[k] === currentUser); if (!mine.length) return;
+                const chosen = mine[Math.random() * mine.length | 0]; save('hf.mb.target', { date: dk, user: currentUser, task: chosen }); save('hf.mb.last', { date: now.toISOString(), user: currentUser });
+                const el = document.createElement('div'); el.className = 'panel'; el.style.padding = '10px'; el.innerHTML = `🎁 <b>Mystery Boost:</b> one random daily task is worth <b>+${fmt(Number(cfg.mystery.bonus || 1))}</b> today!`; document.getElementById('panel-daily').prepend(el)
+            }
+            function maybePayMystery(taskKey, checked) {
+                const t = load('hf.mb.target', null); const cfg = getCfg(); if (!t || t.date !== todayKey() || t.user !== currentUser || t.task !== taskKey) return; const bonus = Number(cfg.mystery.bonus || 1);
+                if (checked && !t.paid) { addBal(currentUser, +bonus, { type: 'bonus', reason: 'Mystery Boost' }); t.paid = true; save('hf.mb.target', t) }
+                if (!checked && t.paid) { addBal(currentUser, -bonus, { type: 'bonus_revert', reason: 'Revert Mystery Boost' }); t.paid = false; save('hf.mb.target', t) }
+            }
+
+            /* ===== Rush Hour ===== */
+            function getRush() { return getCfg().rush }
+            function setRush(cfg) { setCfg({ rush: cfg }) }
+            function scheduleRushIfNeeded() {
+                const cfg = getRush(); if (!cfg.enabled) return;
+                const rec = load('hf.rush.window', null); const today = todayKey();
+                if (rec && rec.date === today) return;
+                const last = load('hf.rush.last', { date: '2000-01-01' }); const diffDays = Math.floor((new Date() - new Date(last.date)) / 86400000);
+                if (diffDays < Math.max(1, cfg.cadenceDays || 1)) { save('hf.rush.window', { date: today, disabled: true }); return; }
+                const [sh, sm] = cfg.rangeStart.split(':').map(Number), [eh, em] = cfg.rangeEnd.split(':').map(Number);
+                const startBase = new Date(); startBase.setHours(sh, sm, 0, 0);
+                const endBase = new Date(); endBase.setHours(eh, em, 0, 0);
+                if (endBase <= startBase) { endBase.setDate(endBase.getDate() + 1); }
+                const spanMs = endBase - startBase - 60 * 60 * 1000;
+                const offset = Math.max(0, Math.floor(Math.random() * Math.max(1, spanMs)));
+                const start = new Date(+startBase + offset), end = new Date(+start + 60 * 60 * 1000);
+                save('hf.rush.window', { date: today, start: start.toISOString(), end: end.toISOString() });
+                save('hf.rush.last', { date: today });
+            }
+            function rushNow() { const rec = load('hf.rush.window', null); if (!rec || rec.disabled) return false; const now = new Date(); return now >= new Date(rec.start) && now <= new Date(rec.end); }
+            function showRushBannerIf() {
+                const anchor = document.getElementById('rush-banner-anchor'); anchor.innerHTML = ''; if (!rushNow()) return;
+                const cfg = getRush(); const el = document.createElement('div'); el.className = 'gold-banner'; const start = new Date(load('hf.rush.window').start); const end = new Date(load('hf.rush.window').end);
+                const hhmm = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+                el.innerHTML = `🏅 <b>Rush Hour</b> is active ${hhmm(start)}–${hhmm(end)}. Each completion grants <b>+${fmt(cfg.bonus || 0.05)}</b> extra.`;
+                anchor.appendChild(el);
+            }
+            function markRush(taskKey, weekly, add) { const key = `hf.rush.paid.${todayKey()}.${currentUser}.${weekly ? 'W' : 'D'}`; const map = load(key, {}); if (add) { map[taskKey] = true; } else { delete map[taskKey]; } save(key, map) }
+            function rushPaid(taskKey, weekly) { const key = `hf.rush.paid.${todayKey()}.${currentUser}.${weekly ? 'W' : 'D'}`; return !!load(key, {})[taskKey] }
+            function maybePayRush(taskKey, checked, weekly = false) {
+                const cfg = getRush(); if (!cfg.enabled) return; if (!rushNow()) return;
+                const bonus = Number(cfg.bonus || 0.05);
+                if (checked && !rushPaid(taskKey, weekly)) { addBal(currentUser, +bonus, { type: 'rush', reason: `Rush Hour ${weekly ? '(weekly)' : ''}` }); markRush(taskKey, weekly, true); }
+                if (!checked && rushPaid(taskKey, weekly)) { addBal(currentUser, -bonus, { type: 'rush_revert', reason: `Revert Rush Hour ${weekly ? '(weekly)' : ''}` }); markRush(taskKey, weekly, false); }
+            }
+
+            /* ===== Crowns ===== */
+            function roomLeader(room) { const since = new Date(); since.setDate(since.getDate() - 6); since.setHours(0, 0, 0, 0); let c = { spibbs: 0, sneefli: 0 }; const all = dComp(); for (const day in all) { const dt = new Date(day + 'T00:00:00'); if (dt < since) continue; USERS.forEach(u => { const map = all[day]?.[u] || {}; Object.keys(map).forEach(k => { if (!map[k]) return; const [r] = k.split('::'); if (r === room) c[u]++; }) }) } return c.spibbs === c.sneefli ? null : (c.spibbs > c.sneefli ? 'spibbs' : 'sneefli') }
+
+            /* ===== Selector glance & pfp ===== */
+            function renderGlance() { ensureDaily();['spibbs', 'sneefli'].forEach(u => { const a = getAvatar(u); const el = document.getElementById('av-' + u); if (el) el.style.backgroundImage = a ? `url('${a}')` : '' }); const dk = todayKey(), as = dAssign()[dk] || {}; const build = u => { const per = {}; Object.entries(as).forEach(([k, w]) => { if (w !== u) return; const [r, t] = k.split('::'); (per[r] = per[r] || []).push(t) }); return per }; function fill(id, per) { const host = document.getElementById(id); if (!host) return; host.innerHTML = ''; const rooms = Object.keys(per); if (!rooms.length) { host.textContent = 'Nothing to do here :)'; return } rooms.forEach(r => { const p = document.createElement('div'); p.innerHTML = `<div class="muted" style="font-size:12px;margin:6px 0 2px">${r}</div><ul style="margin:0;padding-left:18px">${per[r].map(t => `<li>${t}</li>`).join('')}</ul>`; host.appendChild(p) }) } fill('glance-spibbs', build('spibbs')); fill('glance-sneefli', build('sneefli')); updateCards() }
+
+            /* ===== Daily / Weekly UI ===== */
             function renderDaily() {
-                ensureDailyAssignments();
-                const dk = todayKey(); const assigns = dailyAssignments()[dk] || {}; const done = (dailyCompletions()[dk]?.[currentUser]) || {};
-                const root = document.getElementById('daily-tasks'); root.innerHTML = '';
-                const grouped = {}; Object.entries(assigns).forEach(([key, who]) => { const [room, task] = key.split('::'); if (who !== currentUser) return; (grouped[room] = grouped[room] || []).push(task); });
-                for (const [room, arr] of Object.entries(grouped)) {
-                    const r = document.createElement('div'); r.className = 'room'; r.innerHTML = `<h3>${room}</h3>`;
-                    arr.forEach(task => {
-                        const key = `${room}::${task}`; const row = document.createElement('label'); row.className = 'task';
-                        const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!done[key]; cb.disabled = isGraceActive(currentUser);
-                        const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = `weight ${weightFor(room, task).toFixed(2)}`;
-                        cb.onchange = () => { const all = dailyCompletions(); all[dk] = all[dk] || { spibbs: {}, sneefli: {} }; all[dk][currentUser][key] = cb.checked; saveDailyCompletions(all); evaluateAndMaybeConfetti(); renderStreak(); };
-                        row.appendChild(cb); row.append(task); row.appendChild(meta); r.appendChild(row);
-                    });
-                    root.appendChild(r);
-                }
-                const pane = document.getElementById('panel-daily');
-                const existing = pane.querySelector('.grace-overlay'); if (existing) existing.remove();
-                if (isGraceActive(currentUser)) {
-                    const overlay = document.createElement('div'); overlay.className = 'grace-overlay';
-                    overlay.innerHTML = `<div class="grace-badge"><h4><span class="shield"></span> Grace Token Activated</h4><div class="muted">All of today’s daily tasks are forgiven.</div><button class="btn" id="undo-grace">Un-redeem</button></div>`;
-                    pane.style.position = 'relative'; overlay.style.borderRadius = 'var(--radius)'; pane.appendChild(overlay);
-                    overlay.querySelector('#undo-grace').onclick = () => { const g = getGrace(); g[currentUser] = (g[currentUser] || 0) + 1; setGrace(g); toggleGraceToday(false); pushAlert(currentUser, 'Grace token returned. Tasks re-enabled.'); };
-                }
-                renderSelectorGlance();
-                renderStreak();
+                ensureDaily(); const dk = todayKey(); const as = dAssign()[dk] || {}; const done = (dComp()[dk]?.[currentUser]) || {}; const root = document.getElementById('daily-tasks'); root.innerHTML = ''; const grouped = {}; Object.entries(as).forEach(([k, w]) => { if (w !== currentUser) return; const [r, t] = k.split('::'); (grouped[r] = grouped[r] || []).push(t) }); for (const [r, arr] of Object.entries(grouped)) { const box = document.createElement('div'); box.className = 'room'; box.innerHTML = `<h3>${r}${roomLeader(r) === currentUser ? ' 👑' : ''}</h3>`; arr.forEach(t => { const key = `${r}::${t}`; const w = wObj(r, t); const row = document.createElement('label'); row.className = 'task'; const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!done[key]; cb.disabled = graceActive(currentUser); const meta = document.createElement('div'); meta.className = 'meta'; meta.innerHTML = `<span class="up">↑ +${w.pos.toFixed(2)}</span> &nbsp; <span class="down">↓ ${w.neg.toFixed(2)}</span>`; cb.onchange = () => { const all = dComp(); all[dk] = all[dk] || { spibbs: {}, sneefli: {} }; const was = !!all[dk][currentUser][key]; all[dk][currentUser][key] = cb.checked; dCompSave(all); if (cb.checked && !was) { addBal(currentUser, +w.pos, { type: 'complete', reason: `Completed: ${t} (${r})` }); SND.done() } if (!cb.checked && was) { addBal(currentUser, -w.pos, { type: 'revert', reason: `Unchecked: ${t} (${r})` }) } maybePayMystery(key, cb.checked); maybePayRush(key, cb.checked, false); renderStreak(); tryCelebrate() }; row.appendChild(cb); row.append(t); row.appendChild(meta); box.appendChild(row) }); root.appendChild(box) }
+                const pane = document.getElementById('panel-daily'); pane.querySelector('.grace-overlay')?.remove(); if (graceActive(currentUser)) { const overlay = document.createElement('div'); overlay.className = 'grace-overlay'; overlay.innerHTML = `<div class="grace-badge"><h4><span class="shield"></span> Grace Token Activated</h4><div class="muted">All daily tasks forgiven today.</div><button class="round-ghost" id="undo-grace" style="height:36px;margin-top:8px">Un-redeem</button></div>`; pane.style.position = 'relative'; pane.appendChild(overlay); overlay.querySelector('#undo-grace').onclick = () => { const g = grace(); g[currentUser] = (g[currentUser] || 0) + 1; setGrace(g); toggleGrace(false); pushAlert(currentUser, 'Grace token returned. Tasks re-enabled.') } } maybeMystery(); renderStreak(); renderGlance(); showRushBannerIf()
             }
-            function renderWeekly() {
-                ensureWeeklyAssignments();
-                const wk = weekKey(); const assigns = weekAssignments()[wk] || {}; const comps = (weekCompletions()[wk]?.[currentUser]) || {};
-                const root = document.getElementById('weekly-tasks'); root.innerHTML = '';
-                for (const [room, arr] of Object.entries(getTasks())) {
-                    const my = arr.filter(t => t.freq === 'weekly').filter(t => assigns[`${room}::${t.text}`] === currentUser);
-                    const r = document.createElement('div'); r.className = 'room'; r.innerHTML = `<h3>${room}</h3>`;
-                    if (my.length === 0) { const p = document.createElement('div'); p.className = 'muted'; p.textContent = 'Nothing to do here :)'; r.appendChild(p); }
-                    else {
-                        my.forEach(t => {
-                            const id = `${room}::${t.text}`; const row = document.createElement('label'); row.className = 'task';
-                            const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!comps[id];
-                            const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = `weight ${t.weight.toFixed(2)}`;
-                            cb.onchange = () => { const all = weekCompletions(); all[wk] = all[wk] || { spibbs: {}, sneefli: {} }; all[wk][currentUser][id] = cb.checked; saveWeekCompletions(all); renderSummary(); };
-                            row.appendChild(cb); row.append(t.text); row.appendChild(meta); r.appendChild(row);
-                        });
-                    }
-                    root.appendChild(r);
-                }
-                renderSummary();
+            function renderWeekly() { ensureWeekly(); const wk = weekKey(); const as = wAssign()[wk] || {}; const comps = (wComp()[wk]?.[currentUser]) || {}; const root = document.getElementById('weekly-tasks'); root.innerHTML = ''; for (const [r, arr] of Object.entries(getTasks())) { const my = arr.filter(t => t.freq === 'weekly' && as[`${r}::${t.text}`] === currentUser); const box = document.createElement('div'); box.className = 'room'; box.innerHTML = `<h3>${r}${roomLeader(r) === currentUser ? ' 👑' : ''}</h3>`; if (!my.length) { const p = document.createElement('div'); p.className = 'muted'; p.textContent = 'Nothing to do here :)'; box.appendChild(p) } else { my.forEach(t => { const id = `${r}::${t.text}`; const row = document.createElement('label'); row.className = 'task'; const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!comps[id]; cb.onchange = () => { const all = wComp(); all[wk] = all[wk] || { spibbs: {}, sneefli: {} }; const was = !!all[wk][currentUser][id]; all[wk][currentUser][id] = cb.checked; wCompSave(all); maybePayRush(id, cb.checked, true) }; const meta = document.createElement('div'); meta.className = 'meta'; meta.innerHTML = `<span class="up">↑ +${(t.pos ?? .25).toFixed(2)}</span> &nbsp; <span class="down">↓ ${(t.neg ?? .5).toFixed(2)}</span>`; row.appendChild(cb); row.append(t.text); row.appendChild(meta); box.appendChild(row) }) } root.appendChild(box) } }
+
+            /* ===== Cards / pfp ===== */
+            function updateCards() { const b = getBal();['spibbs', 'sneefli'].forEach(u => { const el = document.getElementById('bal-card-' + u); if (el) el.textContent = fmt(b[u] || 0) }) }
+            function peek() { const b = getBal(); const el = document.getElementById('pfp-balance'); if (el && currentUser) el.textContent = `${fmt(b[currentUser] || 0)} Favors` }
+
+            /* ===== Wallet ===== */
+            const wOv = document.getElementById('wallet-overlay'); const wClose = document.getElementById('wallet-close');
+            function openWallet() { wOv.classList.add('show'); renderHistory(); modalBalances() }
+            function closeWallet() { wOv.classList.remove('show') }
+            wOv.addEventListener('click', e => { if (e.target === wOv) closeWallet() }); wClose.onclick = closeWallet;
+            function modalBalances() { if (!currentUser) return; const b = getBal(); const o = other(); const g = grace(); document.getElementById('modal-my').textContent = fmt(b[currentUser] || 0); document.getElementById('modal-their').textContent = fmt(b[o] || 0); document.getElementById('modal-their-label').textContent = `${o}’s balance`; document.getElementById('grace-line').textContent = `Grace tokens: ${g[currentUser] ?? 0}`; document.getElementById('grace-other').textContent = `Grace tokens: ${g[o] ?? 0}` }
+            document.getElementById('menu-wallet').onclick = () => { openWallet(); document.getElementById('pfp-menu').classList.remove('show') };
+            document.getElementById('history-menu-btn').onclick = () => document.getElementById('history-menu').classList.toggle('show');
+            document.getElementById('hist-apply').onclick = () => { H.type = document.getElementById('hist-type').value; H.user = document.getElementById('hist-user').value; document.getElementById('history-menu').classList.remove('show'); renderHistory() };
+            const H = { type: 'all', user: 'both' };
+            function renderHistory() { const root = document.getElementById('history-list'); if (!root) return; const li = getTx().slice().sort((a, b) => b.time.localeCompare(a.time)).filter(t => (H.type === 'all' || t.type === H.type) && (H.user === 'both' || t.actor === H.user)); root.innerHTML = ''; if (!li.length) { root.innerHTML = '<div class="muted">No transaction history.</div>'; return } li.forEach(tx => { const row = document.createElement('div'); row.className = 'hx-item'; const sign = (tx.type === 'redeem' || tx.type === 'revert') ? '-' : '+'; row.innerHTML = `<div class="hx-amt">${sign}${fmt(tx.amount)}</div><div style="flex:1"><div>${tx.actor || ''} — ${tx.reason || tx.type}</div><div class="hx-meta">${new Date(tx.time).toLocaleString()}</div></div>`; root.appendChild(row) }) }
+            document.getElementById('btn-redeem').onclick = () => promptAmt('redeem', 'Enter how much Favor to redeem.');
+            document.getElementById('btn-grant').onclick = () => promptAmt('grant', `Enter how much Favor to add to ${other()}.`);
+            document.getElementById('btn-grace').onclick = () => { const g = grace(); if ((g[currentUser] || 0) <= 0) { pushAlert(currentUser, 'No grace tokens available.'); return } if (graceActive(currentUser)) { pushAlert(currentUser, 'Grace already active today.'); return } g[currentUser]--; setGrace(g); toggleGrace(true); pushAlert(currentUser, '🛡 Grace token used for today.'); }
+            let promptBox = null, act = null;
+            function promptAmt(which, hint) { act = which; if (!promptBox) { promptBox = document.createElement('div'); promptBox.className = 'panel'; promptBox.style.marginTop = '10px'; document.querySelector('#wallet-overlay .modal').appendChild(promptBox) } promptBox.innerHTML = `<div class="row wrap"><input id="amt" type="number" step="0.01" min="0" placeholder="Amount" style="max-width:180px"><button class="round-ghost" id="ok" style="height:36px">OK</button><button class="round-ghost" id="cancel" style="height:36px">Cancel</button></div><div class="muted" style="margin-top:6px">${hint}</div>`; document.getElementById('cancel').onclick = () => { promptBox.remove(); promptBox = null }; document.getElementById('ok').onclick = () => { const v = parseFloat(document.getElementById('amt').value || '0'); if (!v) { promptBox.remove(); promptBox = null; return } if (act === 'redeem') { const b = getBal(); if ((b[currentUser] || 0) < v) { pushAlert(currentUser, 'Not enough Favor to redeem.'); return } addBal(currentUser, -v, { type: 'redeem', reason: `Redeemed ${fmt(v)} Favor` }) } if (act === 'grant') { addBal(other(), +v, { type: 'grant', actor: currentUser, target: other(), reason: `Granted ${fmt(v)} Favor to ${other()}` }) } promptBox.remove(); promptBox = null } }
+
+            /* ===== Settings hookup (uses redesigned DOM but same IDs) ===== */
+            const sOv = document.getElementById('settings-overlay'); document.getElementById('settings-close').onclick = () => sOv.classList.remove('show');
+            document.getElementById('menu-settings').onclick = () => { sOv.classList.add('show'); populateSettings(); document.getElementById('pfp-menu').classList.remove('show') };
+            sOv.addEventListener('click', e => { if (e.target === sOv) sOv.classList.remove('show') });
+            function updateCutoffLabel() { const cfg = getCfg(); const el = document.getElementById('cutoff-label'); if (el) el.textContent = cfg.cutoff; const prv = document.getElementById('cutoff-preview'); if (prv) { const tz = cfg.tz === 'local' ? 'Local' : 'UTC' + (cfg.tz >= 0 ? '+' : '') + (cfg.tz / 60); prv.textContent = `Cutoff ${cfg.cutoff}, Timezone ${tz}`; } }
+            function populateSettings() {
+                const cfg = getCfg();
+                document.getElementById('cfg-cutoff').value = cfg.cutoff || '23:59';
+                document.getElementById('cfg-tz').value = cfg.tz || 'local';
+                document.getElementById('watch-enabled').checked = !!cfg.watch.enabled;
+                buildWatchEditor(cfg.watch.rules || []);
+                document.getElementById('mb-enabled').checked = !!cfg.mystery.enabled;
+                document.getElementById('mb-bonus').value = Number(cfg.mystery.bonus || 1).toFixed(2);
+                document.getElementById('mb-cadence').value = Number(cfg.mystery.cadenceDays || 30);
+                document.getElementById('rh-enabled').checked = !!cfg.rush.enabled;
+                document.getElementById('rh-bonus').value = Number(cfg.rush.bonus || .05).toFixed(2);
+                document.getElementById('rh-start').value = cfg.rush.rangeStart || '12:00';
+                document.getElementById('rh-end').value = cfg.rush.rangeEnd || '23:00';
+                document.getElementById('rh-cadence').value = Number(cfg.rush.cadenceDays || 1);
+                buildTaskEditor();
             }
+            document.getElementById('save-time').onclick = () => { setCfg({ cutoff: document.getElementById('cfg-cutoff').value, tz: document.getElementById('cfg-tz').value }); pushAlert(currentUser, 'Time settings saved.') };
+            document.getElementById('away-save').onclick = () => { const who = document.getElementById('away-user').value, s = document.getElementById('away-start').value, e = document.getElementById('away-end').value; const map = load('hf.away', {}); map[who] = { start: s, end: e }; save('hf.away', map); pushAlert(currentUser, `Away set for ${who} (${s}–${e}).`) };
+            document.getElementById('watch-add').onclick = () => { const list = document.getElementById('watch-editor'); list.appendChild(watchRow({ text: '', value: .25, enabled: true })) };
+            document.getElementById('watch-save').onclick = () => { const enabled = document.getElementById('watch-enabled').checked; const rules = []; document.querySelectorAll('.watch-row').forEach(r => { rules.push({ text: r.querySelector('input[type=text]').value.trim(), value: +r.querySelector('input[type=number]').value || 0, enabled: r.querySelector('input[type=checkbox]').checked }) }); setCfg({ watch: { enabled, rules } }); renderWatch(); pushAlert(currentUser, 'Household Watch settings saved.') };
+            document.getElementById('mb-save').onclick = () => { setCfg({ mystery: { enabled: document.getElementById('mb-enabled').checked, bonus: +document.getElementById('mb-bonus').value || 1, cadenceDays: Math.max(1, +document.getElementById('mb-cadence').value || 30) } }); pushAlert(currentUser, 'Mystery Boost settings saved.') };
+            document.getElementById('rh-save').onclick = () => { setRush({ enabled: document.getElementById('rh-enabled').checked, bonus: +document.getElementById('rh-bonus').value || .05, rangeStart: document.getElementById('rh-start').value || '12:00', rangeEnd: document.getElementById('rh-end').value || '23:00', cadenceDays: Math.max(1, +document.getElementById('rh-cadence').value || 1) }); scheduleRushIfNeeded(); showRushBannerIf(); pushAlert(currentUser, 'Rush Hour settings saved.') };
+            function buildWatchEditor(data) { const host = document.getElementById('watch-editor'); host.innerHTML = ''; (data || []).forEach(r => host.appendChild(watchRow(r))) }
+            function watchRow(d) { const r = document.createElement('div'); r.className = 'watch-row'; r.innerHTML = `<input type="checkbox" ${d.enabled === false ? '' : 'checked'} style="width:auto;transform:translateY(2px)"><input type="text" value="${(d.text || '').replace(/"/g, '&quot;')}" placeholder="Rule"><input type="number" step="0.01" min="0" value="${Number(d.value ?? .25).toFixed(2)}" style="max-width:160px"><button class="round-ghost" style="height:32px" onclick="this.parentElement.remove()">✕</button>`; return r }
+            document.getElementById('add-room').onclick = () => { const t = getTasks(); const name = prompt('Room name'); if (!name || t[name]) return; t[name] = []; setTasks(t); buildTaskEditor() };
+            document.getElementById('save-tasks').onclick = () => { const t = {}; document.querySelectorAll('.task-row').forEach(r => { const card = r.closest('.editor-card'); const room = card.dataset.room; (t[room] = t[room] || []).push({ text: r.querySelector('input[type=text]').value.trim(), pos: +r.children[1].value || 0, neg: +r.children[2].value || 0, freq: r.children[3].value }) }); setTasks(t); ensureDaily(); ensureWeekly(); renderDaily(); renderWeekly(); pushAlert(currentUser, 'Tasks saved & assignments regenerated.') };
+            document.getElementById('export-btn').onclick = () => { const data = JSON.stringify(getTasks(), null, 2); const blob = new Blob([data], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'tasks.json'; a.click() };
+            document.getElementById('import-btn').onclick = () => { const f = document.getElementById('import-file').files?.[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { setTasks(JSON.parse(r.result)); buildTaskEditor(); pushAlert(currentUser, 'Imported tasks.') } catch { pushAlert(currentUser, 'Invalid JSON') } }; r.readAsText(f) };
+            function buildTaskEditor() { const host = document.getElementById('task-editor'); host.innerHTML = ''; const t = getTasks(); Object.entries(t).forEach(([room, arr]) => { const card = document.createElement('div'); card.className = 'panel editor-card'; card.dataset.room = room; card.innerHTML = `<div class="hdr"><div style="font-weight:800">${room}</div><button class="round-ghost" style="height:32px" onclick="this.closest('.editor-card').remove()">✕ Room</button></div>`; const table = document.createElement('div'); table.className = 'tasks-table'; table.innerHTML = `<div class="tasks-head"><div>Task</div><div class="up">Positive (+)</div><div class="down">Negative (–)</div><div>Frequency</div><div></div></div>`; arr.forEach(x => table.appendChild(taskRow(x))); card.appendChild(table); const add = document.createElement('button'); add.className = 'round-ghost'; add.style.height = '34px'; add.textContent = '+ Task'; add.onclick = () => table.appendChild(taskRow({ text: '', pos: .25, neg: .5, freq: 'daily' })); card.appendChild(add); host.appendChild(card) }); }
+            function taskRow(d) { const r = document.createElement('div'); r.className = 'task-row'; r.innerHTML = `<input type="text" value="${(d.text || '').replace(/"/g, '&quot;')}" placeholder="Task description"><input type="number" step="0.01" min="0" value="${Number(d.pos ?? .25).toFixed(2)}" title="Positive weight (+)"><input type="number" step="0.01" min="0" value="${Number(d.neg ?? .5).toFixed(2)}" title="Negative weight (–)"><select><option ${d.freq === 'daily' ? 'selected' : ''} value="daily">daily</option><option ${d.freq === 'weekly' ? 'selected' : ''} value="weekly">weekly</option></select><button class="round-ghost" style="height:32px" onclick="this.parentElement.remove()">✕</button>`; return r }
 
-            /* Weekly Summary (panel was removed; keep guard) */
-            function renderSummary() { const panel = document.getElementById('panel-summary'); if (!panel) return; }
-
-            /* cutoff & penalties + streak processing */
-            function cutoffDate(d = new Date()) { const [hh, mm] = (getConfig().cutoff || '23:59').split(':').map(Number); const dt = new Date(d); dt.setHours(hh, mm, 10, 0); return dt; }
-            function msUntilCutoff() { const now = new Date(); let target = cutoffDate(); if (now > target) { target.setDate(target.getDate() + 1); } return Math.max(2000, target - now); }
-            function scheduleDailyCheck() { clearTimeout(window.__dailyTimer); window.__dailyTimer = setTimeout(() => { processYesterdayDailyPenalties(); scheduleDailyCheck(); }, msUntilCutoff()); }
-
-            function allAssignedCompletedFor(assigns, comps, user) {
-                const mine = Object.keys(assigns || {}).filter(k => assigns[k] === user);
-                if (mine.length === 0) return true;
-                const done = (comps?.[user]) || {};
-                return mine.every(k => !!done[k]);
+            /* ===== Cutoff / penalties / weekly accrual ===== */
+            function cutoffDate(d = new Date()) { const [hh, mm] = (getCfg().cutoff || '23:59').split(':').map(Number); const dt = new Date(d); dt.setHours(hh, mm, 10, 0); return dt }
+            function msToCutoff() { const now = new Date(); let t = cutoffDate(); if (now > t) t.setDate(t.getDate() + 1); return Math.max(2000, t - now) }
+            function scheduleDailyCheck() { clearTimeout(window._daily); window._daily = setTimeout(() => { processYesterday(); scheduleDailyCheck() }, msToCutoff()) }
+            function processYesterday() {
+                const last = localStorage.getItem('hf.daily.last'); const today = todayKey(); if (last === today) return; const y = new Date(); y.setDate(y.getDate() - 1); y.setHours(0, 0, 0, 0); const key = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`; const as = dAssign()[key]; if (!as) { localStorage.setItem('hf.daily.last', today); return } const comps = dComp()[key] || { spibbs: {}, sneefli: {} }; const b = getBal(); const g = load('hf.grace.use', {}); const used = g[key] || {}; for (const [id, u] of Object.entries(as)) { if (used[u]) continue; const done = !!(comps[u] && comps[u][id]); if (done) continue; const [r, t] = id.split('::'); const o = u === 'spibbs' ? 'sneefli' : 'spibbs'; const w = wObj(r, t).neg; b[o] = (b[o] || 0) + w; logTx({ type: 'daily_penalty', amount: w, actor: o, reason: `Daily missed by ${u}: ${t} (${r}) ${key}` }) } setBal(b);
+                const S = getStreak(); USERS.forEach(u => { const preserved = !!used[u]; const mineOK = preserved || allComplete(as, comps, u); if (mineOK) { S[u] = S[u] || { count: 0, last: '' }; S[u].count = (S[u].last === key ? S[u].count : S[u].count) + 1; S[u].last = key } else { S[u] = { count: 0, last: key } } }); setStreak(S); localStorage.setItem('hf.daily.last', today)
             }
+            const allComplete = (as, comps, u) => { const mine = Object.keys(as || {}).filter(k => as[k] === u); if (!mine.length) return true; const m = (comps?.[u]) || {}; return mine.every(k => !!m[k]) }
+            function scheduleWeekly() { clearTimeout(window._weekly); window._weekly = setTimeout(() => { processWeek(); ensureWeekly(); accrueWeekly(); scheduleWeekly() }, msToNextWeek()) }
+            function msToNextWeek() { const now = new Date(); const d = new Date(now); const w = (d.getDay() + 6) % 7; d.setHours(24, 0, 10, 0); d.setDate(d.getDate() - w + 7); return Math.max(2000, d - now) }
+            function processWeek() { const cur = weekKey(); const last = localStorage.getItem('hf.week.last'); if (last === cur) return; const start = new Date(cur + "T00:00:00"); const prev = new Date(start - 7 * 86400000); const key = `${prev.getFullYear()}-${String(prev.getMonth() + 1).padStart(2, '0')}-${String(prev.getDate()).padStart(2, '0')}`; const as = wAssign()[key]; if (!as) { localStorage.setItem('hf.week.last', cur); return } const comps = wComp()[key] || { spibbs: {}, sneefli: {} }; const b = getBal(); for (const [id, u] of Object.entries(as)) { const done = !!(comps[u] && comps[u][id]); if (done) continue; const [r, t] = id.split('::'); const o = u === 'spibbs' ? 'sneefli' : 'spibbs'; const w = (getTasks()[r].find(x => x.text === t)?.neg) || .5; b[o] = (b[o] || 0) + w; logTx({ type: 'weekly_penalty', amount: w, actor: o, reason: `Weekly missed by ${u}: ${t} (${r}) week ${key}` }) } setBal(b); localStorage.setItem('hf.week.last', cur) }
+            function accrueWeekly() { const wk = weekKey(); const last = localStorage.getItem('hf.grace.lastWeek'); if (last === wk) return; const g = grace(); USERS.forEach(u => g[u] = (g[u] || 0) + 1); setGrace(g); localStorage.setItem('hf.grace.lastWeek', wk) }
 
-            function processYesterdayDailyPenalties() {
-                const last = localStorage.getItem('hf.daily.lastProcessed'); const today = todayKey(); if (last === today) return;
-                const y = new Date(); y.setHours(0, 0, 0, 0); y.setDate(y.getDate() - 1); const yKey = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
-                const assigns = dailyAssignments()[yKey]; if (!assigns) { localStorage.setItem('hf.daily.lastProcessed', today); return; }
-                const comps = dailyCompletions()[yKey] || { spibbs: {}, sneefli: {} }; const balances = loadBalances();
-                const graceUsed = getGraceUse()[yKey] || {};
-                for (const [taskKey, who] of Object.entries(assigns)) {
-                    if (graceUsed[who]) continue; // forgiven
-                    const completed = !!(comps[who] && comps[who][taskKey]); if (completed) continue;
-                    const [room, task] = taskKey.split('::'); const other = who === 'spibbs' ? 'sneefli' : 'spibbs';
-                    const w = weightFor(room, task); balances[other] = (balances[other] || 0) + w;
-                    logTx({ type: 'daily_penalty', amount: w, actor: other, reason: `Daily task missed by ${who}: ${task} (${room}) on ${yKey}` });
-                }
-                saveBalances(balances);
+            /* ===== Swap ===== */
+            const sOv2 = document.getElementById('swap-overlay'); document.getElementById('swap-close').onclick = () => sOv2.classList.remove('show'); document.getElementById('swap-btn').onclick = () => openSwap(); sOv2.addEventListener('click', e => { if (e.target === sOv2) sOv2.classList.remove('show') });
+            function openSwap() { const dk = todayKey(), as = dAssign()[dk] || {}; const mine = Object.keys(as).filter(k => as[k] === currentUser); const theirs = Object.keys(as).filter(k => as[k] === other()); const a = document.getElementById('swap-mine'), b = document.getElementById('swap-theirs'); a.innerHTML = mine.map(k => `<option>${k}</option>`).join(''); b.innerHTML = theirs.map(k => `<option>${k}</option>`).join(''); document.getElementById('swap-do').onclick = () => reqSwap(a.value, b.value); sOv2.classList.add('show') }
+            function reqSwap(a, b) { const key = `swap:${todayKey()}:${a}|${b}`; pushAlert(other(), `${currentUser} requested a swap:<br>“${a.replace('::', ' → ')}” ↔ “${b.replace('::', ' → ')}”`, `<button class="round-ghost" style="height:28px" onclick="window._swapDecision('${key}',true)">Approve</button> <button class="round-ghost" style="height:28px" onclick="window._swapDecision('${key}',false)">Deny</button>`, key); pushAlert(currentUser, 'Swap request sent.'); sOv2.classList.remove('show') }
+            window._swapDecision = (key, ok) => { const dk = todayKey(); const as = dAssign(); const map = as[dk] || {}; const [_, ids] = key.split(':'); const [A, B] = ids.split('|'); if (ok) { const ua = map[A], ub = map[B]; map[A] = ub; map[B] = ua; as[dk] = map; dSave(as); pushAlert(other(), 'Swap approved.'); pushAlert(currentUser, 'Swap approved.') } else { pushAlert(other(), 'Swap denied.'); pushAlert(currentUser, 'Swap denied.') } USERS.forEach(u => setAlerts(u, getAlerts(u).filter(it => it.key !== key))); renderAlerts(); renderDaily(); renderWeekly() }
 
-                // streak update for each user (grace preserves)
-                const S = getStreak();
-                USERS.forEach(u => {
-                    const preserved = !!graceUsed[u];
-                    const doneAll = preserved || allAssignedCompletedFor(assigns, comps, u);
-                    if (doneAll) {
-                        S[u] = S[u] || { count: 0, last: '' };
-                        S[u].count = (S[u].last === yKey ? S[u].count : S[u].count) + 1; // processed once per day; bump by 1
-                        S[u].last = yKey;
-                    } else {
-                        S[u] = { count: 0, last: yKey };
-                    }
+            /* ===== PFP menu ===== */
+            const pfp = document.getElementById('pfp'), pfpBig = document.getElementById('pfp-big'), pfpMenu = document.getElementById('pfp-menu'), pfpName = document.getElementById('pfp-name'), pfpBal = document.getElementById('pfp-balance'), pfpFile = document.getElementById('pfp-file');
+            pfp.onclick = (e) => { e.stopPropagation(); pfpMenu.classList.toggle('show') };
+            document.addEventListener('click', e => { if (!pfpMenu.contains(e.target) && !pfp.contains(e.target)) pfpMenu.classList.remove('show') });
+            pfpFile.onchange = async e => { const f = e.target.files?.[0]; if (!f) return; const buf = await f.arrayBuffer(); const b64 = btoa(String.fromCharCode(...new Uint8Array(buf))); const mime = f.type || 'image/png'; setAvatar(currentUser, `data:${mime};base64,${b64}`); refreshPfp(); renderGlance(); pfpMenu.classList.remove('show') }
+            document.getElementById('menu-myweek').onclick = () => { fillMyWeek(); document.getElementById('myweek-overlay').classList.add('show'); pfpMenu.classList.remove('show') }
+            document.getElementById('myweek-close').onclick = () => document.getElementById('myweek-overlay').classList.remove('show')
+            function refreshPfp() { const src = getAvatar(currentUser) || `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96'><rect width='100%' height='100%' rx='16' fill='#222'/><text x='50%' y='54%' font-family='Arial' font-size='42' text-anchor='middle' fill='#888'>${(currentUser || 'U')[0].toUpperCase()}</text></svg>`)}`;[pfp, pfpBig].forEach(el => { if (!el) return; el.style.backgroundImage = ''; el.style.backgroundImage = `url('${src}')` }); pfpName.textContent = currentUser || ''; pfpBal.textContent = `${fmt(getBal()[currentUser] || 0)} Favors` }
+
+            /* ===== My Week ===== */
+            function fillMyWeek() {
+                const hostTop = document.getElementById('myweek-top'); hostTop.innerHTML = ''; const since = new Date(); since.setDate(since.getDate() - 6); since.setHours(0, 0, 0, 0);
+                let reward = 0, otherGain = 0, redeem = 0, bonus = 0, rush = 0;
+                getTx().forEach(t => {
+                    const dt = new Date(t.time); if (dt < since) return; if (t.actor !== currentUser) return;
+                    if (t.type === 'complete') reward += +t.amount;
+                    if (t.type === 'bonus') { reward += +t.amount; bonus += +t.amount }
+                    if (t.type === 'rush') { reward += +t.amount; rush += +t.amount }
+                    if (['daily_penalty', 'weekly_penalty', 'watch_claim', 'grant'].includes(t.type)) otherGain += +t.amount;
+                    if (t.type === 'redeem') redeem += +t.amount;
                 });
-                setStreak(S);
-
-                localStorage.setItem('hf.daily.lastProcessed', today);
+                const dkAll = dComp(); const dAssignAll = dAssign(); let assigned = 0, done = 0; const roomCount = {}, byDay = {};
+                for (const day in dAssignAll) { const dt = new Date(day + 'T00:00:00'); if (dt < since) continue; const mine = Object.entries(dAssignAll[day]).filter(([k, u]) => u === currentUser).map(([k]) => k); assigned += mine.length; const doneMap = (dkAll[day]?.[currentUser]) || {}; mine.forEach(k => { const ok = !!doneMap[k]; if (ok) done++; const room = k.split('::')[0]; roomCount[room] = (roomCount[room] || 0) + (ok ? 1 : 0); const wd = dt.getDay(); byDay[wd] = (byDay[wd] || 0) + (ok ? 1 : 0); }); }
+                const completion = assigned ? Math.round((done / assigned) * 100) : 100;
+                const card = (l, v, foot = '') => `<div class="panel" style="padding:12px"><div class="muted">${l}</div><div style="font-size:34px;font-weight:900">${v}</div>${foot ? `<div class="subtitle" style="margin:6px 0 0">${foot}</div>` : ''}</div>`;
+                hostTop.insertAdjacentHTML('beforeend', card('Reward earned', fmt(reward), (bonus ? `includes +${fmt(bonus)} Mystery` : '') + (rush ? `${bonus ? '; ' : ''}+${fmt(rush)} Rush` : '')) + card('Other gains to you', fmt(otherGain)) + card('Redeemed', '-' + fmt(redeem)) + card('Assigned', assigned) + card('Completed', done) + card('Completion rate', completion + '%'));
+                const rooms = Object.entries(roomCount).sort((a, b) => b[1] - a[1]); const max = Math.max(1, ...rooms.map(r => r[1])); const rHost = document.getElementById('myweek-rooms'); rHost.innerHTML = ''; if (!rooms.length) { rHost.innerHTML = '<div class="muted">No completions this week yet.</div>' } rooms.forEach(([room, c]) => { const row = document.createElement('div'); row.style.margin = '10px 0'; row.innerHTML = `<div class="row" style="justify-content:space-between"><strong>${room}</strong><span class="muted">${c}</span></div><div class="bar"><span style="width:${(c / max) * 100}%"></span></div>`; rHost.appendChild(row) }); const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; const dHost = document.getElementById('myweek-days'); dHost.innerHTML = ''; const maxD = Math.max(1, ...Object.values(byDay)); for (let i = 0; i < 7; i++) { const c = byDay[i] || 0; const row = document.createElement('div'); row.style.margin = '10px 0'; row.innerHTML = `<div class="row" style="justify-content:space-between"><strong>${dayNames[i]}</strong><span class="muted">${c}</span></div><div class="bar"><span style="width:${(c / maxD) * 100}%"></span></div>`; dHost.appendChild(row) }
             }
 
-            function processLastWeekPenalties() {
-                const currentWk = weekKey(); const lastProcessed = localStorage.getItem('hf.week.lastProcessed'); if (lastProcessed === currentWk) return;
-                const start = new Date(currentWk + "T00:00:00"); const prevStart = new Date(start.getTime() - 7 * 86400000);
-                const prevKey = `${prevStart.getFullYear()}-${String(prevStart.getMonth() + 1).padStart(2, '0')}-${String(prevStart.getDate()).padStart(2, '0')}`;
-                const assigns = weekAssignments()[prevKey]; if (!assigns) { localStorage.setItem('hf.week.lastProcessed', currentWk); return; }
-                const compsAll = weekCompletions()[prevKey] || { spibbs: {}, sneefli: {} }; const balances = loadBalances();
-                for (const [id, who] of Object.entries(assigns)) {
-                    const done = !!(compsAll[who] && compsAll[who][id]); if (done) continue;
-                    const [room, task] = id.split('::'); const other = who === 'spibbs' ? 'sneefli' : 'spibbs'; const w = weightFor(room, task);
-                    balances[other] = (balances[other] || 0) + w;
-                    logTx({ type: 'weekly_penalty', amount: w, actor: other, reason: `Weekly task missed by ${who}: ${task} (${room}) for week starting ${prevKey}` });
-                }
-                saveBalances(balances); localStorage.setItem('hf.week.lastProcessed', currentWk);
+            /* ===== Badges ===== */
+            const streakOv = document.getElementById('streak-overlay');
+            document.getElementById('streak-chip').addEventListener('click', () => { populateStreaks(); streakOv.classList.add('show') });
+            document.getElementById('streak-close').onclick = () => streakOv.classList.remove('show');
+            streakOv.addEventListener('click', e => { if (e.target === streakOv) streakOv.classList.remove('show') });
+            function computeLast7Stats() {
+                const since = new Date(); since.setDate(since.getDate() - 6); since.setHours(0, 0, 0, 0); const comp = dComp(); const byRoom = { spibbs: {}, sneefli: {} }; const weeklyDone = { spibbs: 0, sneefli: 0 }; const after9 = { spibbs: 0, sneefli: 0 }; const grants7 = { spibbs: 0, sneefli: 0 }; const watch7 = { spibbs: 0, sneefli: 0 };
+                for (const day in comp) { const dt = new Date(day + 'T00:00:00'); if (dt < since) continue; USERS.forEach(u => { const m = comp[day]?.[u] || {}; Object.keys(m).forEach(k => { if (!m[k]) return; const [room] = k.split('::'); byRoom[u][room] = (byRoom[u][room] || 0) + 1; }); }); }
+                getTx().forEach(t => { const dt = new Date(t.time); if (dt < since) return; if (t.type === 'grant') grants7[t.actor] = (grants7[t.actor] || 0) + (+t.amount || 0); if (t.type === 'watch_claim') watch7[t.actor] = (watch7[t.actor] || 0) + 1; if (t.type === 'complete') { const hr = dt.getHours(); if (hr >= 21) after9[t.actor] = (after9[t.actor] || 0) + 1; } });
+                const wk = weekKey(); const wmap = wComp()[wk] || {}; USERS.forEach(u => { weeklyDone[u] += Object.values(wmap[u] || {}).filter(Boolean).length }); return { byRoom, weeklyDone, after9, grants7, watch7 };
             }
-            function msUntilNextWeek() { const now = new Date(); const d = new Date(now); const day = (d.getDay() + 6) % 7; d.setHours(24, 0, 10, 0); d.setDate(d.getDate() - day + 7); return Math.max(2000, d - now); }
-            function scheduleWeeklyCheck() { clearTimeout(window.__weekTimer); window.__weekTimer = setTimeout(() => { processLastWeekPenalties(); ensureWeeklyAssignments(); accrueWeeklyGraceIfNeeded(); scheduleWeeklyCheck(); }, msUntilNextWeek()); }
-
-            /* wallet & history */
-            const overlay = document.getElementById('wallet-overlay'), btnWallet = document.getElementById('wallet-btn'), btnClose = document.getElementById('wallet-close');
-            const sub = document.getElementById('subprompt'), input = document.getElementById('amount-input'), btnOK = document.getElementById('amount-ok'), btnCancel = document.getElementById('amount-cancel');
-            const btnRedeem = document.getElementById('btn-redeem'), btnGrant = document.getElementById('btn-grant'), btnGrace = document.getElementById('btn-grace'); let currentAction = null;
-
-            function openWallet() { overlay.classList.add('show'); document.body.classList.add('modal-open'); renderModalBalances(); hideSub(); renderHistory(); }
-            function closeWallet() { overlay.classList.remove('show'); document.body.classList.remove('modal-open'); hideSub(); currentAction = null; input.value = ''; }
-            function hideSub() { sub.classList.remove('show'); document.getElementById('amount-hint').textContent = ''; }
-            function showSub(hint) { sub.classList.add('show'); document.getElementById('amount-hint').textContent = hint || ''; input.value = ''; input.focus(); }
-
-            function renderModalBalances() {
-                if (!currentUser) return;
-                const b = loadBalances(); const other = otherUser();
-                const g = getGrace(); const og = g[other] ?? 0, mg = g[currentUser] ?? 0;
-                document.getElementById('modal-my').textContent = fmt(b[currentUser] || 0);
-                document.getElementById('modal-their').textContent = fmt(b[other] || 0);
-                document.getElementById('modal-their-label').textContent = `${other}’s balance`;
-                document.getElementById('grace-line').textContent = `Grace tokens: ${mg}`;
-                document.getElementById('grace-other').textContent = `Grace tokens: ${og}`;
-            }
-            function renderPeek() { const b = loadBalances(); const peek = document.getElementById('peek-balance'); if (peek && currentUser) peek.textContent = fmt(b[currentUser] || 0); }
-
-            btnWallet.addEventListener('click', openWallet); btnClose.addEventListener('click', closeWallet);
-            overlay.addEventListener('click', e => { if (e.target === overlay) closeWallet(); });
-            btnRedeem.addEventListener('click', () => { currentAction = 'redeem'; showSub('Enter how much Favor you want to redeem.'); });
-            btnGrant.addEventListener('click', () => { currentAction = 'grant'; showSub(`Enter how much Favor to add to ${otherUser()}. (Does not reduce your balance)`); });
-            btnGrace.addEventListener('click', () => {
-                const g = getGrace(); if ((g[currentUser] || 0) <= 0) { pushAlert(currentUser, 'No grace tokens available.'); return; }
-                if (isGraceActive(currentUser)) { pushAlert(currentUser, 'Grace already active for today.'); return; }
-                g[currentUser]--; setGrace(g);
-                toggleGraceToday(true);
-                pushAlert(currentUser, '🛡 Grace token redeemed for today. All daily chores forgiven.');
-            });
-            btnCancel.addEventListener('click', hideSub);
-            btnOK.addEventListener('click', () => {
-                const amt = Math.max(0, parseFloat(input.value || '0')); if (!amt) { hideSub(); return; }
-                if (currentAction === 'redeem') {
-                    const b = loadBalances(); if ((b[currentUser] || 0) < amt) { pushAlert(currentUser, 'Not enough Favor to redeem.'); return; }
-                    adjustBalance(currentUser, -amt, { type: 'redeem', reason: `Redeemed ${fmt(amt)} Favor` }); hideSub();
-                } else if (currentAction === 'grant') {
-                    const target = otherUser(); adjustBalance(target, +amt, { type: 'grant', actor: currentUser, target, reason: `Granted ${fmt(amt)} Favor to ${target}` }); hideSub();
-                }
-            });
-
-            let histType = 'all', histUser = 'both';
-            const menuBtn = document.getElementById('history-menu-btn'), menu = document.getElementById('history-menu');
-            menuBtn.onclick = () => { menu.classList.toggle('show'); };
-            document.getElementById('hist-apply').onclick = () => { histType = document.getElementById('hist-type').value; histUser = document.getElementById('hist-user').value; menu.classList.remove('show'); renderHistory(); };
-
-            function renderHistory() {
-                const root = document.getElementById('history-list'); if (!root) return;
-                const list = loadTx().slice().sort((a, b) => b.time.localeCompare(a.time)); root.innerHTML = '';
-                if (list.length === 0) { const p = document.createElement('div'); p.className = 'muted'; p.textContent = 'No transaction history.'; root.appendChild(p); return; }
-                list.filter(tx => {
-                    const typeOK = (histType === 'all') || (tx.type === histType);
-                    const userOK = (histUser === 'both') || (tx.actor === histUser);
-                    return typeOK && userOK;
-                }).forEach(tx => {
-                    const wrap = document.createElement('div'); wrap.className = 'hx-item';
-                    const amt = document.createElement('div'); amt.className = 'hx-amt'; const sign = (tx.type === 'redeem') ? '-' : '+'; amt.textContent = `${sign}${fmt(tx.amount)}`;
-                    const main = document.createElement('div'); main.style.flex = '1';
-                    const meta = document.createElement('div'); meta.className = 'hx-meta'; meta.textContent = new Date(tx.time).toLocaleString();
-                    const desc = document.createElement('div'); const who = tx.actor || '';
-                    if (tx.type === 'watch_claim') { desc.innerHTML = `<b>${who}</b> gained Favor — ${tx.reason}`; }
-                    else if (tx.type === 'daily_penalty' || tx.type === 'weekly_penalty') { desc.textContent = `${who} gained Favor — ${tx.reason}`; }
-                    else if (tx.type === 'grant') { desc.textContent = `${who} granted ${fmt(tx.amount)} to ${tx.target}`; }
-                    else if (tx.type === 'redeem') { desc.textContent = `${who} redeemed ${fmt(tx.amount)}`; }
-                    else { desc.textContent = tx.reason || 'Transaction'; }
-                    main.appendChild(desc); main.appendChild(meta);
-                    wrap.appendChild(amt); wrap.appendChild(main); root.appendChild(wrap);
-                });
+            function populateStreaks() {
+                const box = document.getElementById('streaks-list'); box.innerHTML = ''; const s = getStreak()[currentUser] || { count: 0, last: '' }; const add = todayComplete(currentUser) ? 1 : 0; const nowCount = s.count + add; const item = (l, v, d = '') => `<div class="panel" style="padding:12px"><div class="muted">${l}</div><div style="font-size:34px;font-weight:900">${v}</div>${d ? `<div class="subtitle" style="margin-top:6px">${d}</div>` : ''}</div>`; box.insertAdjacentHTML('beforeend', item('Daily streak', nowCount, 'Grace preserves your streak') + item('Perfect weeks', load('hf.perfectWeeks.' + currentUser, 0)));
+                const statsPersonal = (() => { const tx = getTx(); let mysteryUsed = 0, watchClaims = 0, grants = 0, redeems = 0; const times = []; tx.forEach(t => { if (t.actor !== currentUser) return; if (t.type === 'bonus') mysteryUsed++; if (t.type === 'watch_claim') watchClaims++; if (t.type === 'grant') grants += +t.amount || 0; if (t.type === 'redeem') redeems += +t.amount || 0; if (t.type === 'complete') times.push(new Date(t.time).getTime()) }); times.sort((a, b) => a - b); let max60 = 0; i = 0; for (let j = 0; j < times.length; j++) { while (times[j] - times[i] > 3600000) i++; max60 = Math.max(max60, j - i + 1) } let early = 0, night = 0; tx.forEach(t => { if (t.actor !== currentUser || t.type !== 'complete') return; const hr = new Date(t.time).getHours(); if (hr < 9) early++; if (hr >= 21) night++; }); let total = 0; const comp = dComp(); for (const day in comp) { total += Object.values(comp[day]?.[currentUser] || {}).filter(Boolean).length } return { streak: nowCount, mysteryUsed, watchClaims, grants, redeems, totalCompletions: total, max60, early, night }; })();
+                const personalDef = [{ id: 'spark', name: 'Spark Starter', check: ({ streak }) => streak >= 3, desc: 'Hit a 3-day streak.' }, { id: 'steady5', name: 'Steady Five', check: ({ streak }) => streak >= 5, desc: 'Hit a 5-day streak.' }, { id: 'ranger', name: 'Room Ranger', check: ({ streak }) => streak >= 10, desc: 'Hit a 10-day streak.' }, { id: 'machine', name: 'Clean Machine', check: ({ streak }) => streak >= 30, desc: 'Hit a 30-day streak.' }, { id: 'speedrun', name: 'Speedrunner', check: ({ max60 }) => max60 >= 5, desc: 'Complete 5 tasks within 60 minutes.' }, { id: 'early', name: 'Early Bird', check: ({ early }) => early >= 5, desc: '5 tasks before 9am.' }, { id: 'night', name: 'Night Owl', check: ({ night }) => night >= 5, desc: '5 tasks after 9pm.' }, { id: 'watchdog', name: 'Watch Dog', check: ({ watchClaims }) => watchClaims >= 5, desc: 'File 5 Watch claims.' }, { id: 'treasure', name: 'Treasure Tidy', check: ({ mysteryUsed }) => mysteryUsed >= 1, desc: 'Use a Mystery Boost once.' }, { id: 'gifter', name: 'Generous Gifter', check: ({ grants }) => grants >= 3, desc: 'Grant 3+ total Favor.' }, { id: 'spender', name: 'Big Spender', check: ({ redeems }) => redeems >= 3, desc: 'Redeem 3+ total Favor.' }, { id: 'centurion', name: 'Centurion Cleaner', check: ({ totalCompletions }) => totalCompletions >= 100, desc: 'Complete 100 tasks.' }, { id: 'gremlin', name: 'Dust Gremlin', check: ({ totalCompletions }) => totalCompletions >= 1, desc: 'Your first completion!' }];
+                const pHost = document.getElementById('badges-personal'); pHost.innerHTML = ''; personalDef.forEach(b => { const ok = b.check(statsPersonal); const pill = document.createElement('span'); pill.className = 'badge-pill' + (ok ? '' : ' locked'); pill.innerHTML = (ok ? '🏅' : '🔒') + ' ' + b.name + ` <span class="muted" style="margin-left:6px">(${b.desc})</span>`; pHost.appendChild(pill) });
+                const versusDef = [{ id: 'kitchen', name: 'Kitchen Crown', key: 'Kitchen', desc: 'Most Kitchen completions (7d)' }, { id: 'living', name: 'Living Room Lord', key: 'Living Room', desc: 'Most Living Room completions (7d)' }, { id: 'bath', name: 'Bathroom Baron', key: 'Bathroom', desc: 'Most Bathroom completions (7d)' }, { id: 'weekly', name: 'Weekly Warrior', key: '__weekly__', desc: 'Most weekly tasks (7d)' }, { id: 'streaklead', name: 'Streak Leader', key: '__streak__', desc: 'Higher current daily streak' }, { id: 'owl', name: 'Midnight Monarch', key: '__after9__', desc: 'Most after 9pm completions (7d)' }, { id: 'tycoon', name: 'Trade Tycoon', key: '__grants__', desc: 'Most Favor granted (7d)' }, { id: 'sentinel', name: 'Watch Sentinel', key: '__watch__', desc: 'Most Watch claims (7d)' }];
+                const vHost = document.getElementById('badges-versus'); vHost.innerHTML = ''; const last7 = computeLast7Stats(); const curSt = getStreak(); const leaderRoom = (room) => { const a = (last7.byRoom.spibbs[room] || 0), b = (last7.byRoom.sneefli[room] || 0); return a === b ? null : (a > b ? 'spibbs' : 'sneefli') }; const entries = versusDef.map(v => { let holder = null; if (v.key === '__weekly__') { holder = last7.weeklyDone.spibbs === last7.weeklyDone.sneefli ? null : (last7.weeklyDone.spibbs > last7.weeklyDone.sneefli ? 'spibbs' : 'sneefli') } else if (v.key === '__streak__') { const a = curSt.spibbs?.count || 0, b = curSt.sneefli?.count || 0; holder = a === b ? null : (a > b ? 'spibbs' : 'sneefli') } else if (v.key === '__after9__') { const a = last7.after9.spibbs || 0, b = last7.after9.sneefli || 0; holder = a === b ? null : (a > b ? 'spibbs' : 'sneefli') } else if (v.key === '__grants__') { const a = last7.grants7.spibbs || 0, b = last7.grants7.sneefli || 0; holder = a === b ? null : (a > b ? 'spibbs' : 'sneefli') } else if (v.key === '__watch__') { const a = last7.watch7.spibbs || 0, b = last7.watch7.sneefli || 0; holder = a === b ? null : (a > b ? 'spibbs' : 'sneefli') } else { holder = leaderRoom(v.key) } return { ...v, holder } }); entries.forEach(v => { const you = v.holder === currentUser; const pill = document.createElement('span'); pill.className = 'badge-pill' + (you ? ' win' : ''); pill.innerHTML = (you ? '🏆' : '👑') + ' ' + v.name + ` <span class="muted" style="margin-left:6px">(${v.desc}${v.holder ? ` — holder: ${v.holder}` : ' — tie'})</span>`; vHost.appendChild(pill) });
+                const counts = { spibbs: 0, sneefli: 0 }; entries.forEach(v => { if (v.holder) counts[v.holder]++ }); let boss = null; if (counts.spibbs !== counts.sneefli) boss = counts.spibbs > counts.sneefli ? 'spibbs' : 'sneefli'; const pill = document.createElement('span'); pill.className = 'badge-pill' + (boss === currentUser ? ' win' : ''); pill.innerHTML = (boss === currentUser ? '🏆' : '👑') + ' Badge Boss <span class="muted" style="margin-left:6px">(most versus badges)</span>'; vHost.appendChild(pill);
             }
 
-            /* selector glance */
-            function renderSelectorGlance() {
-                ensureDailyAssignments();
-                const dk = todayKey(); const assigns = dailyAssignments()[dk] || {};
-                function build(user) { const per = {}; Object.entries(assigns).forEach(([k, who]) => { if (who !== user) return; const [room, task] = k.split('::'); (per[room] = per[room] || []).push(task); }); return per; }
-                function fill(id, per) {
-                    const host = document.getElementById(id); if (!host) return; host.innerHTML = ''; const rooms = Object.keys(per);
-                    if (rooms.length === 0) { const s = document.createElement('div'); s.className = 'glance-empty'; s.textContent = 'Nothing to do here :)'; host.appendChild(s); return; }
-                    rooms.forEach(r => { const t = document.createElement('div'); t.className = 'glance-room'; t.textContent = r; const ul = document.createElement('ul'); ul.className = 'glance-list'; per[r].forEach(x => { const li = document.createElement('li'); li.textContent = x; ul.appendChild(li); }); host.appendChild(t); host.appendChild(ul); });
-                }
-                fill('glance-spibbs', build('spibbs')); fill('glance-sneefli', build('sneefli'));
-                updateCards();
+            /* ===== Confetti ===== */
+            function confetti() { const cvs = document.getElementById('confetti'); const ctx = cvs.getContext('2d'); const DPR = window.devicePixelRatio || 1; const resize = () => { cvs.width = innerWidth * DPR; cvs.height = innerHeight * DPR; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.scale(DPR, DPR) }; resize(); window.addEventListener('resize', resize, { once: true }); const N = 140, parts = []; for (let i = 0; i < N; i++) { parts.push({ x: Math.random() * innerWidth, y: -20 - Math.random() * 200, r: 3 + Math.random() * 4, a: Math.random() * Math.PI * 2, vx: -1 + Math.random() * 2, vy: 2 + Math.random() * 3, rot: Math.random() * 6, vr: -.1 + .2 * Math.random(), color: `hsl(${Math.random() * 360},70%,70%)` }) } const start = performance.now(); const dur = 2400; function tick(t) { ctx.clearRect(0, 0, innerWidth, innerHeight); parts.forEach(p => { p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.vy += 0.02; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.color; ctx.fillRect(-p.r, -p.r, p.r * 2, p.r * 2); ctx.restore() }); if (t - start < dur) requestAnimationFrame(tick); else ctx.clearRect(0, 0, innerWidth, innerHeight) } requestAnimationFrame(tick) }
+            function tryCelebrate() { const key = `hf.celebrate.${todayKey()}.${currentUser}`; if (todayComplete(currentUser) && !localStorage.getItem(key)) { localStorage.setItem(key, '1'); SND.day(); confetti(); pushAlert(currentUser, 'All daily tasks complete! 🎉'); updateBellBadge() } }
+
+            /* ===== Selector / nav ===== */
+            window.selectUser = u => { currentUser = u; sessionStorage.setItem('hf.currentUser', u); document.getElementById('view-selector').style.display = 'none'; document.getElementById('view-dashboard').style.display = 'block'; refreshPfp(); renderAlerts(); renderWatch(); renderDaily(); renderWeekly(); peek(); updateCutoffLabel(); updateBellBadge(); scheduleRushIfNeeded(); showRushBannerIf(); SND.ui() }
+            window.backToProfiles = () => { document.getElementById('view-dashboard').style.display = 'none'; document.getElementById('view-selector').style.display = 'block'; currentUser = null; sessionStorage.removeItem('hf.currentUser'); renderGlance(); SND.ui() }
+
+            /* Collapsible Watch (collapsed by default) */
+            document.getElementById('watch-toggle').onclick = () => { const body = document.getElementById('watch-body'); const arrow = document.getElementById('watch-arrow'); const open = body.classList.toggle('open'); body.style.display = open ? 'block' : 'none'; arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)'; };
+
+            /* ===== Init ===== */
+            function renderGlanceInit() { ensureDaily(); renderGlance() }
+            function init() {
+                ensureDaily(); ensureWeekly(); accrueWeekly(); renderGlanceInit(); updateCutoffLabel(); scheduleDailyCheck(); scheduleWeekly(); scheduleRushIfNeeded(); showRushBannerIf(); setInterval(showRushBannerIf, 30000);
+                BUS.on(m => { if (m?.type === 'balances' || m?.type === 'tx') { renderHistory(); peek() } if (m?.type === 'alert') { if (m.to === currentUser) { renderAlerts(); updateBellBadge() } } if (m?.type === 'tasks') { renderDaily(); renderWeekly() } if (m?.type === 'avatar') { renderGlance(); if (currentUser === m.user) refreshPfp() } });
+                if (currentUser) selectUser(currentUser); updateBellBadge();
             }
-            function updateCards() { const b = loadBalances(); const a = document.getElementById('bal-card-spibbs'); if (a) a.textContent = fmt(b.spibbs || 0); const c = document.getElementById('bal-card-sneefli'); if (c) c.textContent = fmt(b.sneefli || 0); }
-
-            /* settings editor */
-            const settOverlay = document.getElementById('settings-overlay');
-            document.getElementById('settings-btn').onclick = () => { populateSettings(); settOverlay.classList.add('show'); document.body.classList.add('modal-open'); };
-            document.getElementById('settings-close').onclick = () => { settOverlay.classList.remove('show'); document.body.classList.remove('modal-open'); };
-            settOverlay.addEventListener('click', e => { if (e.target === settOverlay) { document.getElementById('settings-close').onclick(); } });
-
-            function populateSettings() { const cfg = getConfig(); document.getElementById('cfg-cutoff').value = cfg.cutoff || '23:59'; document.getElementById('cfg-tz').value = cfg.tz || 'local'; buildTaskEditor(); }
-            document.getElementById('save-time').onclick = () => { saveConfig({ cutoff: document.getElementById('cfg-cutoff').value, tz: document.getElementById('cfg-tz').value }); pushAlert(currentUser, 'Time settings saved.'); };
-            document.getElementById('away-save').onclick = () => {
-                const who = document.getElementById('away-user').value, start = document.getElementById('away-start').value, end = document.getElementById('away-end').value;
-                const a = loadJSON('hf.away', {}); a[who] = { start, end }; saveJSON('hf.away', a); pushAlert(currentUser, `Away saved for <b>${who}</b> from ${start} to ${end}.`);
-            };
-
-            function buildTaskEditor() {
-                const host = document.getElementById('task-editor'); host.innerHTML = ''; const tasks = getTasks();
-                Object.entries(tasks).forEach(([room, arr]) => {
-                    const card = document.createElement('div'); card.className = 'editor-card';
-                    const head = document.createElement('div'); head.className = 'editor-head';
-                    head.innerHTML = `<div style="font-weight:700">${room}</div>`;
-                    const right = document.createElement('div');
-                    const addBtn = document.createElement('button'); addBtn.className = 'icon-btn'; addBtn.textContent = '+ Task';
-                    const delBtn = document.createElement('button'); delBtn.className = 'icon-btn'; delBtn.textContent = '✕ Room';
-                    addBtn.onclick = () => { arr.push({ text: 'New task', weight: 0.5, freq: 'daily' }); buildTaskEditor(); };
-                    delBtn.onclick = () => { if (confirm('Delete room?')) { delete tasks[room]; setTasks(tasks); buildTaskEditor(); } };
-                    right.append(addBtn, delBtn); head.appendChild(right); card.appendChild(head);
-
-                    arr.forEach((t, ix) => {
-                        const row = document.createElement('div'); row.className = 'task-row';
-                        const i1 = document.createElement('input'); i1.type = 'text'; i1.value = t.text;
-                        const i2 = document.createElement('input'); i2.type = 'number'; i2.step = '0.25'; i2.min = '0.25'; i2.max = '2'; i2.value = t.weight;
-                        const sel = document.createElement('select'); sel.innerHTML = '<option value="daily">daily</option><option value="weekly">weekly</option><option value="seasonal">seasonal</option>'; sel.value = t.freq || 'daily';
-                        const x = document.createElement('button'); x.className = 'icon-btn'; x.textContent = '✕'; x.onclick = () => { arr.splice(ix, 1); buildTaskEditor(); };
-                        row.append(i1, i2, sel, x); card.appendChild(row);
-                    });
-
-                    host.appendChild(card);
-                });
-
-                document.getElementById('add-room').onclick = () => { const name = prompt('Room name'); if (!name) return; const cur = getTasks(); if (cur[name]) { pushAlert(currentUser, 'Room already exists.'); return; } cur[name] = [{ text: 'Example task', weight: 0.5, freq: 'daily' }]; setTasks(cur); buildTaskEditor(); };
-                document.getElementById('save-tasks').onclick = () => {
-                    const cur = {};[...host.querySelectorAll('.editor-card')].forEach(card => {
-                        const room = card.querySelector('.editor-head div').textContent; const arr = [];
-                        card.querySelectorAll('.task-row').forEach(row => { const [txt, wt, sel] = row.querySelectorAll('input,select'); const t = (txt.value || '').trim(); if (!t) return; arr.push({ text: t, weight: Math.max(0.25, parseFloat(wt.value) || 0.5), freq: sel.value }); });
-                        cur[room] = arr;
-                    });
-                    setTasks(cur); const d = dailyAssignments(); delete d[todayKey()]; saveDailyAssignments(d); ensureDailyAssignments();
-                    const w = weekAssignments(); delete w[weekKey()]; saveWeekAssignments(w); ensureWeeklyAssignments();
-                    renderSelectorGlance(); renderDaily(); renderWeekly(); pushAlert(currentUser, 'Settings saved and assignments updated.');
-                };
-            }
-
-            /* export/import */
-            document.getElementById('export-btn').onclick = () => {
-                const dump = { balances: loadJSON('hf.balances', {}), tx: loadTx(), tasks: getTasks(), config: getConfig(), daily: dailyAssignments(), weekly: weekAssignments(), grace: getGrace(), graceUse: getGraceUse() };
-                const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'household-favors-backup.json'; a.click();
-            };
-            document.getElementById('import-btn').onclick = () => {
-                const f = document.getElementById('import-file').files[0]; if (!f) return; const r = new FileReader();
-                r.onload = () => { try { const j = JSON.parse(r.result); if (j.balances) saveJSON('hf.balances', j.balances); if (j.tx) saveJSON('hf.tx', j.tx); if (j.tasks) saveJSON('hf.tasks', j.tasks); if (j.config) saveJSON('hf.config', j.config); if (j.daily) saveJSON('hf.dailyAssign', j.daily); if (j.weekly) saveJSON('hf.week.assignments', j.weekly); if (j.grace) saveJSON('hf.grace', j.grace); if (j.graceUse) saveJSON('hf.grace.use', j.graceUse); pushAlert(currentUser, 'Import complete. Reloading…'); setTimeout(() => location.reload(), 400); } catch { pushAlert(currentUser, 'Invalid file for import.'); } };
-                r.readAsText(f);
-            };
-
-            /* swap */
-            const swapOverlay = document.getElementById('swap-overlay'), swapClose = document.getElementById('swap-close');
-            document.getElementById('swap-btn').onclick = () => { buildSwapLists(); swapOverlay.classList.add('show'); document.body.classList.add('modal-open'); };
-            swapClose.onclick = () => { swapOverlay.classList.remove('show'); document.body.classList.remove('modal-open'); };
-            swapOverlay.addEventListener('click', e => { if (e.target === swapOverlay) swapClose.onclick(); });
-
-            function buildSwapLists() {
-                ensureDailyAssignments(); const dk = todayKey(); const assigns = dailyAssignments()[dk] || {};
-                const mine = Object.keys(assigns).filter(k => assigns[k] === currentUser);
-                const theirs = Object.keys(assigns).filter(k => assigns[k] === otherUser());
-                const sMine = document.getElementById('swap-mine'), sTheirs = document.getElementById('swap-theirs'); sMine.innerHTML = ''; sTheirs.innerHTML = '';
-                mine.forEach(k => { const [r, t] = k.split('::'); const o = document.createElement('option'); o.value = k; o.textContent = `${r}: ${t}`; sMine.appendChild(o); });
-                theirs.forEach(k => { const [r, t] = k.split('::'); const o = document.createElement('option'); o.value = k; o.textContent = `${r}: ${t}`; sTheirs.appendChild(o); });
-                document.getElementById('swap-hint').textContent = 'Select tasks to see suggested settlement.';
-                sMine.onchange = sTheirs.onchange = () => { const a = sMine.value, b = sTheirs.value; if (!a || !b) return; const [r1, t1] = a.split('::'), [r2, t2] = b.split('::'); const w1 = weightFor(r1, t1), w2 = weightFor(r2, t2); const diff = (w1 - w2).toFixed(2); const owed = parseFloat(diff); document.getElementById('swap-hint').textContent = owed === 0 ? 'Even swap.' : (owed > 0 ? `${otherUser()} should receive +${diff}.` : `${currentUser} should receive +${Math.abs(owed).toFixed(2)}.`); };
-            }
-            function getSwaps() { return loadJSON('hf.swaps', []); }
-            function saveSwaps(arr) { saveJSON('hf.swaps', arr); BUS.post({ type: 'swap-upd' }); }
-
-            document.getElementById('swap-do').onclick = () => {
-                const a = document.getElementById('swap-mine').value, b = document.getElementById('swap-theirs').value; if (!a || !b) return;
-                const [r1, t1] = a.split('::'), [r2, t2] = b.split('::'); const w1 = weightFor(r1, t1), w2 = weightFor(r2, t2);
-                const diff = parseFloat((w1 - w2).toFixed(2));
-                const id = Date.now() + Math.random();
-                const req = { id, date: todayKey(), requester: currentUser, responder: otherUser(), a, b, diff, status: 'pending' };
-                const all = getSwaps(); all.push(req); saveSwaps(all);
-                const key = `swap:${id}`;
-                const msg = `<b>${req.requester}</b> requested a swap:<br>“${t1}” ↔ “${t2}”`;
-                const actions = `<button class="icon-btn" onclick="window._approveSwap('${id}',true)">Approve</button>
-                           <button class="icon-btn" onclick="window._approveSwap('${id}',false)">Deny</button>`;
-                pushAlert(req.responder, msg, actions, key);
-                pushAlert(req.requester, 'Swap request sent. Waiting for approval…', '', `swap-info:${id}`);
-                swapClose.onclick();
-            };
-
-            window._approveSwap = function (id, ok) {
-                const list = getSwaps(); const s = list.find(x => String(x.id) === String(id)); if (!s) return;
-                if (s.responder !== currentUser) { pushAlert(currentUser, 'Only the responder can act on this swap.'); return; }
-                if (s.status !== 'pending') { pushAlert(currentUser, 'This swap request is no longer pending.'); return; }
-
-                if (ok) {
-                    const all = dailyAssignments(); const map = all[s.date]; const ownerA = map[s.a], ownerB = map[s.b]; map[s.a] = ownerB; map[s.b] = ownerA; saveDailyAssignments(all);
-                    if (s.diff !== 0) { const receiver = s.diff > 0 ? s.responder : s.requester; adjustBalance(receiver, Math.abs(s.diff), { type: 'grant', actor: 'swap', target: receiver, reason: `Swap settlement (${s.a} ↔ ${s.b})` }); }
-                    s.status = 'approved'; saveSwaps(list);
-                    pushAlert(s.requester, `Swap <b>approved</b> by ${s.responder}.`, '', `swap-info:${s.id}`);
-                    pushAlert(s.responder, 'Swap approved.');
-                } else {
-                    s.status = 'denied'; saveSwaps(list);
-                    pushAlert(s.requester, `Swap <b>denied</b> by ${s.responder}.`, '', `swap-info:${s.id}`);
-                    pushAlert(s.responder, 'Swap denied.');
-                }
-                const filtered = getAlerts(currentUser).filter(a => !(a.key && a.key.startsWith('swap:') && a.key.includes(String(s.id)))); saveAlerts(currentUser, filtered); renderAlerts();
-                renderDaily();
-            };
-
-            /* confetti */
-            function evaluateAndMaybeConfetti() {
-                const dk = todayKey(); const assigns = dailyAssignments()[dk] || {}; const mine = Object.keys(assigns).filter(k => assigns[k] === currentUser);
-                const done = (dailyCompletions()[dk]?.[currentUser]) || {}; const allDone = mine.length > 0 && mine.every(k => done[k]);
-                if (allDone) fireConfetti();
-            }
-            function fireConfetti() {
-                const c = document.getElementById('confetti'); const ctx = c.getContext('2d'); c.width = innerWidth; c.height = innerHeight; c.style.display = 'block';
-                let parts = Array.from({ length: 220 }, () => ({ x: Math.random() * c.width, y: -20, w: 6 + Math.random() * 7, h: 10, vy: 2 + Math.random() * 3, vx: (Math.random() - .5) * 2, rot: 0 }));
-                let t = 0; const end = 520; const anim = () => { ctx.clearRect(0, 0, c.width, c.height); parts.forEach(p => { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = `hsl(${(p.y / 3 + t) % 360},90%,60%)`; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore(); p.y += p.vy; p.x += p.vx; p.rot += .05; }); t += 2; if (t < end) requestAnimationFrame(anim); else c.style.display = 'none'; }; anim();
-            }
-
-            /* boot & bus */
-            function renderAll() { renderAlerts(); renderWatch(); renderDaily(); renderWeekly(); renderPeek(); renderModalBalances(); renderHistory(); renderSummary(); updateCutoffLabel(); renderStreak(); }
-            BUS.on((data) => {
-                if (!data) return;
-                if (data.type === 'balances') { if (currentUser) { renderPeek(); renderModalBalances(); } updateCards(); renderSummary(); }
-                if (data.type === 'daily-assign' || data.type === 'daily-done') { if (currentUser) { renderDaily(); renderSelectorGlance(); renderStreak(); } }
-                if (data.type === 'week-assign' || data.type === 'week-done') { if (currentUser) renderWeekly(); }
-                if (data.type === 'alert' && currentUser) { renderAlerts(); }
-                if (data.type === 'tasks') { if (currentUser) { renderDaily(); renderWeekly(); renderSelectorGlance(); renderSummary(); renderStreak(); } }
-                if (data.type === 'swap-upd' && currentUser) { renderAlerts(); }
-                if (data.type === 'tx' && currentUser) { renderHistory(); renderSummary(); }
-                if (data.type === 'grace' || data.type === 'grace-use' || data.type === 'streak') { if (currentUser) { renderModalBalances(); renderDaily(); renderStreak(); } }
-            });
-
-            window.selectUser = function (u) {
-                currentUser = u; sessionStorage.setItem('hf.currentUser', u);
-                document.getElementById('view-selector').style.display = 'none';
-                document.getElementById('view-dashboard').style.display = 'block';
-                document.getElementById('who-chip').textContent = `User: ${currentUser}`;
-                renderAll(); renderSelectorGlance();
-            };
-            window.backToProfiles = function () {
-                sessionStorage.removeItem('hf.currentUser'); currentUser = null;
-                document.getElementById('view-selector').style.display = 'block';
-                document.getElementById('view-dashboard').style.display = 'none';
-                document.getElementById('alerts').innerHTML = '';
-                updateCards();
-            };
-
-            updateCards();
-            ensureWeeklyAssignments(); processLastWeekPenalties(); scheduleWeeklyCheck(); accrueWeeklyGraceIfNeeded();
-            ensureDailyAssignments(); processYesterdayDailyPenalties(); scheduleDailyCheck();
-            renderSelectorGlance();
-            if (currentUser) {
-                document.getElementById('view-selector').style.display = 'none';
-                document.getElementById('view-dashboard').style.display = 'block';
-                renderAll();
-            }
+            init();
         })();
     </script>
+
+    <!-- Settings tab switching (tiny helper; no behavior changes) -->
+    <script>
+        (function () {
+            const nav = document.getElementById('settings-nav');
+            if (!nav) return;
+            nav.addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-tab]');
+                if (!btn) return;
+                const tab = btn.getAttribute('data-tab');
+                nav.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+                document.querySelectorAll('#settings-overlay .settings-tab').forEach(p => {
+                    p.classList.toggle('active', p.getAttribute('data-tab') === tab);
+                });
+            });
+        })();
+    </script>
+
+    <!-- ====== ADJUSTMENT: Tasks tab shows ONE room per row with hidden scroll ====== -->
+    <style id="settings-tasks-one-per-row">
+        /* Force single-column room cards + smooth hidden scroll */
+        #settings-overlay #task-editor {
+            display: grid;
+            grid-template-columns: 1fr; /* one room per row */
+            gap: 16px;
+            max-height: 60vh; /* confines the area */
+            overflow: auto; /* scrollable, but... */
+            padding-right: 8px; /* room for invisible scrollbar */
+            -ms-overflow-style: none; /* IE/Edge hide */
+            scrollbar-width: none; /* Firefox hide */
+        }
+
+            #settings-overlay #task-editor::-webkit-scrollbar {
+                width: 0;
+                height: 0; /* WebKit hide */
+            }
+        /* Ensure cards don’t try to widen beyond the container */
+        #settings-overlay .editor-card,
+        #settings-overlay .tasks-table {
+            min-width: 0;
+        }
+    </style>
 </body>
 </html>
