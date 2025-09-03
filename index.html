@@ -328,11 +328,12 @@
                     opacity: 1
                 }
 
-        /* PFP menu */
+        /* PFP menu (open to the LEFT of the avatar) */
         .pfp-menu {
             position: absolute;
             top: 44px;
-            left: 0;
+            right: 0;
+            left: auto; /* changed */
             background: #121319;
             border: 1px solid var(--line);
             border-radius: 14px;
@@ -444,11 +445,12 @@
             color: #cfd6e3;
             font-weight: 800
         }
-
+        /* positive weight = lighter gray */
         .down {
             color: #909bb0;
             font-weight: 800
         }
+        /* negative weight = darker gray */
 
         /* Collapsible */
         .collapsible {
@@ -526,11 +528,6 @@
             padding-right: 6px;
             contain: content
         }
-
-            .modal-body::-webkit-scrollbar {
-                width: 0;
-                height: 0
-            }
 
         .sticky-h {
             position: sticky;
@@ -666,6 +663,10 @@
             .badge-pill.win {
                 box-shadow: 0 0 0 2px rgba(200,210,230,.15) inset
             }
+        /* Grey out any versus badges you didn't earn */
+        #badges-versus .badge-pill:not(.win) {
+            opacity: .55
+        }
 
         /* Tiny bars */
         .bar {
@@ -703,10 +704,8 @@
             color: #f6e9c2;
             box-shadow: 0 10px 30px rgba(0,0,0,.35)
         }
-    </style>
 
-    <!-- ===== Settings: redesigned UX (nav + tabs, wider, no overflow) ===== -->
-    <style>
+        /* ===== Settings skeleton (unchanged from working build) ===== */
         #settings-overlay .modal {
             width: min(1200px,98vw);
             max-height: 92vh;
@@ -865,6 +864,43 @@
                     grid-area: freq
                 }
         }
+
+        /* Badge Builder table */
+        .builder-row {
+            display: grid;
+            grid-template-columns: 28px minmax(160px,1.4fr) 80px minmax(200px,1fr) 120px minmax(160px,1fr) 42px;
+            gap: 12px;
+            align-items: center
+        }
+
+            .builder-row input[type="text"] {
+                width: 100%
+            }
+
+            .builder-row select {
+                min-width: 0
+            }
+
+        /* Tasks editor single-column scroll */
+        #settings-overlay #task-editor {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            max-height: 60vh;
+            overflow: auto;
+            padding-right: 8px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+            #settings-overlay #task-editor::-webkit-scrollbar {
+                width: 0;
+                height: 0
+            }
+
+        #settings-overlay .editor-card, #settings-overlay .tasks-table {
+            min-width: 0
+        }
     </style>
 </head>
 <body class="theme-dark">
@@ -883,7 +919,7 @@
                             <span class="avatar-sm" id="av-spibbs"></span>
                             <span class="chip" style="height:28px;padding:4px 10px">User</span>
                         </span>
-                        <span class="muted">spibbs</span>
+                        <span class="muted" id="name-label-spibbs">spibbs</span>
                     </div>
                     <div class="space-top"></div>
                     <div class="balance"><span class="big" id="bal-card-spibbs">0.00</span> <span class="muted">Favors</span></div>
@@ -899,7 +935,7 @@
                             <span class="avatar-sm" id="av-sneefli"></span>
                             <span class="chip" style="height:28px;padding:4px 10px">User</span>
                         </span>
-                        <span class="muted">sneefli</span>
+                        <span class="muted" id="name-label-sneefli">sneefli</span>
                     </div>
                     <div class="space-top"></div>
                     <div class="balance"><span class="big" id="bal-card-sneefli">0.00</span> <span class="muted">Favors</span></div>
@@ -1050,7 +1086,7 @@
         </div>
     </div>
 
-    <!-- Settings Modal (REDESIGNED UX ONLY) -->
+    <!-- Settings Modal -->
     <div class="overlay" id="settings-overlay">
         <div class="modal">
             <div class="close-x" id="settings-close">✕</div>
@@ -1138,8 +1174,6 @@
                                     </div>
                                 </div>
                                 <div class="form-help">Set <b>Positive (+)</b> reward for completion and <b>Negative (–)</b> penalty given to the other user if missed.</div>
-
-                                <!-- Task editor area -->
                                 <div id="task-editor" class="grid two" style="margin-top:12px"></div>
                             </div>
                         </section>
@@ -1281,6 +1315,7 @@
         <div class="modal">
             <div class="close-x" id="streak-close">✕</div>
             <h3 class="title" style="font-size:22px;margin:0 0 4px">Your Streaks & Badges</h3>
+            <button class="round-ghost" id="badges-gear" title="Badge settings" style="position:absolute;top:10px;right:44px;height:32px">⚙️</button>
             <div class="modal-body">
                 <div class="panel">
                     <h4 class="title" style="font-size:18px;margin:0 0 8px">Streaks</h4>
@@ -1293,8 +1328,20 @@
                 </div>
                 <div class="panel space-top">
                     <h4 class="title" style="font-size:18px;margin:0 0 8px">Versus Badges</h4>
-                    <div class="subtitle" style="margin:0 0 8px">Competitive—these can change hands based on the last 7 days.</div>
+                    <div class="subtitle" style="margin:0 0 8px">Competitive—these can change hands based on the last 7–30 days.</div>
                     <div id="badges-versus"></div>
+                </div>
+
+                <!-- Badge Builder (Versus) -->
+                <div class="panel space-top">
+                    <h4 class="title" style="font-size:18px;margin:0 0 8px">Badge Builder (Versus)</h4>
+                    <div class="subtitle" style="margin:0 0 8px">Create your own versus badges with dropdown rules & metrics.</div>
+                    <div id="badge-builder"></div>
+                    <div class="row" style="gap:8px;margin-top:10px">
+                        <button class="round-ghost" id="bb-add">+ Add Badge</button>
+                        <button class="round-ghost" id="bb-save">Save</button>
+                    </div>
+                    <div class="form-help">Custom badges compare you vs. the other user. Choose a metric, time window, and optional room.</div>
                 </div>
             </div>
         </div>
@@ -1386,8 +1433,6 @@
             const getStreak = () => load(ST, { spibbs: { count: 0, last: '' }, sneefli: { count: 0, last: '' } });
             const setStreak = s => { save(ST, s); BUS.post({ type: 'streak' }); renderStreak() };
             function todayComplete(u) { ensureDaily(); if (graceActive(u)) return true; const dk = todayKey(), as = dAssign()[dk] || {}; const mine = Object.keys(as).filter(k => as[k] === u); const done = (dComp()[dk]?.[u]) || {}; return mine.length ? mine.every(k => !!done[k]) : true }
-            const badgesInline = c => [c >= 3 ? 'Spark Starter' : null, c >= 10 ? 'Room Ranger' : null, c >= 30 ? 'Clean Machine' : null].filter(Boolean).map(b => `<span class="badge">🏅 ${b}</span>`).join('');
-            function renderStreak() { const el = document.getElementById('streak-chip'); if (!el || !currentUser) return; const s = getStreak()[currentUser] || { count: 0, last: '' }; const add = todayComplete(currentUser) ? 1 : 0; el.innerHTML = `🔥 ${s.count + add} ${badgesInline(s.count + add)}` }
 
             /* ===== Alerts ===== */
             const AL = u => `hf.alerts.${u}`;
@@ -1461,11 +1506,76 @@
                 if (!checked && rushPaid(taskKey, weekly)) { addBal(currentUser, -bonus, { type: 'rush_revert', reason: `Revert Rush Hour ${weekly ? '(weekly)' : ''}` }); markRush(taskKey, weekly, false); }
             }
 
-            /* ===== Crowns ===== */
-            function roomLeader(room) { const since = new Date(); since.setDate(since.getDate() - 6); since.setHours(0, 0, 0, 0); let c = { spibbs: 0, sneefli: 0 }; const all = dComp(); for (const day in all) { const dt = new Date(day + 'T00:00:00'); if (dt < since) continue; USERS.forEach(u => { const map = all[day]?.[u] || {}; Object.keys(map).forEach(k => { if (!map[k]) return; const [r] = k.split('::'); if (r === room) c[u]++; }) }) } return c.spibbs === c.sneefli ? null : (c.spibbs > c.sneefli ? 'spibbs' : 'sneefli') }
+            /* ===== Crowns (leader per room) ===== */
+            function roomLeader(room) { const since = new Date(); since.setDate(since.getDate() - 6); since.setHours(0, 0, 0, 0); let c = { spibbs: 0, sneefli: 0 }; const all = dComp(); for (const day in all) { const dt = new Date(day + 'T00:00:00'); if (dt < since) continue; USERS.forEach(u => { const m = all[day]?.[u] || {}; Object.keys(m).forEach(k => { if (!m[k]) return; const [r] = k.split('::'); if (r === room) c[u]++; }) }) } return c.spibbs === c.sneefli ? null : (c.spibbs > c.sneefli ? 'spibbs' : 'sneefli') }
+
+            /* ===== Versus badge holder (for crown) ===== */
+            function versusDefaults() {
+                return [
+                    { id: 'weekly', name: 'Weekly Warrior', metric: 'weekly_done', window: 7 },
+                    { id: 'streaklead', name: 'Streak Leader', metric: 'streak' },
+                    { id: 'owl', name: 'Midnight Monarch', metric: 'after9', window: 7 },
+                    { id: 'earlyboss', name: 'Early Bird Boss', metric: 'early', window: 7 },
+                    { id: 'mystery', name: 'Mystery Master', metric: 'mystery', window: 30 },
+                    { id: 'redeemer', name: 'Redeem Ruler', metric: 'redeems', window: 30 },
+                    { id: 'crusher', name: 'Completion Crusher', metric: 'completions', window: 7 },
+                    { id: 'tycoon', name: 'Trade Tycoon', metric: 'grants', window: 7 },
+                    { id: 'sentinel', name: 'Watch Sentinel', metric: 'watch', window: 7 }
+                ];
+            }
+            const BBV_KEY = 'hf.badges.custom.versus';
+            const getBadgeCfg = () => load(BBV_KEY, { custom: [] });
+            function statsForDays(days) {
+                const since = new Date(); since.setDate(since.getDate() - Math.max(0, (days || 7) - 1)); since.setHours(0, 0, 0, 0);
+                const comp = dComp(); const byRoom = { spibbs: {}, sneefli: {} }; const after9 = { spibbs: 0, sneefli: 0 }; const early = { spibbs: 0, sneefli: 0 }; const grants = { spibbs: 0, sneefli: 0 }; const watch = { spibbs: 0, sneefli: 0 }; const mystery = { spibbs: 0, sneefli: 0 }; const redeems = { spibbs: 0, sneefli: 0 }; const completions = { spibbs: 0, sneefli: 0 };
+                for (const day in comp) { const dt = new Date(day + 'T00:00:00'); if (dt < since) continue; USERS.forEach(u => { const m = comp[day]?.[u] || {}; Object.keys(m).forEach(k => { if (!m[k]) return; const [room] = k.split('::'); byRoom[u][room] = (byRoom[u][room] || 0) + 1; completions[u]++; }); }); }
+                getTx().forEach(t => { const dt = new Date(t.time); if (dt < since) return; const u = t.actor; if (!u) return; if (t.type === 'grant') grants[u] = (grants[u] || 0) + (+t.amount || 0); if (t.type === 'redeem') redeems[u] = (redeems[u] || 0) + (+t.amount || 0); if (t.type === 'watch_claim') watch[u] = (watch[u] || 0) + 1; if (t.type === 'bonus') mystery[u] = (mystery[u] || 0) + 1; if (t.type === 'complete') { const hr = dt.getHours(); if (hr >= 21) after9[u] = (after9[u] || 0) + 1; if (hr < 9) early[u] = (early[u] || 0) + 1; } });
+                const wk = weekKey(); const wmap = wComp()[wk] || {}; const weeklyDone = { spibbs: 0, sneefli: 0 }; USERS.forEach(u => { weeklyDone[u] += Object.values(wmap[u] || {}).filter(Boolean).length });
+                return { byRoom, after9, early, grants, watch, mystery, redeems, completions, weeklyDone };
+            }
+            function metricVal(m, stats, user, room) {
+                switch (m) {
+                    case 'weekly_done': return stats.weeklyDone[user] || 0;
+                    case 'after9': return stats.after9[user] || 0;
+                    case 'early': return stats.early[user] || 0;
+                    case 'grants': return stats.grants[user] || 0;
+                    case 'redeems': return stats.redeems[user] || 0;
+                    case 'watch': return stats.watch[user] || 0;
+                    case 'mystery': return stats.mystery[user] || 0;
+                    case 'completions': return stats.completions[user] || 0;
+                    case 'streak': return (getStreak()[user]?.count) || 0;
+                    case 'room_completions': return (stats.byRoom[user]?.[room] || 0);
+                    default: return 0;
+                }
+            }
+            function badgeBossHolder() {
+                // compute from defaults + custom
+                const defs = [...versusDefaults(), ...(getBadgeCfg().custom || []).filter(b => b && (b.enabled !== false) && (b.name || '').trim())];
+                const counts = { spibbs: 0, sneefli: 0 };
+                defs.forEach(d => {
+                    const days = d.window || 7;
+                    const stats = statsForDays(days);
+                    const a = metricVal(d.metric, stats, 'spibbs', d.room);
+                    const b = metricVal(d.metric, stats, 'sneefli', d.room);
+                    if (a === b) return;
+                    const winner = a > b ? 'spibbs' : 'sneefli';
+                    counts[winner]++;
+                });
+                if (counts.spibbs === counts.sneefli) return null;
+                return counts.spibbs > counts.sneefli ? 'spibbs' : 'sneefli';
+            }
+            function isBadgeBoss(u) { return badgeBossHolder() === u }
 
             /* ===== Selector glance & pfp ===== */
-            function renderGlance() { ensureDaily();['spibbs', 'sneefli'].forEach(u => { const a = getAvatar(u); const el = document.getElementById('av-' + u); if (el) el.style.backgroundImage = a ? `url('${a}')` : '' }); const dk = todayKey(), as = dAssign()[dk] || {}; const build = u => { const per = {}; Object.entries(as).forEach(([k, w]) => { if (w !== u) return; const [r, t] = k.split('::'); (per[r] = per[r] || []).push(t) }); return per }; function fill(id, per) { const host = document.getElementById(id); if (!host) return; host.innerHTML = ''; const rooms = Object.keys(per); if (!rooms.length) { host.textContent = 'Nothing to do here :)'; return } rooms.forEach(r => { const p = document.createElement('div'); p.innerHTML = `<div class="muted" style="font-size:12px;margin:6px 0 2px">${r}</div><ul style="margin:0;padding-left:18px">${per[r].map(t => `<li>${t}</li>`).join('')}</ul>`; host.appendChild(p) }) } fill('glance-spibbs', build('spibbs')); fill('glance-sneefli', build('sneefli')); updateCards() }
+            function renderGlance() {
+                ensureDaily();
+                ['spibbs', 'sneefli'].forEach(u => { const a = getAvatar(u); const el = document.getElementById('av-' + u); if (el) el.style.backgroundImage = a ? `url('${a}')` : '' });
+                const boss = badgeBossHolder();
+                const nameA = document.getElementById('name-label-spibbs'); if (nameA) nameA.textContent = 'spibbs' + (boss === 'spibbs' ? ' 👑' : '');
+                const nameB = document.getElementById('name-label-sneefli'); if (nameB) nameB.textContent = 'sneefli' + (boss === 'sneefli' ? ' 👑' : '');
+                const dk = todayKey(), as = dAssign()[dk] || {}; const build = u => { const per = {}; Object.entries(as).forEach(([k, w]) => { if (w !== u) return; const [r, t] = k.split('::'); (per[r] = per[r] || []).push(t) }); return per }; function fill(id, per) { const host = document.getElementById(id); if (!host) return; host.innerHTML = ''; const rooms = Object.keys(per); if (!rooms.length) { host.textContent = 'Nothing to do here :)'; return } rooms.forEach(r => { const p = document.createElement('div'); p.innerHTML = `<div class="muted" style="font-size:12px;margin:6px 0 2px">${r}</div><ul style="margin:0;padding-left:18px">${per[r].map(t => `<li>${t}</li>`).join('')}</ul>`; host.appendChild(p) }) }
+                fill('glance-spibbs', build('spibbs')); fill('glance-sneefli', build('sneefli')); updateCards()
+            }
 
             /* ===== Daily / Weekly UI ===== */
             function renderDaily() {
@@ -1474,11 +1584,19 @@
             }
             function renderWeekly() { ensureWeekly(); const wk = weekKey(); const as = wAssign()[wk] || {}; const comps = (wComp()[wk]?.[currentUser]) || {}; const root = document.getElementById('weekly-tasks'); root.innerHTML = ''; for (const [r, arr] of Object.entries(getTasks())) { const my = arr.filter(t => t.freq === 'weekly' && as[`${r}::${t.text}`] === currentUser); const box = document.createElement('div'); box.className = 'room'; box.innerHTML = `<h3>${r}${roomLeader(r) === currentUser ? ' 👑' : ''}</h3>`; if (!my.length) { const p = document.createElement('div'); p.className = 'muted'; p.textContent = 'Nothing to do here :)'; box.appendChild(p) } else { my.forEach(t => { const id = `${r}::${t.text}`; const row = document.createElement('label'); row.className = 'task'; const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!comps[id]; cb.onchange = () => { const all = wComp(); all[wk] = all[wk] || { spibbs: {}, sneefli: {} }; const was = !!all[wk][currentUser][id]; all[wk][currentUser][id] = cb.checked; wCompSave(all); maybePayRush(id, cb.checked, true) }; const meta = document.createElement('div'); meta.className = 'meta'; meta.innerHTML = `<span class="up">↑ +${(t.pos ?? .25).toFixed(2)}</span> &nbsp; <span class="down">↓ ${(t.neg ?? .5).toFixed(2)}</span>`; row.appendChild(cb); row.append(t.text); row.appendChild(meta); box.appendChild(row) }) } root.appendChild(box) } }
 
+            /* ===== Heat streak chip: show 👑 if Badge Boss ===== */
+            function renderStreak() {
+                const el = document.getElementById('streak-chip'); if (!el || !currentUser) return;
+                const s = getStreak()[currentUser] || { count: 0, last: '' }; const add = todayComplete(currentUser) ? 1 : 0;
+                const crown = isBadgeBoss(currentUser) ? ' 👑' : '';
+                el.textContent = `🔥 ${s.count + add}${crown}`;
+            }
+
             /* ===== Cards / pfp ===== */
             function updateCards() { const b = getBal();['spibbs', 'sneefli'].forEach(u => { const el = document.getElementById('bal-card-' + u); if (el) el.textContent = fmt(b[u] || 0) }) }
             function peek() { const b = getBal(); const el = document.getElementById('pfp-balance'); if (el && currentUser) el.textContent = `${fmt(b[currentUser] || 0)} Favors` }
 
-            /* ===== Wallet ===== */
+            /* ===== Wallet (unchanged) ===== */
             const wOv = document.getElementById('wallet-overlay'); const wClose = document.getElementById('wallet-close');
             function openWallet() { wOv.classList.add('show'); renderHistory(); modalBalances() }
             function closeWallet() { wOv.classList.remove('show') }
@@ -1495,7 +1613,7 @@
             let promptBox = null, act = null;
             function promptAmt(which, hint) { act = which; if (!promptBox) { promptBox = document.createElement('div'); promptBox.className = 'panel'; promptBox.style.marginTop = '10px'; document.querySelector('#wallet-overlay .modal').appendChild(promptBox) } promptBox.innerHTML = `<div class="row wrap"><input id="amt" type="number" step="0.01" min="0" placeholder="Amount" style="max-width:180px"><button class="round-ghost" id="ok" style="height:36px">OK</button><button class="round-ghost" id="cancel" style="height:36px">Cancel</button></div><div class="muted" style="margin-top:6px">${hint}</div>`; document.getElementById('cancel').onclick = () => { promptBox.remove(); promptBox = null }; document.getElementById('ok').onclick = () => { const v = parseFloat(document.getElementById('amt').value || '0'); if (!v) { promptBox.remove(); promptBox = null; return } if (act === 'redeem') { const b = getBal(); if ((b[currentUser] || 0) < v) { pushAlert(currentUser, 'Not enough Favor to redeem.'); return } addBal(currentUser, -v, { type: 'redeem', reason: `Redeemed ${fmt(v)} Favor` }) } if (act === 'grant') { addBal(other(), +v, { type: 'grant', actor: currentUser, target: other(), reason: `Granted ${fmt(v)} Favor to ${other()}` }) } promptBox.remove(); promptBox = null } }
 
-            /* ===== Settings hookup (uses redesigned DOM but same IDs) ===== */
+            /* ===== Settings hookup (unchanged) ===== */
             const sOv = document.getElementById('settings-overlay'); document.getElementById('settings-close').onclick = () => sOv.classList.remove('show');
             document.getElementById('menu-settings').onclick = () => { sOv.classList.add('show'); populateSettings(); document.getElementById('pfp-menu').classList.remove('show') };
             sOv.addEventListener('click', e => { if (e.target === sOv) sOv.classList.remove('show') });
@@ -1526,7 +1644,7 @@
             function watchRow(d) { const r = document.createElement('div'); r.className = 'watch-row'; r.innerHTML = `<input type="checkbox" ${d.enabled === false ? '' : 'checked'} style="width:auto;transform:translateY(2px)"><input type="text" value="${(d.text || '').replace(/"/g, '&quot;')}" placeholder="Rule"><input type="number" step="0.01" min="0" value="${Number(d.value ?? .25).toFixed(2)}" style="max-width:160px"><button class="round-ghost" style="height:32px" onclick="this.parentElement.remove()">✕</button>`; return r }
             document.getElementById('add-room').onclick = () => { const t = getTasks(); const name = prompt('Room name'); if (!name || t[name]) return; t[name] = []; setTasks(t); buildTaskEditor() };
 
-            /* ---- Helper to collect current IDs by frequency (room::task) ---- */
+            /* helper: ids by frequency */
             function idsByFreq(tasks, freq) {
                 const set = new Set();
                 for (const [room, arr] of Object.entries(tasks)) {
@@ -1535,10 +1653,9 @@
                 return set;
             }
 
-            /* ---- Save & Apply (partial regeneration only) ---- */
+            /* Save & Apply (partial regeneration) */
             document.getElementById('save-tasks').onclick = () => {
-                const prev = getTasks();                   // before saving
-                // Collect UI -> object
+                const prev = getTasks();
                 const next = {};
                 document.querySelectorAll('.task-row').forEach(row => {
                     const card = row.closest('.editor-card');
@@ -1549,58 +1666,32 @@
                     const freq = row.children[3].value;
                     (next[room] = next[room] || []).push({ text, pos, neg, freq });
                 });
-                setTasks(next); // persist new tasks
+                setTasks(next);
 
-                // === DAILY (today) ===
+                // DAILY
                 ensureDaily();
                 const dk = todayKey();
-                const dailyPrev = idsByFreq(prev, 'daily');
-                const dailyNext = idsByFreq(next, 'daily');
-
+                const dailyPrev = idsByFreq(prev, 'daily'), dailyNext = idsByFreq(next, 'daily');
                 const delDaily = [...dailyPrev].filter(id => !dailyNext.has(id));
                 const addDaily = [...dailyNext].filter(id => !dailyPrev.has(id));
-
-                const dAll = dAssign();
-                const dMap = dAll[dk] || {};
-                // remove deleted/changed-from-daily
+                const dAll = dAssign(); const dMap = dAll[dk] || {};
                 delDaily.forEach(id => { delete dMap[id]; });
-
-                // count existing per-user
-                const cnt = { spibbs: 0, sneefli: 0 };
-                Object.keys(dMap).forEach(id => { const u = dMap[id]; if (u) cnt[u]++; });
-
-                // add new daily tasks, balanced
-                addDaily.sort(() => Math.random() - .5).forEach(id => {
-                    const u = cnt.spibbs <= cnt.sneefli ? 'spibbs' : 'sneefli';
-                    dMap[id] = u; cnt[u]++;
-                });
-
+                const cnt = { spibbs: 0, sneefli: 0 }; Object.keys(dMap).forEach(id => { const u = dMap[id]; if (u) cnt[u]++; });
+                addDaily.sort(() => Math.random() - .5).forEach(id => { const u = cnt.spibbs <= cnt.sneefli ? 'spibbs' : 'sneefli'; dMap[id] = u; cnt[u]++; });
                 dAll[dk] = dMap; dSave(dAll);
 
-                // === WEEKLY (this week) ===
+                // WEEKLY
                 ensureWeekly();
                 const wk = weekKey();
-                const weeklyPrev = idsByFreq(prev, 'weekly');
-                const weeklyNext = idsByFreq(next, 'weekly');
-
+                const weeklyPrev = idsByFreq(prev, 'weekly'), weeklyNext = idsByFreq(next, 'weekly');
                 const delWeekly = [...weeklyPrev].filter(id => !weeklyNext.has(id));
                 const addWeekly = [...weeklyNext].filter(id => !weeklyPrev.has(id));
-
-                const wAll = wAssign();
-                const wMap = wAll[wk] || {};
+                const wAll = wAssign(); const wMap = wAll[wk] || {};
                 delWeekly.forEach(id => { delete wMap[id]; });
-
-                const wCnt = { spibbs: 0, sneefli: 0 };
-                Object.values(wMap).forEach(u => { if (u) wCnt[u]++; });
-
-                addWeekly.sort(() => Math.random() - .5).forEach(id => {
-                    const u = wCnt.spibbs <= wCnt.sneefli ? 'spibbs' : 'sneefli';
-                    wMap[id] = u; wCnt[u]++;
-                });
-
+                const wCnt = { spibbs: 0, sneefli: 0 }; Object.values(wMap).forEach(u => { if (u) wCnt[u]++; });
+                addWeekly.sort(() => Math.random() - .5).forEach(id => { const u = wCnt.spibbs <= wCnt.sneefli ? 'spibbs' : 'sneefli'; wMap[id] = u; wCnt[u]++; });
                 wAll[wk] = wMap; wSave(wAll);
 
-                // Re-render
                 renderDaily(); renderWeekly(); renderGlance();
                 pushAlert(currentUser, 'Tasks saved. Only affected assignments were updated.');
             };
@@ -1610,7 +1701,7 @@
             function buildTaskEditor() { const host = document.getElementById('task-editor'); host.innerHTML = ''; const t = getTasks(); Object.entries(t).forEach(([room, arr]) => { const card = document.createElement('div'); card.className = 'panel editor-card'; card.dataset.room = room; card.innerHTML = `<div class="hdr" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-weight:800">${room}</div><button class="round-ghost" style="height:32px" onclick="this.closest('.editor-card').remove()">✕ Room</button></div>`; const table = document.createElement('div'); table.className = 'tasks-table'; table.innerHTML = `<div class="tasks-head"><div>Task</div><div class="up">Positive (+)</div><div class="down">Negative (–)</div><div>Frequency</div><div></div></div>`; arr.forEach(x => table.appendChild(taskRow(x))); card.appendChild(table); const add = document.createElement('button'); add.className = 'round-ghost'; add.style.height = '34px'; add.textContent = '+ Task'; add.onclick = () => table.appendChild(taskRow({ text: '', pos: .25, neg: .5, freq: 'daily' })); card.appendChild(add); host.appendChild(card) }); }
             function taskRow(d) { const r = document.createElement('div'); r.className = 'task-row'; r.innerHTML = `<input type="text" value="${(d.text || '').replace(/"/g, '&quot;')}" placeholder="Task description"><input type="number" step="0.01" min="0" value="${Number(d.pos ?? .25).toFixed(2)}" title="Positive weight (+)"><input type="number" step="0.01" min="0" value="${Number(d.neg ?? .5).toFixed(2)}" title="Negative weight (–)"><select><option ${d.freq === 'daily' ? 'selected' : ''} value="daily">daily</option><option ${d.freq === 'weekly' ? 'selected' : ''} value="weekly">weekly</option></select><button class="round-ghost" style="height:32px" onclick="this.parentElement.remove()">✕</button>`; return r }
 
-            /* ===== Cutoff / penalties / weekly accrual ===== */
+            /* ===== Cutoff / penalties / accrual ===== */
             function cutoffDate(d = new Date()) { const [hh, mm] = (getCfg().cutoff || '23:59').split(':').map(Number); const dt = new Date(d); dt.setHours(hh, mm, 10, 0); return dt }
             function msToCutoff() { const now = new Date(); let t = cutoffDate(); if (now > t) t.setDate(t.getDate() + 1); return Math.max(2000, t - now) }
             function scheduleDailyCheck() { clearTimeout(window._daily); window._daily = setTimeout(() => { processYesterday(); scheduleDailyCheck() }, msToCutoff()) }
@@ -1659,25 +1750,135 @@
                 const rooms = Object.entries(roomCount).sort((a, b) => b[1] - a[1]); const max = Math.max(1, ...rooms.map(r => r[1])); const rHost = document.getElementById('myweek-rooms'); rHost.innerHTML = ''; if (!rooms.length) { rHost.innerHTML = '<div class="muted">No completions this week yet.</div>' } rooms.forEach(([room, c]) => { const row = document.createElement('div'); row.style.margin = '10px 0'; row.innerHTML = `<div class="row" style="justify-content:space-between"><strong>${room}</strong><span class="muted">${c}</span></div><div class="bar"><span style="width:${(c / max) * 100}%"></span></div>`; rHost.appendChild(row) }); const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; const dHost = document.getElementById('myweek-days'); dHost.innerHTML = ''; const maxD = Math.max(1, ...Object.values(byDay)); for (let i = 0; i < 7; i++) { const c = byDay[i] || 0; const row = document.createElement('div'); row.style.margin = '10px 0'; row.innerHTML = `<div class="row" style="justify-content:space-between"><strong>${dayNames[i]}</strong><span class="muted">${c}</span></div><div class="bar"><span style="width:${(c / maxD) * 100}%"></span></div>`; dHost.appendChild(row) }
             }
 
-            /* ===== Badges ===== */
-            const streakOv = document.getElementById('streak-overlay');
-            document.getElementById('streak-chip').addEventListener('click', () => { populateStreaks(); streakOv.classList.add('show') });
-            document.getElementById('streak-close').onclick = () => streakOv.classList.remove('show');
-            streakOv.addEventListener('click', e => { if (e.target === streakOv) streakOv.classList.remove('show') });
-            function computeLast7Stats() {
-                const since = new Date(); since.setDate(since.getDate() - 6); since.setHours(0, 0, 0, 0); const comp = dComp(); const byRoom = { spibbs: {}, sneefli: {} }; const weeklyDone = { spibbs: 0, sneefli: 0 }; const after9 = { spibbs: 0, sneefli: 0 }; const grants7 = { spibbs: 0, sneefli: 0 }; const watch7 = { spibbs: 0, sneefli: 0 };
-                for (const day in comp) { const dt = new Date(day + 'T00:00:00'); if (dt < since) continue; USERS.forEach(u => { const m = comp[day]?.[u] || {}; Object.keys(m).forEach(k => { if (!m[k]) return; const [room] = k.split('::'); byRoom[u][room] = (byRoom[u][room] || 0) + 1; }); }); }
-                getTx().forEach(t => { const dt = new Date(t.time); if (dt < since) return; if (t.type === 'grant') grants7[t.actor] = (grants7[t.actor] || 0) + (+t.amount || 0); if (t.type === 'watch_claim') watch7[t.actor] = (watch7[t.actor] || 0) + 1; if (t.type === 'complete') { const hr = dt.getHours(); if (hr >= 21) after9[t.actor] = (after9[t.actor] || 0) + 1; } });
-                const wk = weekKey(); const wmap = wComp()[wk] || {}; USERS.forEach(u => { weeklyDone[u] += Object.values(wmap[u] || {}).filter(Boolean).length }); return { byRoom, weeklyDone, after9, grants7, watch7 };
+            /* ===== Badge Builder (UI) ===== */
+            function buildBadgeBuilderUI() {
+                const host = document.getElementById('badge-builder'); if (!host) return;
+                const cfg = getBadgeCfg(); host.innerHTML = '';
+                const head = document.createElement('div');
+                head.className = 'tasks-head';
+                head.style.gridTemplateColumns = '28px minmax(160px,1.4fr) 80px minmax(200px,1fr) 120px minmax(160px,1fr) 42px';
+                head.innerHTML = '<div></div><div>Name</div><div>Icon</div><div>Metric</div><div>Window</div><div>Room</div><div></div>';
+                host.appendChild(head);
+                (cfg.custom || []).forEach((b, i) => host.appendChild(bbRow(b, i)));
             }
+            function bbRow(b, i) {
+                const r = document.createElement('div');
+                r.className = 'builder-row';
+                const rooms = Object.keys(getTasks());
+                const metricOpts = [
+                    ['weekly_done', 'Weekly tasks'],
+                    ['streak', 'Current streak'],
+                    ['after9', 'After 9pm completions'],
+                    ['early', 'Before 9am completions'],
+                    ['grants', 'Favor granted'],
+                    ['redeems', 'Favor redeemed'],
+                    ['watch', 'Watch claims'],
+                    ['mystery', 'Mystery boosts used'],
+                    ['completions', 'Total completions'],
+                    ['room_completions', 'Completions in room']
+                ];
+                const winOpts = [[7, 'Last 7d'], [30, 'Last 30d']];
+
+                r.innerHTML = `<input type="checkbox" ${b.enabled === false ? '' : 'checked'} style="width:auto">
+      <input type="text" placeholder="Badge name" value="${(b.name || '').replace(/\"/g, '&quot;')}">
+      <input type="text" placeholder="👑" value="${(b.icon || '👑').replace(/\"/g, '&quot;')}">
+      <select class="bb-metric">${metricOpts.map(([v, l]) => `<option value="${v}" ${b.metric === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+      <select class="bb-window">${winOpts.map(([v, l]) => `<option value="${v}" ${(+b.window || 7) === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+      <select class="bb-room">${['', ...rooms].map(rm => `<option value="${rm}" ${b.room === rm ? 'selected' : ''}>${rm || '(—)'}</option>`).join('')}</select>
+      <button class="round-ghost" style="height:32px">✕</button>`;
+
+                const metricSel = r.querySelector('.bb-metric');
+                const roomSel = r.querySelector('.bb-room');
+                const del = r.querySelector('button');
+                const showRoom = () => { roomSel.style.display = metricSel.value === 'room_completions' ? 'block' : 'none'; };
+                showRoom();
+                metricSel.onchange = showRoom;
+                del.onclick = () => { r.remove() };
+                r.dataset.index = i;
+                return r;
+            }
+
+            /* ===== Render Streaks & Badges modal ===== */
             function populateStreaks() {
-                const box = document.getElementById('streaks-list'); box.innerHTML = ''; const s = getStreak()[currentUser] || { count: 0, last: '' }; const add = todayComplete(currentUser) ? 1 : 0; const nowCount = s.count + add; const item = (l, v, d = '') => `<div class="panel" style="padding:12px"><div class="muted">${l}</div><div style="font-size:34px;font-weight:900">${v}</div>${d ? `<div class="subtitle" style="margin-top:6px">${d}</div>` : ''}</div>`; box.insertAdjacentHTML('beforeend', item('Daily streak', nowCount, 'Grace preserves your streak') + item('Perfect weeks', load('hf.perfectWeeks.' + currentUser, 0)));
-                const statsPersonal = (() => { const tx = getTx(); let mysteryUsed = 0, watchClaims = 0, grants = 0, redeems = 0; const times = []; tx.forEach(t => { if (t.actor !== currentUser) return; if (t.type === 'bonus') mysteryUsed++; if (t.type === 'watch_claim') watchClaims++; if (t.type === 'grant') grants += +t.amount || 0; if (t.type === 'redeem') redeems += +t.amount || 0; if (t.type === 'complete') times.push(new Date(t.time).getTime()) }); times.sort((a, b) => a - b); let max60 = 0; i = 0; for (let j = 0; j < times.length; j++) { while (times[j] - times[i] > 3600000) i++; max60 = Math.max(max60, j - i + 1) } let early = 0, night = 0; tx.forEach(t => { if (t.actor !== currentUser || t.type !== 'complete') return; const hr = new Date(t.time).getHours(); if (hr < 9) early++; if (hr >= 21) night++; }); let total = 0; const comp = dComp(); for (const day in comp) { total += Object.values(comp[day]?.[currentUser] || {}).filter(Boolean).length } return { streak: nowCount, mysteryUsed, watchClaims, grants, redeems, totalCompletions: total, max60, early, night }; })();
-                const personalDef = [{ id: 'spark', name: 'Spark Starter', check: ({ streak }) => streak >= 3, desc: 'Hit a 3-day streak.' }, { id: 'steady5', name: 'Steady Five', check: ({ streak }) => streak >= 5, desc: 'Hit a 5-day streak.' }, { id: 'ranger', name: 'Room Ranger', check: ({ streak }) => streak >= 10, desc: 'Hit a 10-day streak.' }, { id: 'machine', name: 'Clean Machine', check: ({ streak }) => streak >= 30, desc: 'Hit a 30-day streak.' }, { id: 'speedrun', name: 'Speedrunner', check: ({ max60 }) => max60 >= 5, desc: 'Complete 5 tasks within 60 minutes.' }, { id: 'early', name: 'Early Bird', check: ({ early }) => early >= 5, desc: '5 tasks before 9am.' }, { id: 'night', name: 'Night Owl', check: ({ night }) => night >= 5, desc: '5 tasks after 9pm.' }, { id: 'watchdog', name: 'Watch Dog', check: ({ watchClaims }) => watchClaims >= 5, desc: 'File 5 Watch claims.' }, { id: 'treasure', name: 'Treasure Tidy', check: ({ mysteryUsed }) => mysteryUsed >= 1, desc: 'Use a Mystery Boost once.' }, { id: 'gifter', name: 'Generous Gifter', check: ({ grants }) => grants >= 3, desc: 'Grant 3+ total Favor.' }, { id: 'spender', name: 'Big Spender', check: ({ redeems }) => redeems >= 3, desc: 'Redeem 3+ total Favor.' }, { id: 'centurion', name: 'Centurion Cleaner', check: ({ totalCompletions }) => totalCompletions >= 100, desc: 'Complete 100 tasks.' }, { id: 'gremlin', name: 'Dust Gremlin', check: ({ totalCompletions }) => totalCompletions >= 1, desc: 'Your first completion!' }];
-                const pHost = document.getElementById('badges-personal'); pHost.innerHTML = ''; personalDef.forEach(b => { const ok = b.check(statsPersonal); const pill = document.createElement('span'); pill.className = 'badge-pill' + (ok ? '' : ' locked'); pill.innerHTML = (ok ? '🏅' : '🔒') + ' ' + b.name + ` <span class="muted" style="margin-left:6px">(${b.desc})</span>`; pHost.appendChild(pill) });
-                const versusDef = [{ id: 'kitchen', name: 'Kitchen Crown', key: 'Kitchen', desc: 'Most Kitchen completions (7d)' }, { id: 'living', name: 'Living Room Lord', key: 'Living Room', desc: 'Most Living Room completions (7d)' }, { id: 'bath', name: 'Bathroom Baron', key: 'Bathroom', desc: 'Most Bathroom completions (7d)' }, { id: 'weekly', name: 'Weekly Warrior', key: '__weekly__', desc: 'Most weekly tasks (7d)' }, { id: 'streaklead', name: 'Streak Leader', key: '__streak__', desc: 'Higher current daily streak' }, { id: 'owl', name: 'Midnight Monarch', key: '__after9__', desc: 'Most after 9pm completions (7d)' }, { id: 'tycoon', name: 'Trade Tycoon', key: '__grants__', desc: 'Most Favor granted (7d)' }, { id: 'sentinel', name: 'Watch Sentinel', key: '__watch__', desc: 'Most Watch claims (7d)' }];
-                const vHost = document.getElementById('badges-versus'); vHost.innerHTML = ''; const last7 = computeLast7Stats(); const curSt = getStreak(); const leaderRoom = (room) => { const a = (last7.byRoom.spibbs[room] || 0), b = (last7.byRoom.sneefli[room] || 0); return a === b ? null : (a > b ? 'spibbs' : 'sneefli') }; const entries = versusDef.map(v => { let holder = null; if (v.key === '__weekly__') { holder = last7.weeklyDone.spibbs === last7.weeklyDone.sneefli ? null : (last7.weeklyDone.spibbs > last7.weeklyDone.sneefli ? 'spibbs' : 'sneefli') } else if (v.key === '__streak__') { const a = curSt.spibbs?.count || 0, b = curSt.sneefli?.count || 0; holder = a === b ? null : (a > b ? 'spibbs' : 'sneefli') } else if (v.key === '__after9__') { const a = last7.after9.spibbs || 0, b = last7.after9.sneefli || 0; holder = a === b ? null : (a > b ? 'spibbs' : 'sneefli') } else if (v.key === '__grants__') { const a = last7.grants7.spibbs || 0, b = last7.grants7.sneefli || 0; holder = a === b ? null : (a > b ? 'spibbs' : 'sneefli') } else if (v.key === '__watch__') { const a = last7.watch7.spibbs || 0, b = last7.watch7.sneefli || 0; holder = a === b ? null : (a > b ? 'spibbs' : 'sneefli') } else { holder = leaderRoom(v.key) } return { ...v, holder } }); entries.forEach(v => { const you = v.holder === currentUser; const pill = document.createElement('span'); pill.className = 'badge-pill' + (you ? ' win' : ''); pill.innerHTML = (you ? '🏆' : '👑') + ' ' + v.name + ` <span class="muted" style="margin-left:6px">(${v.desc}${v.holder ? ` — holder: ${v.holder}` : ' — tie'})</span>`; vHost.appendChild(pill) });
-                const counts = { spibbs: 0, sneefli: 0 }; entries.forEach(v => { if (v.holder) counts[v.holder]++ }); let boss = null; if (counts.spibbs !== counts.sneefli) boss = counts.spibbs > counts.sneefli ? 'spibbs' : 'sneefli'; const pill = document.createElement('span'); pill.className = 'badge-pill' + (boss === currentUser ? ' win' : ''); pill.innerHTML = (boss === currentUser ? '🏆' : '👑') + ' Badge Boss <span class="muted" style="margin-left:6px">(most versus badges)</span>'; vHost.appendChild(pill);
+                const box = document.getElementById('streaks-list'); box.innerHTML = '';
+                const s = getStreak()[currentUser] || { count: 0, last: '' };
+                const add = todayComplete(currentUser) ? 1 : 0;
+                const nowCount = s.count + add;
+                const item = (l, v, d = '') => `<div class="panel" style="padding:12px"><div class="muted">${l}</div><div style="font-size:34px;font-weight:900">${v}</div>${d ? `<div class="subtitle" style="margin-top:6px">${d}</div>` : ''}</div>`;
+                box.insertAdjacentHTML('beforeend', item('Daily streak', nowCount, 'Grace preserves your streak') + item('Perfect weeks', load('hf.perfectWeeks.' + currentUser, 0)));
+
+                // Personal summary (same as before)
+                const tx = getTx(); let mysteryUsed = 0, watchClaims = 0, grants = 0, redeems = 0; const times = []; tx.forEach(t => { if (t.actor !== currentUser) return; if (t.type === 'bonus') mysteryUsed++; if (t.type === 'watch_claim') watchClaims++; if (t.type === 'grant') grants += +t.amount || 0; if (t.type === 'redeem') redeems += +t.amount || 0; if (t.type === 'complete') times.push(new Date(t.time).getTime()) }); times.sort((a, b) => a - b); let max60 = 0; let i = 0; for (let j = 0; j < times.length; j++) { while (times[j] - times[i] > 3600000) i++; max60 = Math.max(max60, j - i + 1) } let early = 0, night = 0, total = 0; tx.forEach(t => { if (t.actor !== currentUser || t.type !== 'complete') return; const hr = new Date(t.time).getHours(); if (hr < 9) early++; if (hr >= 21) night++; }); const comp = dComp(); for (const day in comp) { total += Object.values(comp[day]?.[currentUser] || {}).filter(Boolean).length }
+                const statsPersonal = { streak: nowCount, mysteryUsed, watchClaims, grants, redeems, totalCompletions: total, max60, early, night };
+                const personalDef = [
+                    { name: 'Spark Starter', check: ({ streak }) => streak >= 3, desc: 'Hit a 3-day streak.' },
+                    { name: 'Steady Five', check: ({ streak }) => streak >= 5, desc: 'Hit a 5-day streak.' },
+                    { name: 'Room Ranger', check: ({ streak }) => streak >= 10, desc: 'Hit a 10-day streak.' },
+                    { name: 'Clean Machine', check: ({ streak }) => streak >= 30, desc: 'Hit a 30-day streak.' },
+                    { name: 'Speedrunner', check: ({ max60 }) => max60 >= 5, desc: 'Complete 5 tasks within 60 minutes.' },
+                    { name: 'Early Bird', check: ({ early }) => early >= 5, desc: '5 tasks before 9am.' },
+                    { name: 'Night Owl', check: ({ night }) => night >= 5, desc: '5 tasks after 9pm.' },
+                    { name: 'Watch Dog', check: ({ watchClaims }) => watchClaims >= 5, desc: 'File 5 Watch claims.' },
+                    { name: 'Treasure Tidy', check: ({ mysteryUsed }) => mysteryUsed >= 1, desc: 'Use a Mystery Boost once.' },
+                    { name: 'Generous Gifter', check: ({ grants }) => grants >= 3, desc: 'Grant 3+ total Favor.' },
+                    { name: 'Big Spender', check: ({ redeems }) => redeems >= 3, desc: 'Redeem 3+ total Favor.' },
+                    { name: 'Centurion Cleaner', check: ({ totalCompletions }) => totalCompletions >= 100, desc: 'Complete 100 tasks.' },
+                    { name: 'Dust Gremlin', check: ({ totalCompletions }) => totalCompletions >= 1, desc: 'Your first completion!' }
+                ];
+                const pHost = document.getElementById('badges-personal'); pHost.innerHTML = '';
+                personalDef.forEach(b => { const ok = b.check(statsPersonal); const pill = document.createElement('span'); pill.className = 'badge-pill' + (ok ? '' : ' locked'); pill.innerHTML = (ok ? '🏅' : '🔒') + ' ' + b.name + ` <span class="muted" style="margin-left:6px">(${b.desc})</span>`; pHost.appendChild(pill) });
+
+                // Versus display (using same logic as crown calc)
+                const vHost = document.getElementById('badges-versus'); vHost.innerHTML = '';
+                const defs = [...versusDefaults(), ...(getBadgeCfg().custom || []).filter(b => b && (b.enabled !== false) && (b.name || '').trim())];
+                const counts = { spibbs: 0, sneefli: 0 };
+                defs.forEach(d => {
+                    const stats = statsForDays(d.window || 7);
+                    const a = metricVal(d.metric, stats, 'spibbs', d.room);
+                    const b = metricVal(d.metric, stats, 'sneefli', d.room);
+                    const pill = document.createElement('span'); let holder = null;
+                    if (a !== b) holder = a > b ? 'spibbs' : 'sneefli', counts[holder]++;
+                    pill.className = 'badge-pill' + (holder === currentUser ? ' win' : ''); pill.innerHTML = (holder === currentUser ? '🏆' : '👑') + ' ' + (d.name || 'Custom') + ` <span class="muted" style="margin-left:6px">(${d.metric}${d.window ? ` ${d.window}d` : ''}${holder ? ` — holder: ${holder}` : ' — tie'})</span>`; vHost.appendChild(pill);
+                });
+                const boss = counts.spibbs === counts.sneefli ? null : (counts.spibbs > counts.sneefli ? 'spibbs' : 'sneefli');
+                const bossP = document.createElement('span'); bossP.className = 'badge-pill' + (boss === currentUser ? ' win' : ''); bossP.innerHTML = (boss === currentUser ? '🏆' : '👑') + ' Badge Boss <span class="muted" style="margin-left:6px">(most versus badges)</span>'; vHost.appendChild(bossP);
+
+                // Builder UI
+                buildBadgeBuilderUI();
+                const addBtn = document.getElementById('bb-add'); const saveBtn = document.getElementById('bb-save');
+                if (addBtn) { addBtn.onclick = () => { const cur = getBadgeCfg(); cur.custom = cur.custom || []; cur.custom.push({ enabled: true, name: '', icon: '👑', metric: 'after9', window: 7, room: '' }); localStorage.setItem(BBV_KEY, JSON.stringify(cur)); buildBadgeBuilderUI(); } }
+                if (saveBtn) { saveBtn.onclick = () => { const rows = Array.from(document.querySelectorAll('#badge-builder .builder-row')); const next = []; rows.forEach(r => { const enabled = r.querySelector('input[type=checkbox]').checked; const [nameEl, iconEl, metricEl, winEl, roomEl] = [...r.querySelectorAll('input[type=text], select')]; const name = nameEl.value.trim(); if (!name) return; next.push({ enabled, name, icon: iconEl.value || '👑', metric: metricEl.value, window: +winEl.value || 7, room: roomEl.value || '' }) }); localStorage.setItem(BBV_KEY, JSON.stringify({ custom: next })); pushAlert(currentUser, 'Custom badges saved.'); populateStreaks(); }; }
+            }
+
+            /* === Streaks & Badges open/close wiring === */
+            const streakOv = document.getElementById('streak-overlay');
+            const streakOpen = document.getElementById('streak-chip');
+            const streakCloseBtn = document.getElementById('streak-close');
+
+            if (streakOpen) {
+                streakOpen.addEventListener('click', () => {
+                    populateStreaks();
+                    streakOv.classList.add('show');
+                    SND.ui?.();
+                });
+            }
+            if (streakCloseBtn) {
+                streakCloseBtn.addEventListener('click', () => streakOv.classList.remove('show'));
+            }
+            if (streakOv) {
+                streakOv.addEventListener('click', (e) => {
+                    if (e.target === streakOv) streakOv.classList.remove('show');
+                });
+            }
+            const badgesGear = document.getElementById('badges-gear');
+            if (badgesGear) {
+                badgesGear.addEventListener('click', () => {
+                    if (!streakOv.classList.contains('show')) {
+                        populateStreaks();
+                        streakOv.classList.add('show');
+                    }
+                    document.getElementById('badge-builder')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
             }
 
             /* ===== Confetti ===== */
@@ -1688,8 +1889,23 @@
             window.selectUser = u => { currentUser = u; sessionStorage.setItem('hf.currentUser', u); document.getElementById('view-selector').style.display = 'none'; document.getElementById('view-dashboard').style.display = 'block'; refreshPfp(); renderAlerts(); renderWatch(); renderDaily(); renderWeekly(); peek(); updateCutoffLabel(); updateBellBadge(); scheduleRushIfNeeded(); showRushBannerIf(); SND.ui() }
             window.backToProfiles = () => { document.getElementById('view-dashboard').style.display = 'none'; document.getElementById('view-selector').style.display = 'block'; currentUser = null; sessionStorage.removeItem('hf.currentUser'); renderGlance(); SND.ui() }
 
-            /* Collapsible Watch (collapsed by default) */
+            /* Collapsible Watch default collapsed */
             document.getElementById('watch-toggle').onclick = () => { const body = document.getElementById('watch-body'); const arrow = document.getElementById('watch-arrow'); const open = body.classList.toggle('open'); body.style.display = open ? 'block' : 'none'; arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)'; };
+
+            /* Settings tabs switcher */
+            (function () {
+                const nav = document.getElementById('settings-nav');
+                if (!nav) return;
+                nav.addEventListener('click', (e) => {
+                    const btn = e.target.closest('button[data-tab]');
+                    if (!btn) return;
+                    const tab = btn.getAttribute('data-tab');
+                    nav.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+                    document.querySelectorAll('#settings-overlay .settings-tab').forEach(p => {
+                        p.classList.toggle('active', p.getAttribute('data-tab') === tab);
+                    });
+                });
+            })();
 
             /* ===== Init ===== */
             function renderGlanceInit() { ensureDaily(); renderGlance() }
@@ -1702,45 +1918,5 @@
         })();
     </script>
 
-    <!-- Settings tab switching -->
-    <script>
-        (function () {
-            const nav = document.getElementById('settings-nav');
-            if (!nav) return;
-            nav.addEventListener('click', (e) => {
-                const btn = e.target.closest('button[data-tab]');
-                if (!btn) return;
-                const tab = btn.getAttribute('data-tab');
-                nav.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
-                document.querySelectorAll('#settings-overlay .settings-tab').forEach(p => {
-                    p.classList.toggle('active', p.getAttribute('data-tab') === tab);
-                });
-            });
-        })();
-    </script>
-
-    <!-- Single-column scroll for Tasks editor -->
-    <style id="settings-tasks-one-per-row">
-        #settings-overlay #task-editor {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-            max-height: 60vh;
-            overflow: auto;
-            padding-right: 8px;
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-            #settings-overlay #task-editor::-webkit-scrollbar {
-                width: 0;
-                height: 0;
-            }
-
-        #settings-overlay .editor-card,
-        #settings-overlay .tasks-table {
-            min-width: 0;
-        }
-    </style>
 </body>
 </html>
