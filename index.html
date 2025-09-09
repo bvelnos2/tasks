@@ -901,7 +901,208 @@
         #settings-overlay .editor-card, #settings-overlay .tasks-table {
             min-width: 0
         }
-    </style>
+    
+/* ===== Themes ===== */
+body.theme-light {
+    --bg: #f6f8fc;
+    --p1: #ffffff;
+    --p2: #f0f3f9;
+    --text: #0b1020;
+    --muted: #4a5678;
+    --line: rgba(0,0,0,.08);
+    color-scheme: light;
+}
+body.theme-purple {
+    --bg: #0d0a14;
+    --p1: #171228;
+    --p2: #130f22;
+    --text: #f4f0ff;
+    --muted: #b9aee0;
+    --line: rgba(255,255,255,.10);
+    color-scheme: dark;
+}
+body.theme-blue {
+    --bg: #071018;
+    --p1: #101b27;
+    --p2: #0d1621;
+    --text: #e9f3ff;
+    --muted: #9fb6d1;
+    --line: rgba(255,255,255,.10);
+    color-scheme: dark;
+}
+body.theme-green {
+    --bg: #06130f;
+    --p1: #0f201a;
+    --p2: #0b1a15;
+    --text: #e9fff6;
+    --muted: #a7c9b9;
+    --line: rgba(255,255,255,.10);
+    color-scheme: dark;
+}
+/* Theme dots in PFP menu */
+.theme-dots { display:flex; gap:8px; }
+.theme-dot { width:22px; height:22px; border-radius:50%; border:1px solid var(--line); cursor:pointer; box-shadow: 0 0 0 2px var(--bg); }
+.theme-dot[data-theme="dark"]   { background: linear-gradient(180deg,#20242c,#181b22); }
+.theme-dot[data-theme="light"]  { background: linear-gradient(180deg,#fff,#e9eef8); }
+.theme-dot[data-theme="purple"] { background: radial-gradient(60% 80% at 30% 20%, #6e59c9, transparent 60%), #171228; }
+.theme-dot[data-theme="blue"]   { background: radial-gradient(60% 80% at 30% 20%, #3a8bff, transparent 60%), #101b27; }
+.theme-dot[data-theme="green"]  { background: radial-gradient(60% 80% at 30% 20%, #32c28b, transparent 60%), #0f201a; }
+.theme-dot.selected { outline: 3px solid rgba(200,210,230,.35); outline-offset: 2px; }
+
+</style>
+
+<style id="theme-overrides">
+/* Theme overrides to replace hardcoded dark colors on key UI controls */
+input[type=checkbox]{
+  border-color: var(--muted) !important;
+  background: var(--p2) !important;
+}
+input[type=checkbox]:checked{
+  /* subtle inner dot that adapts to theme */
+  background: radial-gradient(10px 10px at 50% 50%, var(--text) 0%, var(--muted) 70%), var(--p2) !important;
+  border-color: transparent !important;
+}
+
+/* Chips and small pills */
+.chip{
+  background: linear-gradient(180deg, var(--p1), var(--p2)) !important;
+}
+
+/* Cards / big panels created with .big-card */
+.big-card{
+  background: var(--p1) !important;
+}
+
+/* Menus (e.g., profile menu, history filters) */
+.menu{
+  background: var(--p2) !important;
+}
+
+/* Buttons that used ghost-like filling */
+button.round-ghost, .round-ghost{
+  background: var(--p1) !important;
+  border: 1px solid var(--line) !important;
+}
+
+/* Generic buttons without explicit classes inherit surfaces */
+button{
+  color: var(--text);
+}
+
+/* Task rows hover/focus backgrounds if they used fixed tones */
+.todo-row:hover, .todo-row:focus-within{
+  background: var(--p1) !important;
+}
+
+/* Weights / meta pills on the right */
+.weight{
+  background: var(--p2) !important;
+  border: 1px solid var(--line) !important;
+}
+
+/* Swap / action button near section headers */
+.swap, .section-actions button{
+  background: var(--p2) !important;
+  border: 1px solid var(--line) !important;
+}
+
+/* Task row container should follow theme surfaces */
+.task{ background: linear-gradient(180deg, var(--p1), var(--p2)) !important; }
+/* Stronger target for watch list rows */
+#household-watch .task{ background: linear-gradient(180deg, var(--p1), var(--p2)) !important; }
+</style>
+<style id="theme-overrides-menus">
+/* Household Watch collapsible capsule header/body */
+#panel-watch, .cbar{ background: linear-gradient(180deg, var(--p1), var(--p2)) !important; border: 1px solid var(--line) !important; }
+#watch-body{ background: transparent !important; } /* keep inner body clean; rows are themed via .task */
+
+/* Profile picture dropdown menu */
+.pfp-menu{ background: var(--p2) !important; border: 1px solid var(--line) !important; }
+
+/* Generic 'menu' popups (e.g., history filters) */
+.menu{ background: var(--p2) !important; border: 1px solid var(--line) !important; }
+
+/* Modal cards (Settings, My Week, Wallet) */
+.overlay .modal{ background: linear-gradient(180deg, var(--p1), var(--p2)) padding-box !important; border: 1px solid var(--line) !important; }
+.overlay .modal .big-card{ background: var(--p1) !important; } /* Wallet big balance cards */
+
+/* Settings left nav buttons should harmonize too */
+.settings-nav button{ background: var(--p1); border: 1px solid var(--line); }
+.settings-nav button.active{ filter: brightness(1.08); }
+</style>
+
+
+
+<style id="theme-overrides-2">
+/* Transaction history capsules */
+.hx-item{
+  background: linear-gradient(180deg, var(--p1), var(--p2)) !important;
+  border: 1px solid var(--line) !important;
+}
+
+/* Settings content cards on each tab */
+.settings-panel{
+  background: linear-gradient(180deg, var(--p1), var(--p2)) !important;
+  border: 1px solid var(--line) !important;
+}
+
+/* Inputs in Settings */
+#settings-overlay input[type="text"],
+#settings-overlay input[type="number"],
+#settings-overlay input[type="time"],
+#settings-overlay input[type="date"],
+#settings-overlay input[type="email"],
+#settings-overlay input[type="url"],
+#settings-overlay input[type="password"],
+#settings-overlay textarea,
+#settings-overlay select{
+  background: linear-gradient(180deg, var(--p1), var(--p2)) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--text) !important;
+}
+
+#settings-overlay ::placeholder{
+  color: var(--muted);
+}
+</style>
+
+
+<style id="theme-overrides-watch">
+/* Household Watch header capsule */
+.collapsible{
+  background: linear-gradient(180deg, var(--p1), var(--p2)) !important;
+  border: 1px solid var(--line) !important;
+}
+</style>
+
+
+<style id="theme-overrides-streaks">
+/* Streaks & Badges surfaces */
+.grace-badge{
+  background: linear-gradient(180deg, var(--p1), var(--p2)) !important;
+  border: 1px solid var(--line) !important;
+}
+.badge-pill{
+  background: linear-gradient(180deg, var(--p1), var(--p2)) !important;
+  border: 1px solid var(--line) !important;
+}
+/* Tiny progress bars */
+.bar{
+  background: var(--p2) !important;
+  border: 1px solid var(--line) !important;
+}
+
+/* Inputs within badge builder (inside settings or streak modal) */
+#badge-builder input[type="text"],
+#badge-builder input[type="number"],
+#badge-builder select,
+#badge-builder textarea{
+  background: linear-gradient(180deg, var(--p1), var(--p2)) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--text) !important;
+}
+</style>
+
 </head>
 <body class="theme-dark">
     <canvas id="confetti"></canvas>
@@ -981,6 +1182,18 @@
                             <div class="item" id="menu-wallet">💼 Wallet</div>
                             <div class="item" id="menu-myweek">📊 My Week</div>
                             <div class="item" id="menu-settings">⚙️ Settings</div>
+<div class="divider"></div>
+<div class="item" style="cursor:default">
+  <div class="muted" style="margin-bottom:6px">Theme</div>
+  <div class="theme-dots">
+    <button class="theme-dot" data-theme="dark"   title="Default (Dark)"></button>
+    <button class="theme-dot" data-theme="light"  title="Light"></button>
+    <button class="theme-dot" data-theme="purple" title="Dark Purple"></button>
+    <button class="theme-dot" data-theme="blue"   title="Dark Blue"></button>
+    <button class="theme-dot" data-theme="green"  title="Dark Green"></button>
+  </div>
+</div>
+
                         </div>
                     </div>
                 </div>
@@ -1719,7 +1932,33 @@
             const sOv2 = document.getElementById('swap-overlay'); document.getElementById('swap-close').onclick = () => sOv2.classList.remove('show'); document.getElementById('swap-btn').onclick = () => openSwap(); sOv2.addEventListener('click', e => { if (e.target === sOv2) sOv2.classList.remove('show') });
             function openSwap() { const dk = todayKey(), as = dAssign()[dk] || {}; const mine = Object.keys(as).filter(k => as[k] === currentUser); const theirs = Object.keys(as).filter(k => as[k] === other()); const a = document.getElementById('swap-mine'), b = document.getElementById('swap-theirs'); a.innerHTML = mine.map(k => `<option>${k}</option>`).join(''); b.innerHTML = theirs.map(k => `<option>${k}</option>`).join(''); document.getElementById('swap-do').onclick = () => reqSwap(a.value, b.value); sOv2.classList.add('show') }
             function reqSwap(a, b) { const key = `swap:${todayKey()}:${a}|${b}`; pushAlert(other(), `${currentUser} requested a swap:<br>“${a.replace('::', ' → ')}” ↔ “${b.replace('::', ' → ')}”`, `<button class="round-ghost" style="height:28px" onclick="window._swapDecision('${key}',true)">Approve</button> <button class="round-ghost" style="height:28px" onclick="window._swapDecision('${key}',false)">Deny</button>`, key); pushAlert(currentUser, 'Swap request sent.'); sOv2.classList.remove('show') }
-            window._swapDecision = (key, ok) => { const dk = todayKey(); const as = dAssign(); const map = as[dk] || {}; const [_, ids] = key.split(':'); const [A, B] = ids.split('|'); if (ok) { const ua = map[A], ub = map[B]; map[A] = ub; map[B] = ua; as[dk] = map; dSave(as); pushAlert(other(), 'Swap approved.'); pushAlert(currentUser, 'Swap approved.') } else { pushAlert(other(), 'Swap denied.'); pushAlert(currentUser, 'Swap denied.') } USERS.forEach(u => setAlerts(u, getAlerts(u).filter(it => it.key !== key))); renderAlerts(); renderDaily(); renderWeekly() }
+            window._swapDecision = (key, ok) => { const dk = todayKey(); const as = dAssign(); const map = as[dk] || {}; const parts = key.split(':'); const ids = parts.slice(2).join(':'); const [A, B] = ids.split('|'); if (ok) { const ua = map[A], ub = map[B]; map[A] = ub; map[B] = ua; as[dk] = map; dSave(as); pushAlert(other(), 'Swap approved.'); pushAlert(currentUser, 'Swap approved.') } else { pushAlert(other(), 'Swap denied.'); pushAlert(currentUser, 'Swap denied.') } USERS.forEach(u => setAlerts(u, getAlerts(u).filter(it => it.key !== key))); renderAlerts(); renderDaily(); renderWeekly() }
+
+            
+/* ===== Themes (per-user) ===== */
+const THEMEK = (u) => `hf.theme.${u}`;
+function getTheme(u){ return load(THEMEK(u), 'dark'); }
+function setTheme(u,t){ save(THEMEK(u), t); applyTheme(); refreshThemeUI(); }
+function applyTheme(){
+    const klasses = ['theme-dark','theme-light','theme-purple','theme-blue','theme-green'];
+    document.body.classList.remove(...klasses);
+    const t = (currentUser ? getTheme(currentUser) : 'dark');
+    document.body.classList.add('theme-' + (t || 'dark'));
+}
+function refreshThemeUI(){
+    const dots = document.querySelectorAll('.theme-dot');
+    dots.forEach(d => d.classList.remove('selected'));
+    const cur = currentUser ? getTheme(currentUser) : 'dark';
+    document.querySelectorAll(`.theme-dot[data-theme="${cur}"]`).forEach(d => d.classList.add('selected'));
+}
+(function bindThemeDots(){
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.theme-dot');
+        if (!btn || !currentUser) return;
+        const value = btn.getAttribute('data-theme');
+        setTheme(currentUser, value);
+    });
+})();
 
             /* ===== PFP menu ===== */
             const pfp = document.getElementById('pfp'), pfpBig = document.getElementById('pfp-big'), pfpMenu = document.getElementById('pfp-menu'), pfpName = document.getElementById('pfp-name'), pfpBal = document.getElementById('pfp-balance'), pfpFile = document.getElementById('pfp-file');
@@ -1886,8 +2125,8 @@
             function tryCelebrate() { const key = `hf.celebrate.${todayKey()}.${currentUser}`; if (todayComplete(currentUser) && !localStorage.getItem(key)) { localStorage.setItem(key, '1'); SND.day(); confetti(); pushAlert(currentUser, 'All daily tasks complete! 🎉'); updateBellBadge() } }
 
             /* ===== Selector / nav ===== */
-            window.selectUser = u => { currentUser = u; sessionStorage.setItem('hf.currentUser', u); document.getElementById('view-selector').style.display = 'none'; document.getElementById('view-dashboard').style.display = 'block'; refreshPfp(); renderAlerts(); renderWatch(); renderDaily(); renderWeekly(); peek(); updateCutoffLabel(); updateBellBadge(); scheduleRushIfNeeded(); showRushBannerIf(); SND.ui() }
-            window.backToProfiles = () => { document.getElementById('view-dashboard').style.display = 'none'; document.getElementById('view-selector').style.display = 'block'; currentUser = null; sessionStorage.removeItem('hf.currentUser'); renderGlance(); SND.ui() }
+            window.selectUser = u => { currentUser = u; sessionStorage.setItem('hf.currentUser', u); document.getElementById('view-selector').style.display = 'none'; document.getElementById('view-dashboard').style.display = 'block'; applyTheme(); refreshThemeUI(); refreshPfp(); renderAlerts(); renderWatch(); renderDaily(); renderWeekly(); peek(); updateCutoffLabel(); updateBellBadge(); scheduleRushIfNeeded(); showRushBannerIf(); SND.ui() }
+            window.backToProfiles = () => { document.getElementById('view-dashboard').style.display = 'none'; document.getElementById('view-selector').style.display = 'block'; currentUser = null; sessionStorage.removeItem('hf.currentUser'); document.body.classList.remove('theme-light','theme-purple','theme-blue','theme-green'); document.body.classList.add('theme-dark'); renderGlance(); SND.ui() }
 
             /* Collapsible Watch default collapsed */
             document.getElementById('watch-toggle').onclick = () => { const body = document.getElementById('watch-body'); const arrow = document.getElementById('watch-arrow'); const open = body.classList.toggle('open'); body.style.display = open ? 'block' : 'none'; arrow.style.transform = open ? 'rotate(0deg)' : 'rotate(-90deg)'; };
@@ -1910,9 +2149,9 @@
             /* ===== Init ===== */
             function renderGlanceInit() { ensureDaily(); renderGlance() }
             function init() {
-                ensureDaily(); ensureWeekly(); accrueWeekly(); renderGlanceInit(); updateCutoffLabel(); scheduleDailyCheck(); scheduleWeekly(); scheduleRushIfNeeded(); showRushBannerIf(); setInterval(showRushBannerIf, 30000);
+                ensureDaily(); ensureWeekly(); accrueWeekly(); renderGlanceInit(); processYesterday(); processWeek(); updateCutoffLabel(); scheduleDailyCheck(); scheduleWeekly(); scheduleRushIfNeeded(); showRushBannerIf(); setInterval(showRushBannerIf, 30000);
                 BUS.on(m => { if (m?.type === 'balances' || m?.type === 'tx') { renderHistory(); peek() } if (m?.type === 'alert') { if (m.to === currentUser) { renderAlerts(); updateBellBadge() } } if (m?.type === 'tasks') { renderDaily(); renderWeekly() } if (m?.type === 'avatar') { renderGlance(); if (currentUser === m.user) refreshPfp() } });
-                if (currentUser) selectUser(currentUser); updateBellBadge();
+                if (currentUser) { applyTheme(); refreshThemeUI(); selectUser(currentUser); } else { applyTheme(); } updateBellBadge();
             }
             init();
         })();
