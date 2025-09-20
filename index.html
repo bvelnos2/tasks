@@ -658,6 +658,39 @@ body{
 #settingsDrawer .settings-card .row div[style*="color:var(--muted)"]{ color: #c9ced8 !important; }
 </style>
 
+
+<style>
+/* Remove nav-only vertical gradient; keep sticky + blur */
+.top-nav{
+  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0)) !important;
+}
+</style>
+
+<style>
+/* Strong accent flash when tasks complete (uses --accent-rgb from profile color) */
+@keyframes taskAccentBlast {
+  0%   { background: linear-gradient(135deg, rgba(var(--accent-rgb,107,134,255), 0.90), rgba(var(--accent-rgb,107,134,255), 0.72)); }
+  100% { background: linear-gradient(135deg, rgba(var(--accent-rgb,107,134,255), 0.52), rgba(var(--accent-rgb,107,134,255), 0.38)); }
+}
+#dashboard .task-box{ transition: background 240ms ease, border-color 240ms ease; }
+#dashboard .task-box.completed{
+  background: linear-gradient(135deg, rgba(var(--accent-rgb,107,134,255), 0.52), rgba(var(--accent-rgb,107,134,255), 0.38)) !important;
+  border-color: rgba(var(--accent-rgb,107,134,255), 0.62) !important;
+  animation: taskAccentBlast 260ms ease-out;
+}
+/* Ensure no leftover green pulse overrides this */
+#dashboard .task-box.completed::after{ content: none !important; }
+#dashboard .task-box.completed::before{
+  background: linear-gradient(to bottom, rgba(var(--accent-rgb,107,134,255), 0.08), rgba(255,255,255,0.02) 14%, rgba(255,255,255,0) 40%) !important;
+}
+</style>
+
+
+<style>
+/* Hide the 'Undo' button, but keep all JS/logic intact */
+.task-undo{ display:none !important; }
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -1085,7 +1118,7 @@ function renderDaily(){
       <div style="font-size:12px;color:#c5c9d3">${t.room}</div>
       <div class="title">${t.title}</div>
       <div class="row" style="justify-content:flex-end">${a.completed?'<button class="btn ghost task-undo">Undo</button>':''}</div>`;
-    box.addEventListener('click',e=>{ if(e.target.classList.contains('task-undo')) return; toggleTaskComplete('daily', user.id, a, t); });
+    box.addEventListener('click', e=>{ if(e.target.classList.contains('task-undo')) return; toggleTaskComplete('daily', user.id, a, t, !!a.completed); });
     box.querySelector('.task-undo')?.addEventListener('click',e=>{ e.stopPropagation(); toggleTaskComplete('daily', user.id, a, t, true); });
     dailyGrid.appendChild(box);
   });
@@ -1103,7 +1136,7 @@ function renderWeekly(){
       <div style="font-size:12px;color:#c5c9d3">${t.room}</div>
       <div class="title">${t.title}</div>
       <div class="row" style="justify-content:flex-end">${a.completed?'<button class="btn ghost task-undo">Undo</button>':''}</div>`;
-    box.addEventListener('click',e=>{ if(e.target.classList.contains('task-undo')) return; toggleTaskComplete('weekly', user.id, a, t); });
+    box.addEventListener('click', e=>{ if(e.target.classList.contains('task-undo')) return; toggleTaskComplete('weekly', user.id, a, t, !!a.completed); });
     box.querySelector('.task-undo')?.addEventListener('click',e=>{ e.stopPropagation(); toggleTaskComplete('weekly', user.id, a, t, true); });
     weeklyGrid.appendChild(box);
   });
@@ -1121,7 +1154,7 @@ function renderSeasonal(){
       <div style="font-size:12px;color:#c5c9d3">${t.room||'Seasonal'}</div>
       <div class="title">${t.title}</div>
       <div class="row" style="justify-content:flex-end">${a.completed?'<button class="btn ghost task-undo">Undo</button>':''}</div>`;
-    box.addEventListener('click',e=>{ if(e.target.classList.contains('task-undo')) return; toggleTaskComplete('seasonal', user.id, a, t); });
+    box.addEventListener('click', e=>{ if(e.target.classList.contains('task-undo')) return; toggleTaskComplete('seasonal', user.id, a, t, !!a.completed); });
     box.querySelector('.task-undo')?.addEventListener('click',e=>{ e.stopPropagation(); toggleTaskComplete('seasonal', user.id, a, t, true); });
     seasonalGrid.appendChild(box);
   });
