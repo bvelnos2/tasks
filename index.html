@@ -707,6 +707,141 @@ body{
 }
 </style>
 
+
+<style>
+/* Wallet progressive enhancement (non-destructive) */
+#walletTab .wallet-grid{
+  display:grid; gap:16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 6px;
+}
+#walletTab .wallet-card{
+  border:1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.024));
+  backdrop-filter: blur(12px) saturate(1.05);
+  -webkit-backdrop-filter: blur(12px) saturate(1.05);
+  border-radius:16px; padding:14px;
+}
+#walletTab .wallet-card .name{ font-weight:600; opacity:.92; }
+#walletTab .wallet-card .favor{ font-size:26px; font-weight:700; margin-top:4px; }
+#walletTab .wallet-card .grace{ margin-top:4px; font-size:12px; opacity:.8; }
+
+#walletTab .wallet-actions{ display:flex; gap:10px; flex-wrap:wrap; margin:8px 0 4px; }
+#walletTab .wallet-actions .btn{ flex:1 1 160px; }
+
+#walletTab .txn-header{ display:flex; align-items:center; justify-content:space-between; margin:10px 0 8px; }
+#walletTab .txn-title{ font-weight:600; opacity:.9; }
+#walletTab .kebab{ width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; }
+#walletTab .kebab:hover{ filter:brightness(1.06); cursor:pointer; }
+#walletTab .kebab-menu{
+  position:absolute; right:10px; top:44px; z-index:50;
+  background: rgba(18,20,24,0.92);
+  border: 1px solid rgba(255,255,255,0.10);
+  backdrop-filter: blur(14px) saturate(1.05);
+  -webkit-backdrop-filter: blur(14px) saturate(1.05);
+  border-radius:14px; padding:10px; min-width:240px; display:none;
+}
+#walletTab .kebab-menu.open{ display:block; }
+#walletTab .kebab-menu .row{ display:flex; gap:8px; align-items:center; margin:6px 0; }
+#walletTab .kebab-menu label{ font-size:13px; opacity:.9; }
+
+/* Scrollable tx list with hidden scrollbar */
+#txLog{
+  max-height: 48vh;
+  overflow-y: auto;
+  -ms-overflow-style: none; scrollbar-width: none;
+  position: relative;
+}
+#txLog::-webkit-scrollbar{ display:none; }
+</style>
+
+
+<style>
+/* --- Wallet layout tweaks (CSS-only) --- */
+/* 1) Horizontal balance cards row with side-scroll (no visible scrollbar) */
+#walletTab .wallet-grid{
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  gap: 16px !important;
+  padding-bottom: 4px;
+  -ms-overflow-style: none;        /* IE/Edge */
+  scrollbar-width: none;           /* Firefox */
+}
+#walletTab .wallet-grid::-webkit-scrollbar{ display:none; }
+#walletTab .wallet-card{ flex: 0 0 260px !important; }
+
+/* 2) Kebab menu should drop *beneath* the icon */
+#walletTab .txn-header{ position: relative; }
+#walletTab .kebab-menu{
+  top: calc(100% + 8px) !important;
+  right: 0 !important;
+}
+</style>
+
+
+<style>
+/* Dynamic, responsive balance cards (fill available space) */
+#walletTab .wallet-grid{
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+  gap: 16px !important;
+  overflow: visible !important;
+}
+/* Let cards expand naturally within the grid */
+#walletTab .wallet-card{
+  flex: 1 1 auto !important;
+  width: auto !important;
+}
+</style>
+
+
+<style>
+/* Horizontal, responsive balance cards (fill width + side-scroll) */
+#walletTab .wallet-grid{
+  display: grid !important;
+  grid-auto-flow: column !important;                 /* force a single horizontal row of columns */
+  grid-auto-columns: minmax(240px, 1fr) !important;  /* each card grows to fill available width */
+  gap: 16px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -ms-overflow-style: none;          /* IE/Edge */
+  scrollbar-width: none;             /* Firefox */
+  padding-bottom: 4px;
+}
+#walletTab .wallet-grid::-webkit-scrollbar{ display:none; } /* Hide scrollbar in WebKit */
+#walletTab .wallet-card{ width: auto !important; }
+</style>
+
+
+<style>
+/* --- Wallet balance cards: dynamic horizontal fill --- */
+#walletTab .wallet-grid{
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+  gap: 16px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;     /* Firefox */
+  padding-bottom: 4px;
+}
+#walletTab .wallet-grid::-webkit-scrollbar{ display:none; }
+#walletTab .wallet-card{
+  flex: 1 1 240px !important;     /* grow to fill, but don't shrink below 240px */
+  min-width: 240px !important;
+  width: auto !important;
+}
+</style>
+
+
+<style>
+/* Ensure kebab menu isn't clipped by container overflow */
+#walletTab .section, #walletTab .section .section-body{ overflow: visible !important; }
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -1393,5 +1528,243 @@ function init(){
 }
 init();
 </script>
+
+<script>
+// --- Daily cutoff penalties (non-destructive injection) ---
+(function(){
+  function applyDailyPenaltiesAtCutoff(){
+    try{
+      if(!window.State || !State.data || !State.data.settings || !State.data.system) return;
+      var cutoffHour = Number(State.data.settings.dailyCutoffHour ?? 22);
+      var now = new Date();
+      if(now.getHours() < cutoffHour) return;
+
+      // Only run once per day
+      var today = (typeof todayStr === 'function') ? todayStr() : new Date().toISOString().slice(0,10);
+      if(State.data.system.lastDailyPenalty === today) return;
+
+      var users = (typeof State.presentUsers === 'function' ? State.presentUsers() : State.data.users) || [];
+      var tasks = (State.data.catalog && State.data.catalog.tasks) || [];
+      var fmt = (typeof window.fmt === 'function') ? window.fmt : (n=>Number(n).toFixed(2));
+      var push = (typeof window.pushNotif === 'function') ? window.pushNotif : function(){};
+
+      // Build a quick lookup for tasks by id
+      var tMap = Object.create(null);
+      tasks.forEach(function(t){ tMap[t.id] = t; });
+
+      // Process daily assignments for today
+      var daily = (State.data.assignments && State.data.assignments.daily) || {};
+      users.forEach(function(u){
+        var uid = u.id;
+        var assigns = daily[uid] || [];
+        assigns.forEach(function(a){
+          if(a.completed) return;
+          if(a.date && a.date !== today) return;
+          var t = tMap[a.taskId];
+          if(!t) return;
+          var neg = Number(t.neg || 0);
+          if(!(neg > 0)) return;
+
+          // Distribute evenly to other users
+          var others = users.filter(function(x){ return x.id !== uid; });
+          if(!others.length) return;
+          var share = neg / others.length;
+          others.forEach(function(o){
+            o.favor = (o.favor || 0) + share;
+            push(o.id, "You gained +" + fmt(share) + " favor from missed task: " + (t.title || ""), []);
+          });
+          push(uid, "Missed task: " + (t.title || "") + " (distributed −" + fmt(neg) + ")", []);
+        });
+      });
+
+      State.data.system.lastDailyPenalty = today;
+      if(typeof State.save === 'function') State.save();
+      if(typeof renderDashboard === 'function') renderDashboard();
+    }catch(e){ /* silent fail-safe */ }
+  }
+  // Run on load and every minute
+  if(document.readyState === 'complete') applyDailyPenaltiesAtCutoff();
+  else window.addEventListener('load', applyDailyPenaltiesAtCutoff);
+  setInterval(applyDailyPenaltiesAtCutoff, 60000);
+})();
+</script>
+
+
+<script>
+// Wallet UI progressive enhancement (keeps original JS intact)
+(function(){
+  function enhanceWallet(){
+    var tab = document.getElementById('walletTab');
+    if(!tab || tab.classList.contains('hidden')) return;
+
+    var balances = document.getElementById('walletBalances');
+    var txLog = document.getElementById('txLog');
+    if(!balances || !txLog) return;
+
+    // --- 1) Build cards grid for balances (Favor + Grace) ---
+    // Replace balances content with cards built from current users
+    var users = (State.presentUsers ? State.presentUsers() : State.data.users) || [];
+    if(!tab.querySelector('.wallet-grid')){
+      var grid = document.createElement('div');
+      grid.className = 'wallet-grid';
+      users.forEach(function(u){
+        var card = document.createElement('div');
+        card.className = 'wallet-card';
+        card.innerHTML = '<div class="name">'+(u.name||'User')+'</div>' +
+                         '<div class="favor">'+ (window.fmt?fmt(u.favor||0):(u.favor||0)) +' Favor</div>' +
+                         '<div class="grace">Grace: '+ (u.grace||0) +'</div>';
+        grid.appendChild(card);
+      });
+      // Replace balances container content but keep the same node to preserve any listeners attached above it
+      balances.innerHTML = '';
+      balances.appendChild(grid);
+    }
+
+    // --- 2) Move action buttons under balances (preserve listeners) ---
+    if(!tab.querySelector('.wallet-actions')){
+      var headerRow = tab.querySelector('.section .section-header .row');
+      if(headerRow){
+        var actions = document.createElement('div');
+        actions.className = 'wallet-actions';
+        // Move existing buttons if found
+        ['redeemBtn','tradeBtn','grantGraceBtn'].forEach(function(id){
+          var btn = document.getElementById(id);
+          if(btn) actions.appendChild(btn); // moving keeps event listeners intact
+        });
+        // Place actions under balances
+        balances.parentNode.insertBefore(actions, balances.nextSibling);
+      }
+    }
+
+    // --- 3) Add Transaction header + kebab filters (non-destructive) ---
+    if(!tab.querySelector('#txnHeader')){
+      var hdr = document.createElement('div');
+      hdr.id = 'txnHeader';
+      hdr.className = 'txn-header';
+      hdr.innerHTML = '<div class="txn-title">Transaction History</div>' +
+                      '<button class="btn kebab" id="txnKebab" aria-label="Filter"><span>⋮</span></button>' +
+                      '<div class="kebab-menu" id="txnMenu"></div>';
+      // Insert header just before txLog
+      txLog.parentNode.insertBefore(hdr, txLog);
+
+      // Build menu content
+      var menu = hdr.querySelector('#txnMenu');
+      var userOptions = ['<option value="">All users</option>']
+        .concat(users.map(function(u){ return '<option value="'+u.id+'">'+u.name+'</option>'; }))
+        .join('');
+      var types = ['gain','redeem','trade','grace_add','grace_used'];
+      menu.innerHTML = '<div class="row"><strong style="font-size:12px;opacity:.8;">Filter by User</strong></div>' +
+                       '<div class="row"><select id="filterUser" class="btn" style="width:100%;">'+userOptions+'</select></div>' +
+                       '<div class="row" style="margin-top:8px;"><strong style="font-size:12px;opacity:.8;">Filter by Type</strong></div>' +
+                       '<div class="row" style="flex-wrap:wrap;">' +
+                       types.map(function(t){ return '<label class="chip"><input type="checkbox" class="txnType" value="'+t+'" checked> '+t.replace('_',' ')+'</label>'; }).join('') +
+                       '</div>';
+
+      // Toggle menu
+      var kebab = hdr.querySelector('#txnKebab');
+      kebab.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        menu.classList.toggle('open');
+      });
+      document.addEventListener('click', function(){ menu.classList.remove('open'); }, {once:true});
+    }
+
+    // --- 4) Filtered render into txLog ---
+    function appliesType(entry, selected){
+      if(selected.length===0) return true;
+      if(!entry || typeof entry.type === 'undefined' || entry.type === null) return true;
+      return selected.indexOf(entry.type) !== -1;
+    }
+    function appliesUser(entry, userId){
+      if(!userId) return true;
+      return (entry.userId===userId) || (entry.fromId===userId) || (entry.toId===userId);
+    }
+    function renderTx(){
+      var list = State.data.walletTx || [];
+      var userId = (tab.querySelector('#filterUser')||{}).value || '';
+      var selected = Array.prototype.map.call(tab.querySelectorAll('.txnType:checked'), function(x){return x.value;});
+      var rows = list.slice().reverse().filter(function(e){ return appliesUser(e, userId) && appliesType(e, selected); })
+        .map(function(e){
+          var sign = (e.amount||0) >= 0 ? '+' : '';
+          var who = (State.userById && State.userById(e.userId)) ? State.userById(e.userId).name : (e.user || '');
+          var meta = e.text || '';
+          var amt = (window.fmt?fmt(e.amount||0):(e.amount||0));
+          var cls = (e.amount||0) >= 0 ? 'positive' : 'negative';
+          return '<div class="tx '+cls+'"><div><div>'+ (who||'—') +'</div><div class="meta">'+ meta +'</div></div><div class="amt">'+ sign + amt +'</div></div>';
+        }).join('');
+      txLog.innerHTML = rows || '<div class="meta" style="padding:8px 6px;opacity:.75;">No transactions yet.</div>';
+    }
+    renderTx();
+
+    // Wire filters (if present)
+    var fu = tab.querySelector('#filterUser'); if(fu) fu.addEventListener('change', renderTx);
+    tab.querySelectorAll('.txnType').forEach(function(cb){ cb.addEventListener('change', renderTx); });
+  }
+
+  // Run when wallet tab becomes active
+  function onTabClick(e){
+    var t = e.target.closest('.tab');
+    if(!t) return;
+    setTimeout(enhanceWallet, 0);
+  }
+  document.addEventListener('click', onTabClick);
+
+  // Also run on initial load and after renders
+  window.addEventListener('load', function(){ setTimeout(enhanceWallet, 0); });
+  // If renderDashboard exists, patch a post-render tick without overriding it
+  if(typeof renderDashboard === 'function'){
+    var _rd = renderDashboard;
+    window.renderDashboard = function(){
+      var r = _rd.apply(this, arguments);
+      try{ setTimeout(enhanceWallet, 0); }catch(_e){}
+      return r;
+    };
+  }
+})();
+</script>
+
+
+<script>
+// ---- Wallet TX tagging wrapper (non-destructive) ----
+(function(){
+  if (window.__walletTxTaggerInstalled) return;
+  window.__walletTxTaggerInstalled = true;
+  var _orig = window.logTx;
+  if (typeof _orig !== 'function') return;
+  function inferType(text, amount, explicit){
+    if (explicit) return explicit;
+    try{
+      var t = (text||'').toLowerCase();
+      if (t.includes('redeem')) return 'redeem';
+      if (t.includes('trade')) return 'trade';
+      if (t.includes('granted grace') || t.includes('granted') && t.includes('grace')) return 'grace_add';
+      if (t.includes('grace used') || t.includes('used grace')) return 'grace_used';
+    }catch(_e){}
+    var n = parseFloat(amount);
+    if (!isNaN(n)) return 'gain';
+    return 'gain';
+  }
+  window.logTx = function(userId, text, amount, type){
+    try{
+      _orig.apply(this, [userId, text, amount]);
+      if (!window.State || !State.data) return;
+      var arr = (State.data.walletTx ||= []);
+      // Find the most recent matching entry (within last 20) without a type
+      for (var i = arr.length - 1; i >= Math.max(0, arr.length - 20); i--) {
+        var e = arr[i];
+        if (!e) continue;
+        if (e.userId === userId && e.text === text && e.amount === amount && !e.type) {
+          e.type = inferType(text, amount, type);
+          break;
+        }
+      }
+      if (typeof State.save === 'function') State.save();
+    }catch(_e){
+      try{ _orig.apply(this, [userId, text, amount]); }catch(__){}
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
