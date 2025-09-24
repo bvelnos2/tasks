@@ -842,6 +842,36 @@ body{
 #walletTab .section, #walletTab .section .section-body{ overflow: visible !important; }
 </style>
 
+
+<style>
+/* Grace overlay: fixed, blurred, readable */
+.grace-mask{
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 50 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(120% 120% at 50% 10%, rgba(15,18,24,0.55), rgba(10,12,18,0.75));
+  backdrop-filter: blur(10px) saturate(1.05);
+  -webkit-backdrop-filter: blur(10px) saturate(1.05);
+  pointer-events: auto !important;
+}
+.grace-card{
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  background: rgba(27,31,42,0.85) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+}
+.hidden{ display:none !important; }
+</style>
+
+
+<style>
+/* Settings form label alignment for time input */
+#cutoffLocalRow label{ opacity:.9; }
+</style>
+
 </head>
 <body>
 <div id="app">
@@ -908,7 +938,7 @@ body{
           <button class="btn ghost" id="closeSettings">Close</button>
         </div>
         <div class="settings-row">
-          <div class="settings-tile" data-cat="general"><div class="row" style="justify-content:space-between"><div>General</div><div class="chip">Cutoff, Timezone, Rush Hour</div></div></div>
+          <div class="settings-tile" data-cat="general"><div class="row" style="justify-content:space-between"><div>General</div><div class="chip">Cutoff (device time), Rush Hour</div></div></div>
           <div class="settings-tile" data-cat="tasks">Tasks</div>
           <div class="settings-tile" data-cat="seasonal">Seasonal</div>
           <div class="settings-tile" data-cat="watch">The Watch</div>
@@ -942,7 +972,7 @@ body{
             </div>
           </div>
           <div id="dailyGrid" class="task-grid"></div>
-          <div id="graceMask" class="grace-mask hidden">
+          <div id="graceMask" data-for-user="" class="grace-mask hidden">
             <div class="grace-card"><span class="chip">🛡️</span> <strong>Grace Activated</strong> <button id="undoGraceBtn" class="btn ghost">Undo</button> <button id="okGraceBtn" class="btn primary">OK</button></div>
           </div>
         </div>
@@ -1242,7 +1272,7 @@ function renderDashboard(){ applyUserTheme(State.currentUser && State.currentUse
   const seasonalEnabled=State.data.catalog.seasonal.enabled; $$('.tab[data-tab="seasonal"]').forEach(el=> el.classList.toggle('hidden', !seasonalEnabled));
   $('#settingsAvatar').textContent=user.name[0].toUpperCase(); const sImg=$('#settingsAvatarImg'); if(user.avatarUrl){ sImg.src=user.avatarUrl; sImg.classList.remove('hidden'); $('#settingsAvatar').classList.add('hidden'); } else { sImg.classList.add('hidden'); $('#settingsAvatar').classList.remove('hidden'); }
   $('#settingsUserName').textContent=user.name;
-  cutoffChip.textContent=`Cutoff ${String(State.data.settings.dailyCutoffHour).padStart(2,'0')}:00 ${State.data.settings.timezone.split('/').pop()}`;
+  cutoffChip.textContent = `Cutoff ${ (State.data.settings.dailyCutoffTimeLocal || String(State.data.settings.dailyCutoffHour).padStart(2,'0')+':00') }`;
   weekChip.textContent=`Week of ${startOfWeek().toLocaleDateString()}`;
   graceCountEl.textContent=user.grace;
   rushBanner.classList.toggle('hidden', !State.isRushActive()); $('#seasonDeadlineTxt').textContent=State.data.settings.seasonal.deadline; $('#seasonDeadlineTxt2').textContent=State.data.settings.seasonal.deadline;
@@ -1410,18 +1440,53 @@ $('#redeemBtn').onclick=openRedeemModal; $('#tradeBtn').onclick=openTradeModal; 
 const settingsDateTime=$('#settingsDateTime');
 function renderSettingsDrawerMeta(){ const now=new Date(); settingsDateTime.textContent=now.toLocaleString([], {hour:'2-digit', minute:'2-digit', hour12:true}) + ' · ' + now.toDateString(); }
 $$('.settings-tile').forEach(t=> t.addEventListener('click', ()=> openSettingsCategory(t.dataset.cat)));
+
 function openSettingsCategory(cat){
   if(cat==='general'){
-    const s=State.data.settings; const m=openModal(`<div class="title">General</div><div class="grid" style="grid-template-columns:1fr 1fr; gap:14px"><div class="field"><label>Timezone</label><input id="tz" value="${s.timezone}"></div><div class="field"><label>Daily Cutoff Hour (0-23)</label><input id="cut" type="number" min="0" max="23" value="${s.dailyCutoffHour}"></div><div class="field"><label>Rush Window (start hour)</label><input id="rw_s" type="number" min="0" max="23" value="${s.rush.window[0]}"></div><div class="field"><label>Rush Window (end hour)</label><input id="rw_e" type="number" min="0" max="23" value="${s.rush.window[1]}"></div><div class="field"><label>Rush Bonus (+favor per task)</label><input id="rw_b" type="number" step="0.25" value="${s.rush.bonus}"></div></div><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn ghost" id="g_close">Close</button><button class="btn primary" id="g_save">Save</button></div>`, true);
-    m.querySelector('#g_close').onclick=closeModal;
-    m.querySelector('#g_save').onclick=()=>{ s.timezone=m.querySelector('#tz').value||s.timezone; s.dailyCutoffHour=Math.max(0,Math.min(23,parseInt(m.querySelector('#cut').value||s.dailyCutoffHour))); const sH=Math.max(0,Math.min(23,parseInt(m.querySelector('#rw_s').value||s.rush.window[0]))); const eH=Math.max(0,Math.min(23,parseInt(m.querySelector('#rw_e').value||s.rush.window[1]))); s.rush.window=[Math.min(sH,eH), Math.max(sH,eH)]; s.rush.bonus=parseFloat(m.querySelector('#rw_b').value||s.rush.bonus); State.save(); closeModal(); renderDashboard(); };
+    const s = State.data.settings;
+    const defTime = (s && s.dailyCutoffTimeLocal) ? s.dailyCutoffTimeLocal : ((('0'+((s&&s.dailyCutoffHour)!=null?s.dailyCutoffHour:22)).slice(-2))+':00');
+    const modal = `<div class="title">General</div>
+      <div class="grid">
+        <div class="row">
+          <label style="min-width:220px">Daily cutoff (device local time)</label>
+          <input type="time" id="g_cutoff" class="btn" value="${defTime}" />
+        </div>
+        <div class="row">
+          <label style="min-width:220px">Rush Hour window</label>
+          <input type="time" id="rw_start" class="btn" value="${s.rush.start||'17:00'}" /> 
+          <span style="opacity:.7">to</span>
+          <input type="time" id="rw_end" class="btn" value="${s.rush.end||'20:00'}" />
+        </div>
+        <div class="row">
+          <label style="min-width:220px">Rush Hour bonus per task</label>
+          <input type="number" id="rw_b" class="btn" min="0" step="0.25" value="${s.rush.bonus||0}" />
+        </div>
+      </div>
+      <div class="row" style="justify-content:flex-end; gap:8px; margin-top:12px;">
+        <button class="btn ghost" id="g_close">Close</button>
+        <button class="btn primary" id="g_save">Save</button>
+      </div>`;
+    const m = openModal(modal, true);
+    m.querySelector('#g_close').onclick = closeModal;
+    m.querySelector('#g_save').onclick = () => {
+      const t = m.querySelector('#g_cutoff').value || defTime;
+      State.data.settings.dailyCutoffTimeLocal = t;
+      State.data.settings.dailyCutoffHour = parseInt(t.split(':')[0],10);
+      State.data.settings.rush = State.data.settings.rush || {};
+      State.data.settings.rush.start = m.querySelector('#rw_start').value || '17:00';
+      State.data.settings.rush.end   = m.querySelector('#rw_end').value   || '20:00';
+      State.data.settings.rush.bonus = parseFloat(m.querySelector('#rw_b').value || 0) || 0;
+      State.save(); closeModal(); renderDashboard();
+    };
+    return;
   }
-  if(cat==='tasks'){ /* same as previous build; left intact */ openTasksSettings(); }
-  if(cat==='seasonal'){ openSeasonalSettings(); }
-  if(cat==='watch'){ openWatchSettings(); }
-  if(cat==='away'){ openAwaySettings(); }
-  if(cat==='export'){ openExportSettings(); }
+  if(cat==='tasks'){ /* same as previous build; left intact */ openTasksSettings(); return; }
+  if(cat==='seasonal'){ openSeasonalSettings(); return; }
+  if(cat==='watch'){ openWatchSettings(); return; }
+  if(cat==='away'){ openAwaySettings(); return; }
+  if(cat==='export'){ openExportSettings(); return; }
 }
+
 /* Tasks settings (abridged version) */
 function openTasksSettings(){
   const all=State.data.catalog.tasks;
@@ -1763,6 +1828,870 @@ init();
       try{ _orig.apply(this, [userId, text, amount]); }catch(__){}
     }
   };
+})();
+</script>
+
+
+<script>
+/* ===== OurFavor Fixes (per-user Grace + cutoff redistribution) ===== */
+(function(){
+  function addTx(userId, amount, text, type){
+    try{
+      State.data.walletTx = State.data.walletTx || [];
+      State.data.walletTx.push({
+        id: (Math.random().toString(36).slice(2)),
+        userId: userId,
+        amount: amount,
+        text: text,
+        type: type || null,
+        ts: Date.now()
+      });
+    }catch(e){ console.warn('addTx failed', e); }
+  }
+  function findTask(taskId){
+    var tasks=(State.data && State.data.catalog && State.data.catalog.tasks)||[];
+    for(var i=0;i<tasks.length;i++){ if(tasks[i].id===taskId) return tasks[i]; }
+    return null;
+  }
+
+  // Bootstrap
+  (function(){
+    State.data.system = State.data.system || {};
+    State.data.system.graceUses = State.data.system.graceUses || {}; // { 'YYYY-MM-DD': { userId: true } }
+    State.data.system.lastGraceWeek = State.data.system.lastGraceWeek || (new Date(0)).toISOString();
+  })();
+
+  function refreshWeeklyGrace(){
+    try{
+      var d=new Date(); var day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); d.setHours(0,0,0,0);
+      var weekISO = d.toISOString();
+      if(State.data.system.lastGraceWeek !== weekISO){
+        (State.data.users||[]).forEach(function(u){ u.grace = 2; });
+        State.data.system.graceUses = {};
+        State.data.system.lastGraceWeek = weekISO;
+        State.save && State.save();
+      }
+    }catch(e){ console.warn('refreshWeeklyGrace error', e); }
+  }
+
+  function bindUseGrace(){
+    var btn = document.getElementById('useGraceBtn');
+    if(!btn || btn._boundPerUserGrace) return;
+    var clone = btn.cloneNode(true);
+    btn.parentNode.replaceChild(clone, btn);
+    btn = document.getElementById('useGraceBtn');
+    btn.addEventListener('click', function(){
+      var u = State.currentUser; if(!u) return;
+      refreshWeeklyGrace();
+      var today = (new Date()).toISOString().slice(0,10);
+      var map = State.data.system.graceUses[today] || (State.data.system.graceUses[today] = {});
+      if(map[u.id]){ alert('Grace already used today.'); return; }
+      if((u.grace||0) <= 0){ alert('No Grace tokens left.'); return; }
+      u.grace -= 1;
+      map[u.id] = true;
+      var mask = document.getElementById('graceMask');
+      if(mask){ mask.classList.remove('hidden'); document.getElementById('okGraceBtn')?.addEventListener('click', function(){ mask.classList.add('hidden'); }, {once:true}); }
+      var gc = document.getElementById('graceCount'); if(gc) gc.textContent = String(u.grace);
+      addTx(u.id, 0, 'Grace used', 'grace_used');
+      State.save && State.save();
+    });
+    btn._boundPerUserGrace = true;
+  }
+
+  function processDailyFor(dateStr){
+    try{
+      var users = (State.data.users||[]);
+      var daily = State.data.assignments && State.data.assignments.daily || {};
+      var usedMap = (State.data.system.graceUses||{})[dateStr] || {};
+      users.forEach(function(u){
+        var assigns = (daily[u.id]||[]).filter(function(a){ return a.date===dateStr && !a.completed; });
+        if(!assigns.length) return;
+        if(usedMap[u.id]) return; // pardoned by grace
+        assigns.forEach(function(a){
+          var t = findTask(a.taskId) || {neg:0, title:'Task', room:''};
+          var others = users.filter(function(o){ return o.id !== u.id; });
+          if(!others.length) return;
+          var per = (t.neg||0) / others.length;
+          others.forEach(function(o){
+            o.favor = (o.favor||0) + per;
+            addTx(o.id, per, 'Missed task by '+ (u.name||'user') + ': ' + (t.room? t.room+': ' : '') + (t.title||'task'), 'missed');
+          });
+        });
+      });
+      State.save && State.save();
+    }catch(e){ console.warn('processDailyFor error', e); }
+  }
+
+  function processWeeklyFor(weekStartISO){
+    try{
+      var users = (State.data.users||[]);
+      var weekly = State.data.assignments && State.data.assignments.weekly || {};
+      users.forEach(function(u){
+        var assigns = (weekly[u.id]||[]).filter(function(a){ return a.weekStartISO===weekStartISO && !a.completed; });
+        assigns.forEach(function(a){
+          var t = findTask(a.taskId) || {neg:0, title:'Task', room:''};
+          var others = users.filter(function(o){ return o.id !== u.id; });
+          if(!others.length) return;
+          var per = (t.neg||0) / others.length;
+          others.forEach(function(o){
+            o.favor = (o.favor||0) + per;
+            addTx(o.id, per, 'Missed weekly by '+ (u.name||'user') + ': ' + (t.room? t.room+': ' : '') + (t.title||'task'), 'missed');
+          });
+        });
+      });
+      State.save && State.save();
+    }catch(e){ console.warn('processWeeklyFor error', e); }
+  }
+
+  function runRollover(){
+    try{
+      refreshWeeklyGrace();
+      var cutoffToday = getDeviceLocalCutoffDate(now);
+      if(now >= cutoffToday && State.data.system.lastDailySettled !== today){
+        processDailyFor(yesterdayStr);
+        State.distributeDaily && State.distributeDaily();
+        State.data.system.lastDailySettled = today;
+        State.save && State.save();
+      }
+
+      // Weekly settle once per week boundary
+      if(State.data.system.lastWeeklySettled !== weekStart){
+        processWeeklyFor(State.data.system.lastWeeklySettled);
+        State.distributeWeekly && State.distributeWeekly();
+        State.data.system.lastWeeklySettled = weekStart;
+        State.save && State.save();
+      }
+
+      var gc = document.getElementById('graceCount'); if(gc) gc.textContent = String(State.currentUser?.grace || 0);
+    }catch(e){ console.warn('runRollover error', e); }
+  }
+
+  window.addEventListener('load', function(){
+    try{
+      bindUseGrace();
+      runRollover();
+      setInterval(runRollover, 60000);
+    }catch(e){ console.warn(e); }
+  });
+})();
+</script>
+
+
+<script>
+// Grace overlay fixes: blur + working Undo
+(function(){
+  function showGraceOverlay(){
+    var mask = document.getElementById('graceMask');
+    var daily = document.getElementById('dailySection');
+    if(mask){ mask.classList.remove('hidden'); }
+    if(daily){ daily.classList.add('grace-active'); }
+  }
+  function hideGraceOverlay(){
+    var mask = document.getElementById('graceMask');
+    var daily = document.getElementById('dailySection');
+    if(mask){ mask.classList.add('hidden'); }
+    if(daily){ daily.classList.remove('grace-active'); }
+  }
+  function undoGrace(){
+    var u = State.currentUser; if(!u) return;
+    var today = (new Date()).toISOString().slice(0,10);
+    var map = (State.data.system && State.data.system.graceUses && State.data.system.graceUses[today]) || {};
+    if(map[u.id]){
+      delete map[u.id];
+      u.grace = (u.grace||0) + 1;
+      var gc = document.getElementById('graceCount'); if(gc) gc.textContent = String(u.grace);
+      if(typeof addTx === 'function'){ addTx(u.id, 0, 'Grace undone', 'grace_used'); }
+      else{
+        try{
+          State.data.walletTx = State.data.walletTx || [];
+          State.data.walletTx.push({id:Math.random().toString(36).slice(2), userId:u.id, amount:0, text:'Grace undone', type:'grace_used', ts:Date.now()});
+        }catch(e){}
+      }
+      State.save && State.save();
+    }
+    hideGraceOverlay();
+  }
+  // Bind overlay buttons once
+  function bindOverlayButtons(){
+    var ok = document.getElementById('okGraceBtn');
+    var un = document.getElementById('undoGraceBtn');
+    if(ok && !ok._boundG){ ok.addEventListener('click', hideGraceOverlay); ok._boundG = true; }
+    if(un && !un._boundG){ un.addEventListener('click', undoGrace); un._boundG = true; }
+  }
+
+  // Patch Use Grace button to also force overlay blur (without altering existing logic)
+  function patchUseGraceToShow(){
+    var btn = document.getElementById('useGraceBtn');
+    if(!btn || btn._patchedOverlay) return;
+    btn.addEventListener('click', function(){
+      setTimeout(function(){ bindOverlayButtons(); showGraceOverlay(); }, 0);
+    });
+    btn._patchedOverlay = true;
+  }
+
+  window.addEventListener('load', function(){
+    bindOverlayButtons();
+    patchUseGraceToShow();
+  });
+  document.addEventListener('click', function(e){
+    if(e.target && (e.target.id === 'useGraceBtn')){
+      setTimeout(function(){ bindOverlayButtons(); showGraceOverlay(); }, 0);
+    }
+  }, true);
+})();
+</script>
+
+
+<script>
+// Settings: wire up Redistribute buttons + avoid double cutoff engines
+(function(){
+  function bindRedistributeButtons(){
+    // Delegate by ID so it survives modal reopens
+    document.addEventListener('click', function(e){
+      var t = e.target;
+      if(!t || !t.id) return;
+      if(t.id === 't_dist_daily'){
+        e.preventDefault();
+        try{
+          State.distributeDaily && State.distributeDaily();
+          State.save && State.save();
+          if(typeof renderDashboard==='function') renderDashboard();
+          if(typeof pushNotif==='function' && State.currentUser){ pushNotif(State.currentUser.id, 'Daily tasks redistributed.', []); }
+        }catch(err){ console.warn('Redistribute Daily failed', err); }
+      }
+      if(t.id === 't_dist_weekly'){
+        e.preventDefault();
+        try{
+          State.distributeWeekly && State.distributeWeekly();
+          State.save && State.save();
+          if(typeof renderDashboard==='function') renderDashboard();
+          if(typeof pushNotif==='function' && State.currentUser){ pushNotif(State.currentUser.id, 'Weekly tasks redistributed.', []); }
+        }catch(err){ console.warn('Redistribute Weekly failed', err); }
+      }
+    }, true);
+  }
+  function guardCutoffEngines(){
+    // If the native cutoff engine exists, disable the secondary one we injected earlier
+    if(typeof window.applyDailyPenaltiesAtCutoff === 'function'){
+      try{
+        // Overwrite runRollover with a no-op to prevent double distribution/penalties
+        window.runRollover = function(){};
+      }catch(_){}
+    }
+  }
+  window.addEventListener('load', function(){
+    bindRedistributeButtons();
+    guardCutoffEngines();
+  });
+})();
+</script>
+
+
+<script>
+/* ===== Improved random-balanced redistribution (daily & weekly) ===== */
+(function(){
+  function riskOf(t){ var p = Math.max(0, +t.pos||0), n = Math.max(0, +t.neg||0); return p + n; }
+  function percentile(arr, p){
+    if(!arr.length) return 0; var s = arr.slice().sort(function(a,b){return a-b;});
+    var idx = Math.floor(p*(s.length-1)); return s[idx];
+  }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=(Math.random()* (i+1))|0; var tmp=a[i]; a[i]=a[j]; a[j]=tmp; } return a; }
+  function assignBalanced(tasks, users, period){
+    // period: 'daily' or 'weekly'
+    var vals = tasks.map(riskOf);
+    var hiCut = percentile(vals, 0.75);
+    var isHi = function(t){ return riskOf(t) >= hiCut && hiCut>0; };
+
+    // sort by risk desc + tiny jitter so repeated clicks don't yield identical result
+    var order = tasks.slice().sort(function(a,b){ return (riskOf(b)+Math.random()*0.01) - (riskOf(a)+Math.random()*0.01); });
+
+    // build buckets
+    var buckets = new Map(users.map(function(u){ return [u.id, { risk:0, hi:0, list:[] }]; }));
+
+    order.forEach(function(t){
+      // compute candidate users
+      var entries = users.map(function(u){
+        var b = buckets.get(u.id);
+        return { u:u, r:b.risk, h:b.hi };
+      });
+      var chosen;
+      if(isHi(t)){
+        // prefer users with the fewest high-risk already
+        var minH = Math.min.apply(null, entries.map(function(e){ return e.h; }));
+        var poolH = entries.filter(function(e){ return e.h===minH; });
+        // within that pool, pick among the K lowest risk users at random
+        poolH.sort(function(a,b){ return a.r - b.r; });
+        var K = Math.max(1, Math.min(3, poolH.length));
+        chosen = poolH[(Math.random()*K)|0].u;
+      }else{
+        // normal task: pick randomly among the K lowest risk users
+        entries.sort(function(a,b){ return a.r - b.r; });
+        var K2 = Math.max(1, Math.min(3, entries.length));
+        chosen = entries[(Math.random()*K2)|0].u;
+      }
+      var bkt = buckets.get(chosen.id);
+      bkt.list.push(period==='daily' ?
+        { taskId:t.id, completed:false, date: todayStr() } :
+        { taskId:t.id, completed:false, weekStartISO: startOfWeek().toISOString() });
+      bkt.risk += riskOf(t);
+      if(isHi(t)) bkt.hi += 1;
+    });
+
+    var out = {}; buckets.forEach(function(v, uid){ out[uid] = v.list; });
+    return out;
+  }
+
+  function presentUsersSafe(){
+    try{ return State.presentUsers ? State.presentUsers() : (State.data.users||[]); }
+    catch(_){ return (State.data.users||[]); }
+  }
+
+  // Override with improved versions
+  State.distributeDaily = function(){
+    var all = (State.data.catalog && State.data.catalog.tasks) ? State.data.catalog.tasks : [];
+    var daily = all.filter(function(t){ return (t.freq||t.frequency||'daily') === 'daily'; });
+    var users = presentUsersSafe(); if(!users.length) return;
+    State.data.assignments = State.data.assignments || {};
+    State.data.assignments.daily = assignBalanced(daily, users, 'daily');
+    State.data.system = State.data.system || {};
+    State.data.system.lastDailyDist = todayStr();
+    State.save && State.save();
+  };
+
+  State.distributeWeekly = function(){
+    var all = (State.data.catalog && State.data.catalog.tasks) ? State.data.catalog.tasks : [];
+    var weekly = all.filter(function(t){ return (t.freq||t.frequency||'weekly') === 'weekly'; });
+    var users = presentUsersSafe(); if(!users.length) return;
+    State.data.assignments = State.data.assignments || {};
+    State.data.assignments.weekly = assignBalanced(weekly, users, 'weekly');
+    State.data.system = State.data.system || {};
+    State.data.system.lastWeeklyDist = startOfWeek().toISOString();
+    State.save && State.save();
+  };
+})();
+</script>
+
+
+<script>
+/* ===== Grace overlay: per-user only + auto-hide/lock at cutoff ===== */
+(function(){
+  // Helper: get today's YYYY-MM-DD and cutoff Date for today
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function todayCutoffDate(){ return getDeviceLocalCutoffDate(); }
+
+  // Show overlay only for the user who redeemed it
+  function showGraceOverlayFor(userId){
+    var mask = document.getElementById('graceMask');
+    var daily = document.getElementById('dailySection');
+    if(!mask) return;
+    mask.dataset.forUser = userId || '';
+    var cur = State.currentUser && State.currentUser.id;
+    if(cur && cur === userId){
+      mask.classList.remove('hidden');
+      if(daily){ daily.classList.add('grace-active'); }
+      // While visible and before cutoff, allow undo; after cutoff, lock it
+      updateGraceUndoLock();
+    }else{
+      // Different user viewing: keep overlay hidden
+      mask.classList.add('hidden');
+      if(daily){ daily.classList.remove('grace-active'); }
+    }
+  }
+
+  function hideGraceOverlay(){
+    var mask = document.getElementById('graceMask');
+    var daily = document.getElementById('dailySection');
+    if(mask){ mask.classList.add('hidden'); }
+    if(daily){ daily.classList.remove('grace-active'); }
+  }
+
+  // Lock/disable undo at or after cutoff for the day the grace was used
+  function updateGraceUndoLock(){
+    var undoBtn = document.getElementById('undoGraceBtn');
+    var mask = document.getElementById('graceMask');
+    if(!undoBtn || !mask) return;
+    var cutoff = todayCutoffDate();
+    var now = new Date();
+    var locked = now >= cutoff;
+    // Disable pointer and visually soften if locked
+    undoBtn.disabled = !!locked;
+    undoBtn.style.opacity = locked ? .5 : 1;
+    undoBtn.style.pointerEvents = locked ? 'none' : 'auto';
+    // If locked, also hide the overlay (require re-use next day if needed)
+    if(locked){ hideGraceOverlay(); }
+  }
+
+  // Patch the Use Grace button so it shows overlay only for the redeemer
+  function patchUseGrace(){
+    var btn = document.getElementById('useGraceBtn');
+    if(!btn || btn._patchedPerUserOverlay) return;
+    btn.addEventListener('click', function(){
+      var u = State.currentUser; if(!u) return;
+      // After state updates, show overlay strictly for this user
+      setTimeout(function(){ showGraceOverlayFor(u.id); }, 0);
+    });
+    btn._patchedPerUserOverlay = true;
+  }
+
+  // Bind OK and Undo with per-user guard
+  function bindOverlayButtons(){
+    var ok = document.getElementById('okGraceBtn');
+    var un = document.getElementById('undoGraceBtn');
+    if(ok && !ok._boundG){
+      ok.addEventListener('click', hideGraceOverlay);
+      ok._boundG = true;
+    }
+    if(un && !un._boundG){
+      un.addEventListener('click', function(){
+        // Guard: only allow undo for the same user who redeemed and before cutoff
+        var mask = document.getElementById('graceMask');
+        var forUser = mask && mask.dataset.forUser;
+        var cur = State.currentUser && State.currentUser.id;
+        var now = new Date();
+        if(now >= todayCutoffDate()){ hideGraceOverlay(); return; }
+        if(!cur || !forUser || cur !== forUser){ hideGraceOverlay(); return; }
+        // Perform existing undo logic if present (from prior patch), else do minimal revert
+        try{
+          // Try to call the undo function we injected earlier if available
+          if(typeof window._undoGraceInternal === 'function'){ window._undoGraceInternal(); hideGraceOverlay(); return; }
+        }catch(_){}
+        // Fallback minimal: add back grace and clear flag
+        var u = State.currentUser; if(!u) return;
+        var map = (State.data.system && State.data.system.graceUses && State.data.system.graceUses[todayStr()]) || {};
+        if(map[u.id]){ delete map[u.id]; u.grace = (u.grace||0)+1; var gc=document.getElementById('graceCount'); if(gc) gc.textContent=String(u.grace); State.save && State.save(); }
+        hideGraceOverlay();
+      });
+      un._boundG = true;
+    }
+  }
+
+  // Expose minimal internal undo so earlier code (if any) can call it
+  if(!window._undoGraceInternal){
+    window._undoGraceInternal = function(){
+      var u = State.currentUser; if(!u) return;
+      var today = todayStr();
+      var map = (State.data.system && State.data.system.graceUses && State.data.system.graceUses[today]) || {};
+      if(map[u.id]){
+        delete map[u.id]; u.grace = (u.grace||0)+1;
+        var gc=document.getElementById('graceCount'); if(gc) gc.textContent=String(u.grace);
+        State.save && State.save();
+      }
+    };
+  }
+
+  // Periodically check for cutoff to auto-lock/hide overlay
+  var _iv = null;
+  function startOverlayCutoffWatcher(){
+    if(_iv) return;
+    _iv = setInterval(updateGraceUndoLock, 30000); // check every 30s
+  }
+
+  window.addEventListener('load', function(){
+    bindOverlayButtons();
+    patchUseGrace();
+    startOverlayCutoffWatcher();
+    updateGraceUndoLock();
+  });
+
+  // If user switches tabs or profiles, re-apply guards quickly
+  document.addEventListener('click', function(){ setTimeout(function(){ bindOverlayButtons(); patchUseGrace(); updateGraceUndoLock(); }, 0); }, true);
+})();
+</script>
+
+
+<script>
+/* ===== Grace overlay visibility enforcer (per-user only) ===== */
+(function(){
+  function hideOverlay(){
+    var mask = document.getElementById('graceMask');
+    var daily = document.getElementById('dailySection');
+    if(mask) mask.classList.add('hidden');
+    if(daily) daily.classList.remove('grace-active');
+  }
+  function enforceOverlayForCurrentUser(){
+    var mask = document.getElementById('graceMask');
+    if(!mask) return;
+    var forUser = mask.dataset && mask.dataset.forUser;
+    var cur = (State.currentUser && State.currentUser.id) || null;
+    // If overlay is visible but not for current user, hide it.
+    var isVisible = !mask.classList.contains('hidden');
+    if(isVisible && (!cur || !forUser || cur !== forUser)){
+      hideOverlay();
+    }
+  }
+  // Run on load
+  window.addEventListener('load', function(){
+    setTimeout(enforceOverlayForCurrentUser, 0);
+  });
+  // Re-run after dashboard re-renders
+  if(typeof window.renderDashboard === 'function'){
+    var _rd = window.renderDashboard;
+    window.renderDashboard = function(){
+      var r = _rd.apply(this, arguments);
+      try{ setTimeout(enforceOverlayForCurrentUser, 0); }catch(_){}
+      return r;
+    };
+  }
+  // Re-run on any profile switch/tab click
+  document.addEventListener('click', function(e){
+    // Give UI a moment to switch State.currentUser
+    setTimeout(enforceOverlayForCurrentUser, 0);
+  }, true);
+  // Periodic safety check (low frequency)
+  setInterval(enforceOverlayForCurrentUser, 2000);
+})();
+</script>
+
+
+<script>
+// ===== Local cutoff time UI (device local) =====
+(function(){
+  function pad(n){ return (n<10?'0':'')+n; }
+  function getLocalCutoff(){ 
+    var s = State.data && State.data.settings && State.data.settings.dailyCutoffTimeLocal;
+    if(typeof s === 'string' && /^\d{2}:\d{2}$/.test(s)) return s;
+    // fallback to hour if present
+    var h = (State.data && State.data.settings && State.data.settings.dailyCutoffHour) || 22;
+    return pad(h)+':00';
+  }
+  function setLocalCutoff(val){
+    State.data = State.data || {}; State.data.settings = State.data.settings || {};
+    if(typeof val === 'string' && /^\d{2}:\d{2}$/.test(val)){
+      State.data.settings.dailyCutoffTimeLocal = val;
+      // keep dailyCutoffHour in sync for older code paths
+      var parts = val.split(':');
+      State.data.settings.dailyCutoffHour = parseInt(parts[0],10) || 22;
+      State.save && State.save();
+    }
+  }
+  // Hook into opening of General settings
+  var _openGeneral = window.openGeneralSettings;
+  window.openGeneralSettings = function(){
+    var r = _openGeneral ? _openGeneral.apply(this, arguments) : undefined;
+    try{
+      var panel = document.getElementById('settingsPanel') || document.body;
+      // Remove timezone controls if any
+      var tz = panel.querySelector('[data-role="timezoneRow"]');
+      if(tz){ tz.remove(); }
+      // Insert/ensure cutoff time row
+      var markerId = 'cutoffLocalRow';
+      if(!panel.querySelector('#'+markerId)){
+        var host = panel.querySelector('.settings-form') || panel;
+        var row = document.createElement('div');
+        row.className = 'row'; row.id = markerId;
+        row.innerHTML = '<label style="min-width:220px">Daily cutoff (device local time)</label>'+
+                        '<input type="time" id="cutoffTimeLocal" class="btn" style="width:160px">';
+        host.appendChild(row);
+      }
+      var input = panel.querySelector('#cutoffTimeLocal');
+      if(input){ input.value = getLocalCutoff(); input.onchange = function(){ setLocalCutoff(this.value); }; }
+    }catch(e){ console.warn('cutoff UI patch failed', e); }
+    return r;
+  };
+})();
+</script>
+
+
+<script>
+// ===== Device-local cutoff helpers =====
+(function(){
+  window.getDeviceLocalCutoffDate = function(refDate){
+    var d = refDate ? new Date(refDate) : new Date();
+    var s = (State.data && State.data.settings && State.data.settings.dailyCutoffTimeLocal) || null;
+    var h = 22, m = 0;
+    if(typeof s === 'string' && /^\d{2}:\d{2}$/.test(s)){ h = parseInt(s.slice(0,2),10)||22; m = parseInt(s.slice(3,5),10)||0; }
+    else if(State.data && State.data.settings && typeof State.data.settings.dailyCutoffHour === 'number'){ h = State.data.settings.dailyCutoffHour; }
+    d.setHours(h, m, 0, 0); // local time
+    return d;
+  };
+  window.todayStrLocal = function(refDate){
+    var d = refDate ? new Date(refDate) : new Date();
+    return d.toISOString().slice(0,10);
+  };
+})();
+</script>
+
+
+<style>
+/* Mini Swap Modal (standalone, non-conflicting) */
+#swapMiniBackdrop{
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(10,12,16,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+}
+#swapMiniModal{
+  position: fixed; z-index: 101; inset: 0;
+  display: none; align-items: center; justify-content: center;
+}
+#swapMiniCard{
+  min-width: 320px; max-width: 520px;
+  background: rgba(28,32,40,0.92);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px; padding: 16px 16px 12px 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+#swapMiniCard .title{ font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+#swapMiniCard .field{ display:flex; gap:12px; align-items:center; margin: 10px 0; }
+#swapMiniCard label{ width: 110px; opacity: .9; }
+#swapMiniCard select{ flex: 1; padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: #fff; }
+#swapMiniCard .actions{ display:flex; justify-content:flex-end; gap:8px; margin-top: 12px; }
+#swapMiniCard .btn{ padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06); color:#fff; }
+#swapMiniCard .btn.primary{ background: rgba(120,162,255,0.22); }
+#swapMiniCard .btn:disabled{ opacity: .5; pointer-events: none; }
+</style>
+<script>
+(function(){
+  function ensureMiniModal(){
+    if(document.getElementById('swapMiniBackdrop')) return;
+    var back = document.createElement('div'); back.id = 'swapMiniBackdrop';
+    var wrap = document.createElement('div'); wrap.id = 'swapMiniModal';
+    var card = document.createElement('div'); card.id = 'swapMiniCard';
+    wrap.appendChild(card);
+    document.body.appendChild(back);
+    document.body.appendChild(wrap);
+  }
+  function closeMini(){ var b=document.getElementById('swapMiniBackdrop'); var m=document.getElementById('swapMiniModal'); if(b) b.style.display='none'; if(m) m.style.display='none'; }
+  function openMiniSwap(){
+    ensureMiniModal();
+    var b=document.getElementById('swapMiniBackdrop'); var m=document.getElementById('swapMiniModal'); var c=document.getElementById('swapMiniCard');
+    if(!State || !State.currentUser) return;
+    var current = State.currentUser;
+    var today = (typeof todayStrLocal==='function'? todayStrLocal() : new Date().toISOString().slice(0,10));
+    function taskLabel(tid){ try{ var t=(State.data.catalog.tasks||[]).find(function(x){return x.id===tid;}); return t? ((t.room||'—')+' — '+t.title) : tid; }catch(_){ return tid; } }
+    var myDaily = ((State.data.assignments||{}).daily||{})[current.id]||[];
+    myDaily = myDaily.filter(function(a){ return a.date===today && !a.completed; });
+    var users = (State.data.users||[]).filter(function(u){ return u.id!==current.id; });
+    // Build content
+    c.innerHTML = ''
+      + '<div class="title">Swap a Daily Task</div>'
+      + '<div class="field"><label>Your Task</label><select id="sw_my" class="sel"></select></div>'
+      + '<div class="field"><label>With User</label><select id="sw_user" class="sel"></select></div>'
+      + '<div class="field"><label>Their Task</label><select id="sw_other" class="sel" disabled><option value="">Select a user first</option></select></div>'
+      + '<div class="actions">'
+      +   '<button class="btn" id="sw_cancel">Cancel</button>'
+      +   '<button class="btn primary" id="sw_send" disabled>Send Request</button>'
+      + '</div>';
+    var selMy = c.querySelector('#sw_my'), selUser = c.querySelector('#sw_user'), selOther = c.querySelector('#sw_other'), sendBtn = c.querySelector('#sw_send');
+    // Populate my tasks
+    selMy.innerHTML = myDaily.map(function(a){ return '<option value="'+a.taskId+'">'+taskLabel(a.taskId)+'</option>'; }).join('');
+    // Populate users
+    selUser.innerHTML = users.map(function(u){ return '<option value="'+u.id+'">'+u.name+'</option>'; }).join('');
+    function populateOther(){
+      var oid = selUser.value; selOther.innerHTML=''; selOther.disabled = true; sendBtn.disabled = true;
+      if(!oid){ return; }
+      var list = (((State.data.assignments||{}).daily||{})[oid]||[]).filter(function(a){ return a.date===today && !a.completed; });
+      if(!list.length){ selOther.innerHTML = '<option value="">No available tasks</option>'; return; }
+      selOther.innerHTML = list.map(function(a){ return '<option value="'+a.taskId+'">'+taskLabel(a.taskId)+'</option>'; }).join('');
+      selOther.disabled = false; sendBtn.disabled = false;
+    }
+    selUser.addEventListener('change', populateOther); populateOther();
+    c.querySelector('#sw_cancel').onclick = closeMini;
+    c.querySelector('#sw_send').onclick = function(){
+      var fromTaskId = selMy.value, toUserId = selUser.value, toTaskId = selOther.value;
+      if(!fromTaskId || !toUserId || !toTaskId) return;
+      // Create request
+      var req = { id: (Math.random().toString(36).slice(2)), fromUserId: current.id, toUserId: toUserId, fromTaskId: fromTaskId, toTaskId: toTaskId, date: new Date().toISOString() };
+      State.data.swaps = State.data.swaps || []; State.data.swaps.push(req);
+      // Notify
+      function ttitle(tid){ var t=(State.data.catalog.tasks||[]).find(function(x){return x.id===tid;}); return t?t.title:tid; }
+      pushNotif(toUserId, current.name+' wants to swap "'+ttitle(fromTaskId)+'" for your "'+ttitle(toTaskId)+'"', [
+        {label:'Approve', action:{type:'swap_approve', id:req.id}},
+        {label:'Deny', action:{type:'swap_deny', id:req.id}}
+      ]);
+      pushNotif(current.id, 'Swap request sent: "'+ttitle(fromTaskId)+'" ↔ "'+ttitle(toTaskId)+'"', []);
+      State.save && State.save();
+      closeMini();
+    };
+    // Show
+    b.style.display='block'; m.style.display='flex';
+    // Close by clicking backdrop
+    b.onclick = closeMini;
+  }
+
+  // Intercept the broken Swap handler in capture phase, open our modal instead
+  function bindCapture(){
+    var btn = document.getElementById('swapBtn');
+    if(btn && !btn._miniBound){
+      btn.addEventListener('click', function(ev){
+        ev.preventDefault(); ev.stopImmediatePropagation();
+        // Close any stuck backdrops if present
+        try{ var mr=document.getElementById('modalRoot'); if(mr) mr.innerHTML=''; }catch(_){}
+        openMiniSwap();
+      }, true); // capture
+      btn._miniBound = true;
+    }
+  }
+
+  // Swap approval wrapper: only handle when our toTaskId exists, otherwise defer to original handler
+  (function(){
+    var orig = window.handleNotifAction;
+    window.handleNotifAction = function(type, id, notif){
+      try{
+        if((type==='swap_approve' || type==='swap_deny') && State && State.data){
+          State.data.swaps = State.data.swaps || [];
+          var req = State.data.swaps.find(function(s){ return s && s.id===id; });
+          if(req && req.toTaskId){
+            var fromUserId=req.fromUserId, toUserId=req.toUserId, fromTaskId=req.fromTaskId||req.taskId, toTaskId=req.toTaskId;
+            if(type==='swap_deny'){
+              pushNotif(fromUserId, (State.userById(toUserId).name)+' denied your swap request.', []);
+            }else{
+              var today = (typeof todayStrLocal==='function'? todayStrLocal() : new Date().toISOString().slice(0,10));
+              function findEntry(arr, tid){ for(var i=0;i<arr.length;i++){ var a=arr[i]; if(a.taskId===tid && a.date===today) return {i:i,a:a}; } return null; }
+              var A=(State.data.assignments.daily[fromUserId]||[]), B=(State.data.assignments.daily[toUserId]||[]);
+              var eA=findEntry(A, fromTaskId), eB=findEntry(B, toTaskId);
+              if(!eA || !eB){
+                pushNotif(fromUserId, 'Swap failed: one of the tasks is no longer available.', []);
+                pushNotif(toUserId, 'Swap failed: one of the tasks is no longer available.', []);
+              }else if(eA.a.completed || eB.a.completed){
+                pushNotif(fromUserId, 'Swap failed: one of the tasks is already completed.', []);
+                pushNotif(toUserId, 'Swap failed: one of the tasks is already completed.', []);
+              }else{
+                var aObj=A.splice(eA.i,1)[0], bObj=B.splice(eB.i,1)[0];
+                (State.data.assignments.daily[toUserId]=State.data.assignments.daily[toUserId]||[]).push({taskId:aObj.taskId, completed:aObj.completed, date:aObj.date});
+                (State.data.assignments.daily[fromUserId]=State.data.assignments.daily[fromUserId]||[]).push({taskId:bObj.taskId, completed:bObj.completed, date:bObj.date});
+                var title=function(tid){ var t=(State.data.catalog.tasks||[]).find(function(x){return x.id===tid;}); return t? t.title : tid; };
+                pushNotif(fromUserId, 'Swap approved: You now have "'+title(toTaskId)+'"', []);
+                pushNotif(toUserId,   'Swap approved: You now have "'+title(fromTaskId)+'"', []);
+              }
+            }
+            // cleanup
+            State.data.swaps = State.data.swaps.filter(function(s){ return s.id!==id; });
+            State.data.notifications = (State.data.notifications||[]).filter(function(n){ return n.id !== (notif && notif.id); });
+            State.save && State.save(); if(typeof renderDashboard==='function') renderDashboard();
+            return;
+          }
+        }
+      }catch(e){ /* fall through*/ }
+      if(typeof orig === 'function'){ return orig.apply(this, arguments); }
+    };
+  })();
+
+  window.addEventListener('load', bindCapture);
+  // If Swap button is dynamically re-rendered, try to bind again after any click
+  document.addEventListener('click', function(){ setTimeout(bindCapture, 0); }, true);
+})();
+</script>
+
+
+<style>
+/* Harmonize mini swap modal with site modal & accents */
+#swapMiniBackdrop{ display: none; } /* Will be toggled to flex by script */
+#swapMiniBackdrop.modal-backdrop{ backdrop-filter: blur(var(--blur,18px)) saturate(1.05); -webkit-backdrop-filter: blur(var(--blur,18px)) saturate(1.05); }
+#swapMiniCard{ background: var(--card) !important; border: 1px solid rgba(255,255,255,0.14) !important; border-radius: var(--radius,24px) !important; box-shadow: none !important; color: var(--on-surface,#e8e8ea) !important; }
+#swapMiniCard .title{ color: var(--on-surface,#e8e8ea) !important; }
+#swapMiniCard .btn.primary{ 
+  background: linear-gradient(135deg, rgba(var(--accent-rgb,107,134,255),0.28), rgba(var(--accent-rgb,107,134,255),0.18)) !important;
+  border-color: rgba(var(--accent-rgb,107,134,255),0.35) !important;
+}
+#swapMiniCard select{ background: rgba(255,255,255,0.06) !important; color: var(--on-surface,#e8e8ea) !important; border-color: rgba(255,255,255,0.14) !important; }
+</style>
+<script>
+// Make the standalone mini modal use .modal / .modal-backdrop styles and accent tint
+(function(){
+  function harmonizeMini(){
+    var back = document.getElementById('swapMiniBackdrop');
+    var wrap = document.getElementById('swapMiniModal');
+    var card = document.getElementById('swapMiniCard');
+    if(!back || !card) return;
+    // Use site classes
+    back.classList.add('modal-backdrop');
+    card.classList.add('modal');
+    // Ensure structure: .modal-backdrop centers .modal
+    if(card.parentElement !== back){
+      try{ back.appendChild(card); }catch(_){}
+    }
+    // Hide extra wrapper if present
+    if(wrap){ wrap.style.display='none'; }
+    // If previously shown, ensure backdrop uses flex to center
+    if(back.style.display==='block'){ back.style.display='flex'; }
+  }
+  // Run when swap is opened and on load
+  window.addEventListener('load', harmonizeMini);
+  document.addEventListener('click', function(e){
+    if(e && (e.target && e.target.id==='swapBtn' || /\bswap\b/i.test((e.target && e.target.textContent)||''))){
+      setTimeout(harmonizeMini, 0);
+    }
+  }, true);
+})();
+</script>
+
+
+<style>
+/* Swap mini modal: left-aligned contents to match site modals */
+#swapMiniCard { text-align: left !important; }
+#swapMiniCard .title { text-align: left !important; }
+#swapMiniCard .field { justify-content: flex-start !important; }
+#swapMiniCard label { text-align: left !important; }
+#swapMiniCard select { text-align: left !important; }
+#swapMiniCard .actions { justify-content: flex-end !important; }
+</style>
+
+
+<style>
+/* Force row layout & left-to-right labels like other modals */
+#swapMiniBackdrop.modal-backdrop { 
+  display: flex !important; 
+  align-items: center !important; 
+  justify-content: center !important; 
+}
+#swapMiniCard .field {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+#swapMiniCard label {
+  flex: 0 0 140px !important;
+  min-width: 140px !important;
+  text-align: left !important;
+}
+#swapMiniCard select {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  text-align: left !important;
+}
+#swapMiniCard .actions { justify-content: flex-end !important; }
+</style>
+
+
+<style>
+/* Display control driven by class (fix close): hidden by default */
+#swapMiniBackdrop.modal-backdrop { display: none !important; }
+#swapMiniBackdrop.modal-backdrop.open { display: flex !important; }
+</style>
+<script>
+// Ensure the mini modal opens/closes reliably with class toggles
+(function(){
+  // Add 'open' class right after clicking Swap so CSS shows the modal
+  document.addEventListener('click', function(e){
+    var t = e.target || {};
+    if(t.id==='swapBtn' || (/\bswap\b/i.test(t.textContent||''))){
+      setTimeout(function(){
+        var b = document.getElementById('swapMiniBackdrop');
+        if(b){ b.classList.add('open'); b.style.display=''; }
+      }, 0);
+    }
+  }, true);
+
+  // Close handlers for Cancel/Send (standalone ids)
+  document.addEventListener('click', function(e){
+    var id = (e.target && e.target.id) || '';
+    if(id==='sw_cancel' || id==='sw_send' || id==='sw_cancel_fb' || id==='sw_send_fb'){
+      var b = document.getElementById('swapMiniBackdrop');
+      var m = document.getElementById('swapMiniModal');
+      if(b){ b.classList.remove('open'); b.style.display='none'; }
+      if(m){ m.style.display='none'; }
+    }
+    // Clicking backdrop closes too
+    if(id==='swapMiniBackdrop'){
+      var b2 = document.getElementById('swapMiniBackdrop');
+      var m2 = document.getElementById('swapMiniModal');
+      if(b2){ b2.classList.remove('open'); b2.style.display='none'; }
+      if(m2){ m2.style.display='none'; }
+    }
+  }, true);
 })();
 </script>
 
